@@ -1,7 +1,7 @@
 # SmartAction.py
 from manim import *
-from SmartExpression import *
-from Utilities import *
+from expressions import *
+from utils import *
 """
 Okay I have some ideas about how to make a class that sits above the SmartExpressions.
 Without a mobject, they can be customized on how exactly they will transform

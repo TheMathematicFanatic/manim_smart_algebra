@@ -1,8 +1,7 @@
 # SmartExpression.py
 from manim import *
-from Utilities import *
+from utils import *
 import random
-import copy
 
 
 algebra_config = {
