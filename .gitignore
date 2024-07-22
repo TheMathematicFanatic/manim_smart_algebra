@@ -1,0 +1,7 @@
+# Ignore distribution folders
+dist/
+build/
+*.egg-info/
+
+# Ignore virtual environment folder
+venv/
