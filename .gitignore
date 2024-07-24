@@ -5,3 +5,9 @@ build/
 
 # Ignore virtual environment folder
 venv/
+
+# Ignore manim media folder
+media/
+
+# Ignore pycaches
+**/__pycache__/

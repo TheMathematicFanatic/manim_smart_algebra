@@ -33,3 +33,6 @@ t = SmartVariable("t")
 f = SmartFunction("f")
 g = SmartFunction("g")
 h = SmartFunction("h")
+
+e = SmartReal(np.e, "e")
+pi = SmartReal(np.pi, "\\pi")

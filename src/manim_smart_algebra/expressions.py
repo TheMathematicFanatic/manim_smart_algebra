@@ -442,12 +442,15 @@ class SmartRational(SmartNumber): #multiclassing SmartDiv is not worth the troub
 		return SmartDiv(self.a, self.b)
 
 class SmartReal(SmartNumber):
-	def __init__(self, x, **kwargs):
+	def __init__(self, x, symbol=None, **kwargs):
 		self.x = x
+		self.symbol = symbol
 		super().__init__(**kwargs)
 
 	@tex
-	def __str__(self, decimal_places=4, **kwargs):
+	def __str__(self, decimal_places=4, use_decimal=False, **kwargs):
+		if self.symbol and not use_decimal:
+			return self.symbol
 		rounded = round(self.x, decimal_places)
 		if rounded == self.x:
 			return str(rounded)
