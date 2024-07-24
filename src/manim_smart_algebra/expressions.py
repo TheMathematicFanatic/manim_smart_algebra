@@ -1,6 +1,6 @@
 # SmartExpression.py
 from manim import *
-from utils import *
+from .utils import *
 import random
 
 

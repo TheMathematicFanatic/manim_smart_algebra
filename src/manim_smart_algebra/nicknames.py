@@ -1,6 +1,4 @@
-from SmartExpression import *
-from SmartAction import *
-from Utilities import *
+from .expressions import *
 
 
 SmE = SmartExpression

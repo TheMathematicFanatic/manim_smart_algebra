@@ -1,6 +1,5 @@
 # Utilities.py
 from manim import *
-import copy
 
 
 def tex(func):
