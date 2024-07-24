@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "manim-smart-algebra"
-version = "0.3.0"
+version = "0.3.1"
 description = "Manim plugin which simplifies the process of animating algebra"
 authors = ["John Connell <johnconnelltutor@gmail.com>"]
 license = "MIT"
