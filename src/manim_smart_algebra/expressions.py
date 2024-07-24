@@ -483,6 +483,22 @@ class SmartVariable(SmartExpression):
 	def compute(self):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
 
+class SmartRelation(SmartExpression):
+	def __init__(self, symbol, *inputs, **kwargs):
+		self.symbol = symbol
+		self.children = list(map(Smarten,inputs))
+		super().__init__(**kwargs)
+
+	@tex
+	def __str__(self, spacing="", *args, **kwargs):
+		joiner = spacing + self.symbol + spacing
+		result = joiner.join([" { " + str(child) + " } " for child in self.children])
+		return result
+
+class SmartEquation(SmartRelation):
+	def __init__(self, *inputs, **kwargs):
+		super().__init__("=", *inputs, **kwargs)
+
 class SmartFunction(SmartExpression):
 	def __init__(self, symbol, *inputs, rule=None, algebra_rule=None, func_parentheses=True, **kwargs):
 		self.symbol = symbol #string
@@ -510,22 +526,6 @@ class SmartFunction(SmartExpression):
 	def compute(self, *args, **kwargs):
 		return self.rule.compute(*args, **kwargs)
 
-class SmartRelation(SmartExpression):
-	def __init__(self, symbol, *inputs, **kwargs):
-		self.symbol = symbol
-		self.children = list(map(Smarten,inputs))
-		super().__init__(**kwargs)
-
-	@tex
-	def __str__(self, spacing="", *args, **kwargs):
-		joiner = spacing + self.symbol + spacing
-		result = joiner.join([" { " + str(child) + " } " for child in self.children])
-		return result
-
-class SmartEquation(SmartRelation):
-	def __init__(self, *inputs, **kwargs):
-		super().__init__("=", *inputs, **kwargs)
-
 def Smarten(input):
 	if isinstance(input, SmartExpression):
 		return input
@@ -544,10 +544,8 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 			return SmartInteger(random.choice(leaves))
 		else:
 			return random_number_expression(leaves, max_depth - 1)
-
 	def generate_children(current_depth, number_of_children):
 		return [generate_child(current_depth) for _ in range(number_of_children)]
-
 	if node == SmartAdd or node == SmartMul:
 		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node))))
 	elif node == SmartNegative:
