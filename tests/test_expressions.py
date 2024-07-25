@@ -1,14 +1,13 @@
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.nicknames import *
 
-
-algebra_config = {
-		"auto_parentheses": True,
-		"multiplication_mode": "juxtapose",
-		"division_mode": "fraction",
-		"decimal_precision": 4
-	}
-
+"""
+Most of the important functions are in the SmartExpression class,
+but in order to make any reasonable SmartExpressions I first have
+to make sure that the leaves and nodes work. So first I will test
+most of its subclasses, then follow that up with testing each of the
+methods in the main class.
+"""
 
 def test_SmartVariable():
     assert x == x
@@ -57,5 +56,4 @@ def test_SmartNegative():
     assert str(neg_neg_eighteen) == "-\\left(-18\\right)"
     assert neg_x.is_negative()
 
-    
 
