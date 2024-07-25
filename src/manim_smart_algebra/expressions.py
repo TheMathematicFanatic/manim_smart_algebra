@@ -8,6 +8,7 @@ algebra_config = {
 		"auto_parentheses": True,
 		"multiplication_mode": "juxtapose",
 		"division_mode": "fraction",
+		"decimal_precision": 4
 	}
 
 
@@ -404,13 +405,15 @@ class SmartInteger(SmartNumber):
 
 	@staticmethod
 	def GCF(*smartnums):
+		smartnums = list(map(Smarten, smartnums))
 		nums = list(map(lambda N: N.n, smartnums))
-		return Smarten(np.gcd.reduce(nums))
+		return Smarten(int(np.gcd.reduce(nums)))
 
 	@staticmethod
 	def LCM(*smartnums):
+		smartnums = list(map(Smarten, smartnums))
 		nums = list(map(lambda N: N.n, smartnums))
-		return Smarten(np.lcm.reduce(nums))
+		return Smarten(int(np.lcm.reduce(nums)))
 
 	def prime_factorization(self):
 		...
@@ -455,7 +458,7 @@ class SmartReal(SmartNumber):
 		if rounded == self.x:
 			return str(rounded)
 		else:
-			return str(rounded) + r"\ldots"
+			return f"{self.x:.{decimal_places}f}" + r"\ldots"
 
 	def __float__(self):
 		return float(self.x)
