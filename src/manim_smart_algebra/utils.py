@@ -6,7 +6,7 @@ def tex(func):
 	def wrapper(expr, *args, **kwargs):
 		pretex = func(expr, *args, **kwargs)
 		if expr.parentheses:
-			pretex = r" \left( " + pretex + r" \right)"
+			pretex = r"\left(" + pretex + r"\right)"
 		return pretex
 	return wrapper
 

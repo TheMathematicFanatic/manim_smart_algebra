@@ -42,3 +42,20 @@ def test_SmartReal():
     assert gold2.is_negative()
     assert str(gold2) == "-0.6180\\ldots"
 
+def test_SmartNegative():
+    neg_four = -SmZ(4)
+    neg_fourteen = -SmZ(14)
+    neg_neg_eighteen = -SmZ(-18)
+    neg_x = -x
+    assert neg_four.is_negative()
+    assert str(neg_four) == "-4"
+    assert neg_fourteen.is_negative()
+    assert str(neg_fourteen) == "-14"
+    # -(-18) should count as a negative in the expression sense
+    assert neg_neg_eighteen.is_negative()
+    assert str(neg_x) == "-x"
+    assert str(neg_neg_eighteen) == "-\\left(-18\\right)"
+    assert neg_x.is_negative()
+
+    
+
