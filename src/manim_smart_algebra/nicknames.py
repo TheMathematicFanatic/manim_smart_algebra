@@ -20,6 +20,8 @@ b = SmartVariable("b")
 c = SmartVariable("c")
 d = SmartVariable("d")
 
+n = SmartVariable("n")
+
 t = SmartVariable("t")
 u = SmartVariable("u")
 v = SmartVariable("v")
