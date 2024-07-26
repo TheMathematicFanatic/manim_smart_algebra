@@ -271,7 +271,7 @@ class SmartOperation(SmartExpression):
 	@tex
 	def __str__(self, spacing="", *args, **kwargs):
 		joiner = spacing + self.op_string + spacing
-		result = joiner.join([" { " + str(child) + " } " for child in self.children])
+		result = joiner.join(["{" + str(child) + "}" for child in self.children])
 		return result
 
 	def get_parent_glyph_indices(self, address=""):
@@ -500,7 +500,7 @@ class SmartRelation(SmartExpression):
 	@tex
 	def __str__(self, spacing="", *args, **kwargs):
 		joiner = spacing + self.symbol + spacing
-		result = joiner.join([" { " + str(child) + " } " for child in self.children])
+		result = joiner.join(["{" + str(child) + "}" for child in self.children])
 		return result
 
 class SmartEquation(SmartRelation):
@@ -518,7 +518,7 @@ class SmartFunction(SmartExpression):
 
 	@tex
 	def __str__(self, **kwargs):
-		children_tex = ", ".join([" { " + str(child) + " } " for child in self.children])
+		children_tex = ", ".join(["{" + str(child) + "}" for child in self.children])
 		if self.func_parentheses:
 			return self.symbol + r"\!" + r"\left("*self.func_parentheses + children_tex + r"\right)"*self.func_parentheses
 		else:
