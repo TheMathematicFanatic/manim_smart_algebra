@@ -80,19 +80,19 @@ class SmartAction:
                 # Example: [Write, "10"]
                 target_out_glyphs = self.output_expression.get_vgroup_from_address(pre+entry[1], copy_if_in_list=active_out_glyphs)
                 anims.append(entry[0](target_out_glyphs, **kwargs))
-                active_out_glyphs += self.output_expression.get_glyph_indices_at_address(pre+entry[1], return_mode=list)
+                active_out_glyphs += self.output_expression.get_glyph_indices(pre+entry[1], return_mode=list)
             elif type(entry[1]) == type and issubclass(entry[1], Animation):
                 # Example: ["1", FadeOut, {"shift":DOWN}]
                 target_in_glyphs = self.input_expression.get_vgroup_from_address(pre+entry[0], copy_if_in_list=active_in_glyphs)
                 anims.append(entry[1](target_in_glyphs, **kwargs))
-                active_in_glyphs += self.input_expression.get_glyph_indices_at_address(pre+entry[0], return_mode=list)
+                active_in_glyphs += self.input_expression.get_glyph_indices(pre+entry[0], return_mode=list)
             else:
                 # Example: ["0", "02", {"path_arc":PI/2}]
                 target_in_glyphs = self.input_expression.get_vgroup_from_address(pre+entry[0], copy_if_in_list=active_in_glyphs)
                 target_out_glyphs = self.output_expression.get_vgroup_from_address(pre+entry[1], copy_if_in_list=active_out_glyphs)
                 anims.append(Transform(target_in_glyphs, target_out_glyphs, **kwargs))
-                active_in_glyphs += self.input_expression.get_glyph_indices_at_address(pre+entry[0], return_mode=list)
-                active_out_glyphs += self.output_expression.get_glyph_indices_at_address(pre+entry[1], return_mode=list)
+                active_in_glyphs += self.input_expression.get_glyph_indices(pre+entry[0], return_mode=list)
+                active_out_glyphs += self.output_expression.get_glyph_indices(pre+entry[1], return_mode=list)
 
         # Removing duplicates from active glyphs
         active_in_glyphs = list(set(active_in_glyphs))

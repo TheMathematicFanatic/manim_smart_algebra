@@ -8,7 +8,8 @@ algebra_config = {
 		"auto_parentheses": True,
 		"multiplication_mode": "juxtapose",
 		"division_mode": "fraction",
-		"decimal_precision": 4
+		"decimal_precision": 4,
+		"always_color": {}
 	}
 
 
@@ -20,6 +21,10 @@ class SmartExpression(MathTex):
 			self.auto_parentheses()
 		string = add_spaces_around_brackets(str(self))
 		super().__init__(string, **kwargs)
+		# if algebra_config["always_color"]:
+		# 	self.set_color_by_subex(algebra_config["always_color"])
+		# Does not work currently, causes infinite recursion for expressions with parentheses
+		# due to instantiating new expressions as part of .get_paren_length()
 
 	def __getitem__(self, key):
 		if isinstance(key, (int, slice)): # index of mobject glyphs
@@ -49,7 +54,7 @@ class SmartExpression(MathTex):
 	def get_vgroup_from_address(self, address, copy_if_in_list=[]):
 		return VGroup(*[
 			self[0][g].copy() if g in copy_if_in_list else self[0][g]
-			for g in self.get_glyph_indices_at_address(address, return_mode=list)
+			for g in self.get_glyph_indices(address, return_mode=list)
 		])
 
 	def is_identical_to(self, other):
@@ -67,7 +72,7 @@ class SmartExpression(MathTex):
 				addresses.append(ad)
 		return addresses
 
-	def get_glyph_indices_at_address(self, address, return_mode=slice):
+	def get_glyph_indices(self, address, return_mode=slice):
 		# Returns the slice or list of glyph indices corresponding to the subexpression at the given address
 		if len(address) > 0 and address[-1] == "_": # gives glyphs for operations.
 			return self.get_subex(address[:-1]).get_parent_glyph_indices()
@@ -75,7 +80,7 @@ class SmartExpression(MathTex):
 		parent = self
 		for n,a in enumerate(address):
 			parent = self.get_subex(address[:n])
-			paren_length = int(parent.parentheses) * parent.paren_length()
+			paren_length = int( parent.parentheses and parent.paren_length() )
 			if isinstance(parent, SmartOperation):
 				start += paren_length
 				for i in range(int(a)):
