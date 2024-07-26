@@ -15,24 +15,27 @@ SmVar = SmartVariable
 SmFunc = SmartFunction
 SmEq = SmartEquation
 
-x = SmartVariable("x")
-y = SmartVariable("y")
-z = SmartVariable("z")
 a = SmartVariable("a")
 b = SmartVariable("b")
 c = SmartVariable("c")
 d = SmartVariable("d")
-n = SmartVariable("n")
-m = SmartVariable("m")
-p = SmartVariable("p")
-q = SmartVariable("q")
-r = SmartVariable("r")
-s = SmartVariable("s")
+
 t = SmartVariable("t")
+u = SmartVariable("u")
+v = SmartVariable("v")
+
+x = SmartVariable("x")
+y = SmartVariable("y")
+z = SmartVariable("z")
+
+theta = SmartVariable("\\theta")
+
+e = SmartReal(np.e, "e")
+pi = SmartReal(np.pi, "\\pi")
+tau = SmartReal(np.pi*2, "\\tau")
 
 f = SmartFunction("f")
 g = SmartFunction("g")
 h = SmartFunction("h")
 
-e = SmartReal(np.e, "e")
-pi = SmartReal(np.pi, "\\pi")
+# i = SmartComplex(1j) ? Don't have this class currently
