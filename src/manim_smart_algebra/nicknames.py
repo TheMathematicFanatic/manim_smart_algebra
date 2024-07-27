@@ -22,6 +22,7 @@ d = SmartVariable("d")
 
 n = SmartVariable("n")
 
+r = SmartVariable("r")
 t = SmartVariable("t")
 u = SmartVariable("u")
 v = SmartVariable("v")

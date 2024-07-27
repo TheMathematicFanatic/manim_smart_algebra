@@ -24,7 +24,9 @@ class SmartExpression(MathTex):
 		# if algebra_config["always_color"]:
 		# 	self.set_color_by_subex(algebra_config["always_color"])
 		# Does not work currently, causes infinite recursion for expressions with parentheses
-		# due to instantiating new expressions as part of .get_paren_length()
+		# due to instantiating new expressions as part of .get_paren_length().
+		# Oh jeez it also runs on every single subexpression as the main expression is being constructed, very wasteful.
+		# Not sure the better way to do it, leaving this alone for now. 
 
 	def __getitem__(self, key):
 		if isinstance(key, (int, slice)): # index of mobject glyphs
@@ -184,8 +186,8 @@ class SmartExpression(MathTex):
 	def paren_length(self):
 		# Returns the number of glyphs taken up by the expression's potential parentheses.
 		# Usually 1 but can be larger for larger parentheses.
-		yes_paren = self.copy().give_parentheses(True)
-		no_paren = self.copy().give_parentheses(False)
+		yes_paren = SmartExpression.__init__(self.copy(), parentheses=True, color_dict = {})
+		no_paren = SmartExpression.__init__(self.copy(), parentheses=False, color_dict = {})
 		num_paren_glyphs = len(yes_paren) - len(no_paren)
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2

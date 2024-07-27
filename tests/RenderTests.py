@@ -26,5 +26,15 @@ class TestAlwaysColorConfig(Scene):
     def construct(self):
         algebra_config['always_color'] = {theta:GREEN, x:RED, y:BLUE, r:YELLOW}
 
-        P = (x**2 + y**2) * r**2
+        P = (x**2 + y**2) / r**2
         self.add(P)
+
+
+class Interactive(Scene):
+    def construct(self):
+        A = 3*x+5
+        self.interactive_embed()
+        Square().rotate()
+
+
+TestAlwaysColorConfig().render()
