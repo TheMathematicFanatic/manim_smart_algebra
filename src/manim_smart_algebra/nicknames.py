@@ -41,4 +41,11 @@ f = SmartFunction("f")
 g = SmartFunction("g")
 h = SmartFunction("h")
 
+sin = SmartFunction("\\sin", rule=np.sin)
+cos = SmartFunction("\\cos", rule=np.cos)
+tan = SmartFunction("\\tan", rule=np.tan)
+
+def log(base):
+    return SmartFunction(f"\\log_{base}", rule=lambda x: np.log(x)/np.log(base))
+
 # i = SmartComplex(1j) ? Don't have this class currently
