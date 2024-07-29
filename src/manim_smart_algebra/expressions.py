@@ -192,8 +192,8 @@ class SmartExpression(MathTex):
 	def paren_length(self):
 		# Returns the number of glyphs taken up by the expression's potential parentheses.
 		# Usually 1 but can be larger for larger parentheses.
-		yes_paren = SmartExpression.__init__(self.copy(), parentheses=True, color_dict = {})
-		no_paren = SmartExpression.__init__(self.copy(), parentheses=False, color_dict = {})
+		yes_paren = SmartExpression.__init__(self.copy(), parentheses=True)
+		no_paren = SmartExpression.__init__(self.copy(), parentheses=False)
 		num_paren_glyphs = len(yes_paren) - len(no_paren)
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2
