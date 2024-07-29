@@ -167,10 +167,10 @@ class SmartExpression(MathTex):
 	def __matmul__(self, expression_dict):
 		return self.substitute_expressions(expression_dict)
 
-	def __floordiv__(self):
+	def __and__(self):
 		return SmartEquation(self, other)
 	
-	def __rfloordiv__(self, other):
+	def __rand__(self, other):
 		return SmartEquation(other, self)
 
 	def is_negative(self):
