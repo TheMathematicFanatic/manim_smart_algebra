@@ -167,7 +167,7 @@ class SmartExpression(MathTex):
 	def __matmul__(self, expression_dict):
 		return self.substitute_expressions(expression_dict)
 
-	def __and__(self):
+	def __and__(self, other):
 		return SmartEquation(self, other)
 	
 	def __rand__(self, other):
@@ -250,7 +250,7 @@ class SmartExpression(MathTex):
 	# if they exist, should also be recolored or left alone.
 	def set_color_by_subex(self, subex_color_dict):
 		for subex, color in subex_color_dict.items():
-			for ad in self.get_addresses_of_subex(Smarten(subex)):
+			for ad in self.get_addresses_of_subex(subex):
 				self[ad].set_color(color)
 
 # Operation Classes
@@ -584,6 +584,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 			SmartFunction: lambda expr: expr.symbol,
 			SmartRelation: lambda expr: expr.symbol,
 			SmartReal: lambda expr: str(expr.x),
+			SmartEquation: lambda expr: "=",
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)
