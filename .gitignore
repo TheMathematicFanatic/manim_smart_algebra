@@ -9,5 +9,13 @@ venv/
 # Ignore manim media folder
 media/
 
+# Ignore demo for now
+demo/
+
+# Ignore manim slides
+slides/
+.manim-slides.toml
+
 # Ignore pycaches
 **/__pycache__/
+.pytest_cache/

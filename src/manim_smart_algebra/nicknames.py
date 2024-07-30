@@ -41,9 +41,9 @@ f = SmartFunction("f")
 g = SmartFunction("g")
 h = SmartFunction("h")
 
-sin = SmartFunction("\\sin", rule=np.sin)
-cos = SmartFunction("\\cos", rule=np.cos)
-tan = SmartFunction("\\tan", rule=np.tan)
+sin = SmartFunction("\\sin", rule=np.sin, func_parentheses=False)
+cos = SmartFunction("\\cos", rule=np.cos, func_parentheses=False)
+tan = SmartFunction("\\tan", rule=np.tan, func_parentheses=False)
 
 def log(base):
     return SmartFunction(f"\\log_{base}", rule=lambda x: np.log(x)/np.log(base))

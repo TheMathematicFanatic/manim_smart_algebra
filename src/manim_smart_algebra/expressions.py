@@ -95,7 +95,15 @@ class SmartExpression(MathTex):
 			elif isinstance(parent, SmartFunction):
 				start += paren_length
 				start += len(parent.symbol)
-				start += int(parent.func_parentheses)
+				start += int(parent.func_parentheses) # incorrectly assumes size 1 parens
+			elif isinstance(parent, SmartEquation):
+				# monkeypatch for 2-side equations, really SmartRelation should inherit from
+				# SmartOperation or at least have the same attribute name so it can share code here.
+				start += paren_length
+				for i in range(int(a)):
+					sibling = parent.children[i]
+					start += len(sibling)
+					start += 1
 			else:
 				raise ValueError(f"Something has gone wrong here. Parent: {type(parent)}, {parent}, address string: {address}, n: {n}, a: {a}.")
 		end = start + len(self.get_subex(address))
@@ -252,6 +260,7 @@ class SmartExpression(MathTex):
 		for subex, color in subex_color_dict.items():
 			for ad in self.get_addresses_of_subex(subex):
 				self[ad].set_color(color)
+		return self
 
 # Operation Classes
 class SmartNegative(SmartExpression):
@@ -534,13 +543,13 @@ class SmartFunction(SmartExpression):
 
 	def __call__(self, *inputs, **kwargs):
 		assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
-		return type(self)(self.symbol, *inputs, **kwargs)
+		return type(self)(self.symbol, *inputs, rule=self.rule, algebra_rule=self.algebra_rule, func_parentheses=self.func_parentheses, **kwargs)
 
 	def is_identical_to(self, other):
 		return type(self) == type(other) and self.symbol == other.symbol
 
-	def compute(self, *args, **kwargs):
-		return self.rule.compute(*args, **kwargs)
+	def compute(self, *args):
+		return self.rule(*args)
 
 def Smarten(input):
 	if isinstance(input, SmartExpression):
