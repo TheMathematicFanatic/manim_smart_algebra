@@ -1,4 +1,4 @@
-# Utilities.py
+# utils.py
 from manim import *
 
 

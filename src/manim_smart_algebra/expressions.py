@@ -1,4 +1,4 @@
-# SmartExpression.py
+# expressions.py
 from manim import *
 from .utils import *
 import random
