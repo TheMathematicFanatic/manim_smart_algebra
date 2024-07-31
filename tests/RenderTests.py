@@ -63,4 +63,15 @@ class PolarRectConversions(Scene):
         self.wait()
 
 
-PolarRectConversions().render()
+class NewActions(Scene):
+    def construct(self):
+        E = (x**2 + y**2) / r**2
+        self.add(E)
+        SC = SwapChildren(preaddress="01")
+        SC.input_expression = E
+        self.wait()
+        self.play(AnimationGroup(*SC.get_animations()))
+        self.wait()
+
+
+NewActions().render()

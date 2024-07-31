@@ -71,7 +71,7 @@ class SmartExpression(MathTex):
 				addresses.append(ad)
 		return addresses
 
-	def get_glyph_indices(self, address, return_mode=slice):
+	def get_glyph_indices(self, address, return_mode=list):
 		# Returns the slice or list of glyph indices corresponding to the subexpression at the given address
 		if len(address) > 0 and address[-1] == "_": # gives glyphs for operations.
 			return self.get_subex(address[:-1]).get_parent_glyph_indices()

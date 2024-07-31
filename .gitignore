@@ -19,3 +19,6 @@ slides/
 # Ignore pycaches
 **/__pycache__/
 .pytest_cache/
+
+# Ignore files marked as old
+/src/actions_old.py

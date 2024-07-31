@@ -11,24 +11,6 @@ def tex(func):
 	return wrapper
 
 
-def preaddress(func):
-	def wrapper(action, expr, *args, **kwargs):
-		address = action.address
-		#print("action:", action)
-		#print("expr:", expr)
-		#print("args:", args)
-		#print("address:", address)
-		#print("kwargs:", kwargs)
-		active_part = expr.copy().get_subex(address)
-		#print("active_part:", active_part)
-		result = func(action, active_part, *args, **kwargs)
-		#print("result:", result)
-		result_in_context = expr.substitute_at_address(result, address)
-		#print("result_in_context:", result_in_context)
-		return result_in_context
-	return wrapper
-
-
 def add_spaces_around_brackets(input_string): #GPT
 	result = []
 	i = 0
@@ -75,3 +57,5 @@ def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show
 			scene.add(subm_number)
 			scene.play(Indicate(subm, color=BLUE))
 			scene.remove(subm_number)
+
+
