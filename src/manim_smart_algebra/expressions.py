@@ -53,11 +53,8 @@ class SmartExpression(MathTex):
 		else:
 			raise IndexError(f"No subexpression of {self} at address {address_string} .")
 
-	def get_vgroup_from_address(self, address, copy_if_in_list=[]):
-		return VGroup(*[
-			self[0][g].copy() if g in copy_if_in_list else self[0][g]
-			for g in self.get_glyph_indices(address, return_mode=list)
-		])
+	def get_vgroup_from_address(self, address):
+		return VGroup(*[self[0][g] for g in self.get_glyph_indices(address, return_mode=list)])
 
 	def is_identical_to(self, other):
 		# Checks if they are equal as expressions. Implemented separately in leaves.
