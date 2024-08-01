@@ -103,10 +103,11 @@ class SmartAction:
             if len(entry) == 3:
                 glyphmap_entry.append(entry[2])
             glyphmap.append(glyphmap_entry)
-            if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
-                glyphmap.append([A.get_glyph_indices(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
-            elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
-                glyphmap.append([self.introducer, B.get_glyph_indices(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
+            if isinstance(entry[0], (str, list)) and isinstance(entry[1], (str, list)):
+                if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
+                    glyphmap.append([A.get_glyph_indices(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
+                elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
+                    glyphmap.append([self.introducer, B.get_glyph_indices(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
         self.glyphmap = glyphmap
         return glyphmap
     
