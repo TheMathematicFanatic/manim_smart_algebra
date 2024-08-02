@@ -295,7 +295,6 @@ class SmartOperation(SmartExpression):
 				indices.append()
 		return indices
 
-
 	def compute(self):
 		result = self.children[0].compute()
 		for child in self.children[1:]:
