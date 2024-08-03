@@ -1,7 +1,6 @@
 # expressions.py
 from manim import *
 from .utils import *
-import random
 
 
 algebra_config = {
@@ -259,41 +258,28 @@ class SmartExpression(MathTex):
 				self[ad].set_color(color)
 		return self
 
-# Operation Classes
-class SmartNegative(SmartExpression):
-	def __init__(self, child, **kwargs):
-		self.children = [Smarten(child)]
+class SmartCombiner(SmartExpression):
+	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
+		self.symbol = symbol
+		self.symbol_glyph_length = symbol_glyph_length
+		self.children = list(map(Smarten,children))
+		self.left_spacing = ""
+		self.right_spacing = ""
 		super().__init__(**kwargs)
-
+	
 	@tex
 	def __str__(self, *args, **kwargs):
-		return "-" + str(self.children[0])
-
-	def auto_parentheses(self):
-		if isinstance(self.children[0], (SmartAdd, SmartSub)) or self.children[0].is_negative():
-			self.children[0].give_parentheses()
-		self.children[0].auto_parentheses()
-
-	def is_negative(self):
-		return True
-
-class SmartOperation(SmartExpression):
-	def __init__(self, *children, **kwargs):
-		self.children = list(map(Smarten,children))
-		super().__init__(**kwargs)
-
-	@tex
-	def __str__(self, spacing="", *args, **kwargs):
-		joiner = spacing + self.op_string + spacing
+		joiner = self.left_spacing + self.symbol + self.right_spacing
 		result = joiner.join(["{" + str(child) + "}" for child in self.children])
 		return result
+	
+	def set_spacing(self, left_spacing, right_spacing):
+		self.left_spacing = left_spacing
+		self.right_spacing = right_spacing
 
-	def get_parent_glyph_indices(self, address=""):
-		indices = []
-		for i in range(len(self.children)):
-			for j in range(self.op_glyph_length):
-				indices.append()
-		return indices
+class SmartOperation(SmartCombiner):
+	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
+		super().__init__(symbol, symbol_glyph_length, *children, **kwargs)
 
 	def compute(self):
 		result = self.children[0].compute()
@@ -303,10 +289,8 @@ class SmartOperation(SmartExpression):
 
 class SmartAdd(SmartOperation):
 	def __init__(self, *children, **kwargs):
-		self.op_string = "+"
-		self.op_glyph_length = 1
 		self.eval_op = lambda x,y: x+y
-		super().__init__(*children, **kwargs)
+		super().__init__("+", 1, *children, **kwargs)
 
 	def auto_parentheses(self):
 		for child in self.children:
@@ -317,10 +301,8 @@ class SmartAdd(SmartOperation):
 
 class SmartSub(SmartOperation):
 	def __init__(self, *children, **kwargs):
-		self.op_string = "-"
-		self.op_glyph_length = 1
 		self.eval_op = lambda x,y: x-y
-		super().__init__(*children, **kwargs)
+		super().__init__("-", 1,*children, **kwargs)
 
 	def auto_parentheses(self):
 		self.children[0].auto_parentheses()
@@ -334,21 +316,16 @@ class SmartSub(SmartOperation):
 
 class SmartMul(SmartOperation):
 	def __init__(self, *children, mode=algebra_config["multiplication_mode"], **kwargs):
-		if mode=="dot":
-			self.op_string = r"\cdot"
-			self.op_glyph_length = 1
+		self.eval_op = lambda x,y: x*y
+		self.mode = mode
+		if mode == "dot":
+			super().__init__("\\cdot", 1, *children, **kwargs)
 		elif mode == "juxtapose":
-			if any([isinstance(child, SmartFunction) for child in children]):
-				self.op_string = r"\,"
-			else:
-				self.op_string = ""
-			self.op_glyph_length = 0
+			super().__init__("", 0, *children, **kwargs)
 		else:
 			raise ValueError("multiplication mode must be dot or juxtapose")
-		self.eval_op = lambda x,y: x*y
-		super().__init__(*children, **kwargs)
 
-	def auto_parentheses(self):
+	def auto_parentheses(self): # should be more intelligent based on mode
 		for child in self.children:
 			if isinstance(child, (SmartAdd, SmartSub)) or child.is_negative():
 				child.give_parentheses()
@@ -359,14 +336,12 @@ class SmartMul(SmartOperation):
 
 class SmartDiv(SmartOperation):
 	def __init__(self, *children, mode=algebra_config["division_mode"], **kwargs):
-		if mode == "fraction":
-			self.op_string = r"\over"
-			self.op_glyph_length = 1
-		elif mode == "inline":
-			self.op_string = r"\div"
-			self.op_glyph_length = 1
 		self.eval_op = lambda x,y: x/y
-		super().__init__(*children, **kwargs)
+		self.mode = mode
+		if mode == "fraction":
+			super().__init__("\\over", 1, *children, **kwargs)
+		elif mode == "inline":
+			super().__init__("\\div", 1, *children, **kwargs)
 
 	def auto_parentheses(self):
 		for child in self.children:
@@ -379,10 +354,8 @@ class SmartDiv(SmartOperation):
 
 class SmartPow(SmartOperation):
 	def __init__(self, *children, **kwargs):
-		self.op_string = "^"
-		self.op_glyph_length = 0
 		self.eval_op = lambda x,y: x**y
-		super().__init__(*children, **kwargs)
+		super().__init__("^", 0, *children, **kwargs)
 
 	def auto_parentheses(self):
 		assert len(self.children) == 2 #idc how to auto paren power towers
@@ -393,6 +366,23 @@ class SmartPow(SmartOperation):
 
 	def is_negative(self):
 		return False
+
+class SmartRelation(SmartCombiner):
+	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
+		super().__init__(symbol, symbol_glyph_length, *children, **kwargs)
+	
+	def compute(self):
+		return all([self.eval_op(self.children[i], self.children[i+1]) for i in range(len(self.children)-1)])
+
+class SmartEquation(SmartRelation):
+	def __init__(self, *children, **kwargs):
+		self.eval_op = lambda X,Y: X.exactly_equals(Y)
+		super().__init__("=", 1, *children, **kwargs)
+
+class SmartSequence(SmartCombiner):
+	def __init__(self, *children, generator=None, **kwargs):
+		self.generator = generator
+		super().__init__(",", 1, *children, **kwargs)
 
 # Number Classes
 class SmartNumber(SmartExpression):
@@ -409,7 +399,7 @@ class SmartInteger(SmartNumber):
 		super().__init__(**kwargs)
 
 	@tex
-	def __str__(self, *args, **kwargs):
+	def __str__(self):
 		return str(self.n)
 
 	def __float__(self):
@@ -447,7 +437,7 @@ class SmartRational(SmartNumber): #multiclassing SmartDiv is not worth the troub
 		super().__init__(**kwargs)
 
 	@tex
-	def __str__(self, **kwargs):
+	def __str__(self):
 		return "{" + str(self.a) + r" \over " + str(self.b) + "}"
 
 	def __float__(self):
@@ -469,7 +459,7 @@ class SmartReal(SmartNumber):
 		super().__init__(**kwargs)
 
 	@tex
-	def __str__(self, decimal_places=4, use_decimal=False, **kwargs):
+	def __str__(self, decimal_places=4, use_decimal=False):
 		if self.symbol and not use_decimal:
 			return self.symbol
 		rounded = round(self.x, decimal_places)
@@ -488,6 +478,23 @@ class SmartReal(SmartNumber):
 		return self.x < 0
 
 # Odds and Ends
+class SmartNegative(SmartExpression):
+	def __init__(self, child, **kwargs):
+		self.children = [Smarten(child)]
+		super().__init__(**kwargs)
+
+	@tex
+	def __str__(self):
+		return "-" + str(self.children[0])
+
+	def auto_parentheses(self):
+		if isinstance(self.children[0], (SmartAdd, SmartSub)) or self.children[0].is_negative():
+			self.children[0].give_parentheses()
+		self.children[0].auto_parentheses()
+
+	def is_negative(self):
+		return True
+
 class SmartVariable(SmartExpression):
 	def __init__(self, symbol, **kwargs):
 		self.symbol = symbol
@@ -495,7 +502,7 @@ class SmartVariable(SmartExpression):
 		super().__init__(**kwargs)
 
 	@tex
-	def __str__(self, **kwargs):
+	def __str__(self):
 		return self.symbol
 
 	def is_identical_to(self, other):
@@ -503,22 +510,6 @@ class SmartVariable(SmartExpression):
 
 	def compute(self):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
-
-class SmartRelation(SmartExpression):
-	def __init__(self, symbol, *inputs, **kwargs):
-		self.symbol = symbol
-		self.children = list(map(Smarten,inputs))
-		super().__init__(**kwargs)
-
-	@tex
-	def __str__(self, spacing="", *args, **kwargs):
-		joiner = spacing + self.symbol + spacing
-		result = joiner.join(["{" + str(child) + "}" for child in self.children])
-		return result
-
-class SmartEquation(SmartRelation):
-	def __init__(self, *inputs, **kwargs):
-		super().__init__("=", *inputs, **kwargs)
 
 class SmartFunction(SmartExpression):
 	def __init__(self, symbol, *inputs, rule=None, algebra_rule=None, func_parentheses=True, **kwargs):
@@ -530,7 +521,7 @@ class SmartFunction(SmartExpression):
 		super().__init__(**kwargs)
 
 	@tex
-	def __str__(self, **kwargs):
+	def __str__(self):
 		children_tex = ", ".join(["{" + str(child) + "}" for child in self.children])
 		if self.func_parentheses:
 			return self.symbol + r"\!" + r"\left("*self.func_parentheses + children_tex + r"\right)"*self.func_parentheses
@@ -547,6 +538,8 @@ class SmartFunction(SmartExpression):
 	def compute(self, *args):
 		return self.rule(*args)
 
+
+
 def Smarten(input):
 	if isinstance(input, SmartExpression):
 		return input
@@ -558,6 +551,7 @@ def Smarten(input):
 		raise NotImplementedError(f"Unsupported type {type(input)}")
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
+	import random
 	nodes = [SmartAdd, SmartSub, SmartMul, SmartPow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
