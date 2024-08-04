@@ -552,7 +552,7 @@ class SmartFunction(SmartExpression):
 		elif self.parentheses_mode in ["weak", "strong"]:
 			if len(child.children) > 1:
 				child.give_parentheses(True)
-			elif isinstance(child.children[0], [SmartAdd, SmartSub]):
+			elif isinstance(child.children[0], (SmartAdd, SmartSub)):
 				child.give_parentheses(True)
 			else:
 				if self.parentheses_mode == "strong":
@@ -612,6 +612,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 			SmartRelation: lambda expr: expr.symbol,
 			SmartReal: lambda expr: str(expr.x),
 			SmartEquation: lambda expr: "=",
+			SmartSequence: lambda expr: ","
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)

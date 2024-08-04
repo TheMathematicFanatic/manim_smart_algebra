@@ -22,12 +22,14 @@ class TestApplyAction(Scene):
         self.wait()
 
 
-class TestAlwaysColorConfig(Scene):
+class TestSubexColor(Scene):
     def construct(self):
-        algebra_config['always_color'] = {theta:GREEN, x:RED, y:BLUE, r:YELLOW}
+        color_dict = {theta:GREEN, x:RED, y:BLUE, r:YELLOW}
 
-        P = (x**2 + y**2) / r**2
+        P = (x**2 + y**2) & r**2
+        P.set_color_by_subex(color_dict)
         self.add(P)
+        self.wait()
 
 
 class Interactive(Scene):
@@ -48,6 +50,7 @@ class PolarRectConversions(Scene):
             sin(theta) & y/r,
             cos(theta) & x/r,
             tan(theta) & y/x,
+            f(x,y,theta)+3*r,
         )
         
         eqs_and_trees = VGroup(*[
@@ -56,11 +59,11 @@ class PolarRectConversions(Scene):
                 create_graph(eq)
             ).arrange(DOWN)
             for eq in eqs
-        ]).arrange(RIGHT, index_of_submobject_to_align=0)
-        # for eq in eqs:
-        #     eq.set_color_by_subex(color_dict)
-        self.add(eqs_and_trees)
-        self.wait()
+        ])
+        for eqt in eqs_and_trees:
+            self.add(eqt)
+            self.wait()
+            self.clear()
 
 
 class NewActions(Scene):
