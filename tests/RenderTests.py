@@ -78,6 +78,3 @@ class NewActions(Scene):
             self.wait()
             self.clear()
         self.wait()
-
-
-NewActions().render()

@@ -37,15 +37,17 @@ e = SmartReal(np.e, "e")
 pi = SmartReal(np.pi, "\\pi")
 tau = SmartReal(np.pi*2, "\\tau")
 
-f = SmartFunction("f")
-g = SmartFunction("g")
-h = SmartFunction("h")
+f = SmartFunction("f", 1)
+g = SmartFunction("g", 1)
+h = SmartFunction("h", 1)
 
-sin = SmartFunction("\\sin", rule=np.sin, func_parentheses=False)
-cos = SmartFunction("\\cos", rule=np.cos, func_parentheses=False)
-tan = SmartFunction("\\tan", rule=np.tan, func_parentheses=False)
+sin = SmartFunction("\\sin", 3, rule=np.sin, parentheses_mode="weak")
+cos = SmartFunction("\\cos", 3, rule=np.cos, parentheses_mode="weak")
+tan = SmartFunction("\\tan", 3, rule=np.tan, parentheses_mode="weak")
 
 def log(base):
-    return SmartFunction(f"\\log_{base}", rule=lambda x: np.log(x)/np.log(base))
+    return SmartFunction(f"\\log_{base}", 3+len(base),
+    rule=lambda x: np.log(x)/np.log(base),
+    parentheses_mode="weak")
 
 # i = SmartComplex(1j) ? Don't have this class currently

@@ -20,18 +20,12 @@ class SmartExpression(MathTex):
 			self.auto_parentheses()
 		string = add_spaces_around_brackets(str(self))
 		super().__init__(string, **kwargs)
-		# if algebra_config["always_color"]:
-		# 	self.set_color_by_subex(algebra_config["always_color"])
-		# Does not work currently, causes infinite recursion for expressions with parentheses
-		# due to instantiating new expressions as part of .get_paren_length().
-		# Oh jeez it also runs on every single subexpression as the main expression is being constructed, very wasteful.
-		# Not sure the better way to do it, leaving this alone for now. 
 
 	def __getitem__(self, key):
-		if isinstance(key, (int, slice)): # index of mobject glyphs
+		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
+			return VGroup(*[self[0][g] for g in self.get_glyph_indices(key)])
+		else: # preserve behavior of MathTex indexing
 			return super().__getitem__(key)
-		elif isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			return self.get_vgroup_from_address(key)
 
 	def get_all_addresses(self):
 		# Returns the addresses of all subexpressions
@@ -52,9 +46,6 @@ class SmartExpression(MathTex):
 		else:
 			raise IndexError(f"No subexpression of {self} at address {address_string} .")
 
-	def get_vgroup_from_address(self, address):
-		return VGroup(*[self[0][g] for g in self.get_glyph_indices(address, return_mode=list)])
-
 	def is_identical_to(self, other):
 		# Checks if they are equal as expressions. Implemented separately in leaves.
 		# NOT the same as __eq__ which is used by Manim to check if two mobjects are identical
@@ -70,53 +61,63 @@ class SmartExpression(MathTex):
 				addresses.append(ad)
 		return addresses
 
-	def get_glyph_indices(self, address, return_mode=list):
-		# Returns the slice or list of glyph indices corresponding to the subexpression at the given address
-		if len(address) > 0 and address[-1] == "_": # gives glyphs for operations.
-			return self.get_subex(address[:-1]).get_parent_glyph_indices()
-		start = 0
-		parent = self
-		for n,a in enumerate(address):
-			parent = self.get_subex(address[:n])
-			paren_length = int( parent.parentheses and parent.paren_length() )
-			if isinstance(parent, SmartOperation):
-				start += paren_length
-				for i in range(int(a)):
-					sibling = parent.children[i]
-					start += len(sibling)
-					start += parent.op_glyph_length
-			elif isinstance(parent, SmartNegative):
-				start += paren_length
-				start += 1
-			elif isinstance(parent, SmartFunction):
-				start += paren_length
-				start += len(parent.symbol)
-				start += int(parent.func_parentheses) # incorrectly assumes size 1 parens
-			elif isinstance(parent, SmartEquation):
-				# monkeypatch for 2-side equations, really SmartRelation should inherit from
-				# SmartOperation or at least have the same attribute name so it can share code here.
-				start += paren_length
-				for i in range(int(a)):
-					sibling = parent.children[i]
-					start += len(sibling)
+	def get_glyph_indices(self, psuedoaddress=""):
+		# Returns the list of glyph indices corresponding to the subexpression at the given address
+		# Can accept special characters at the end to get the parentheses or operation glyph at the given address
+		special_chars = "()_"
+		found_special_chars = [(i,c) for (i, c) in enumerate(psuedoaddress) if c in special_chars]
+
+		def pure_address_case(address):
+			start = 0
+			for n,a in enumerate(address):
+				parent = self.get_subex(address[:n])
+				if parent.parentheses:
+					start += parent.paren_length()
+				if isinstance(parent, SmartCombiner):
+					for i in range(int(a)):
+						sibling = parent.children[i]
+						start += len(sibling)
+						start += parent.symbol_glyph_length
+				elif isinstance(parent, SmartNegative):
 					start += 1
-			else:
-				raise ValueError(f"Something has gone wrong here. Parent: {type(parent)}, {parent}, address string: {address}, n: {n}, a: {a}.")
-		end = start + len(self.get_subex(address))
+				elif isinstance(parent, SmartFunction):
+					start += parent.symbol_glyph_length
+				else:
+					raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
+			end = start + len(self.get_subex(address))
+			return start, end
+		
+		if len(found_special_chars) == 0:
+			start, end = pure_address_case(psuedoaddress)
+			glyphs = range(start, end)
+			return list(glyphs)
 
-		if return_mode == slice:
-			return slice(start, end)
-		elif return_mode == list:
-			return list(range(start, end))
-		else:
-			raise ValueError(f"Invalid return_mode: {return_mode}. Must be slice or list.")
-
-	def get_parent_glyphs(self, address=""):
-		return self[0][self.get_parent_glyph_index(address=address)]
-
-	def get_parent_glyph_index(self, address=""):
-		pass #define in subclasses
-
+		glyphs = set()
+		base_address = psuedoaddress[:found_special_chars[0][0]]
+		subex = self.get_subex(base_address)
+		start, end = pure_address_case(base_address)
+		for i,c in found_special_chars:
+			if c == "(" and subex.parentheses:
+				glyphs.update(range(start, start+self.paren_length()))
+			if c == ")" and subex.parentheses:
+				glyphs.update(range(end-self.paren_length(), end))
+			if c == "_":
+				if isinstance(subex, SmartCombiner):
+					for child_index in range(1, len(subex.children)):
+						start, end = pure_address_case(base_address+str(child_index))
+						glyphs.update(range(start-subex.symbol_glyph_length, start))
+				if isinstance(subex, SmartNegative):
+					if subex.parentheses:
+						start += subex.paren_length()
+					glyphs.update(range(start, start+1))
+				if isinstance(subex, SmartFunction):
+					raise NotImplementedError
+		if found_special_chars[-1][0] < len(psuedoaddress)-1:
+			extended_address = base_address + psuedoaddress[found_special_chars[-1][0]+1:]
+			start, end = pure_address_case(extended_address)
+			glyphs.update(range(start, end))
+		return list(glyphs)
+		
 	def __len__(self):
 		return len(self.submobjects[0].submobjects)
 
@@ -196,8 +197,8 @@ class SmartExpression(MathTex):
 	def paren_length(self):
 		# Returns the number of glyphs taken up by the expression's potential parentheses.
 		# Usually 1 but can be larger for larger parentheses.
-		yes_paren = SmartExpression.__init__(self.copy(), parentheses=True)
-		no_paren = SmartExpression.__init__(self.copy(), parentheses=False)
+		yes_paren = self.copy().give_parentheses(True)
+		no_paren = self.copy().give_parentheses(False)
 		num_paren_glyphs = len(yes_paren) - len(no_paren)
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2
@@ -249,13 +250,13 @@ class SmartExpression(MathTex):
 		for from_subex, to_subex in expression_dict.items():
 			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(from_subex))
 		return result
-	
-	# to do: add argument include_parentheses to determine whether the parentheses around the subexpressions,
-	# if they exist, should also be recolored or left alone.
+
 	def set_color_by_subex(self, subex_color_dict):
 		for subex, color in subex_color_dict.items():
 			for ad in self.get_addresses_of_subex(subex):
 				self[ad].set_color(color)
+				if self.get_subex(ad).parentheses and not subex.parentheses:
+					self[ad+"()"].set_color(self.color)
 		return self
 
 class SmartCombiner(SmartExpression):
@@ -379,10 +380,18 @@ class SmartEquation(SmartRelation):
 		self.eval_op = lambda X,Y: X.exactly_equals(Y)
 		super().__init__("=", 1, *children, **kwargs)
 
+	def auto_parentheses(self):
+		for child in self.children:
+			child.auto_parentheses()
+
 class SmartSequence(SmartCombiner):
 	def __init__(self, *children, generator=None, **kwargs):
 		self.generator = generator
 		super().__init__(",", 1, *children, **kwargs)
+	
+	def auto_parentheses(self):
+		for child in self.children:
+			child.auto_parentheses()
 
 # Number Classes
 class SmartNumber(SmartExpression):
@@ -512,29 +521,48 @@ class SmartVariable(SmartExpression):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
 
 class SmartFunction(SmartExpression):
-	def __init__(self, symbol, *inputs, rule=None, algebra_rule=None, func_parentheses=True, **kwargs):
+	def __init__(self, symbol, symbol_glyph_length, rule=None, algebra_rule=None, parentheses_mode="always", **kwargs):
 		self.symbol = symbol #string
-		self.rule = rule #lambda function
-		self.algebra_rule = algebra_rule #SmEq version of rule?
-		self.children = list(map(Smarten,inputs))
-		self.func_parentheses = func_parentheses
+		self.symbol_glyph_length = symbol_glyph_length #int
+		self.rule = rule #callable
+		self.children = [] # may be given one child, a sequence which could have multiple children
+		self.algebra_rule = algebra_rule #SmE version of rule?
+		self.parentheses_mode = parentheses_mode
+		self.spacing = ""
 		super().__init__(**kwargs)
 
 	@tex
 	def __str__(self):
-		children_tex = ", ".join(["{" + str(child) + "}" for child in self.children])
-		if self.func_parentheses:
-			return self.symbol + r"\!" + r"\left("*self.func_parentheses + children_tex + r"\right)"*self.func_parentheses
-		else:
-			return self.symbol + children_tex
+		return self.symbol + self.spacing + (str(self.children[0]) if len(self.children) > 0 else "")
 
 	def __call__(self, *inputs, **kwargs):
 		assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
-		return type(self)(self.symbol, *inputs, rule=self.rule, algebra_rule=self.algebra_rule, func_parentheses=self.func_parentheses, **kwargs)
-
-	def is_identical_to(self, other):
-		return type(self) == type(other) and self.symbol == other.symbol
-
+		self.children = [SmartSequence(*list(map(Smarten, inputs)), **kwargs)]
+		return self
+	
+	def set_spacing(self, spacing):
+		self.spacing = spacing
+	
+	def auto_parentheses(self):
+		if len(self.children) == 0:
+			return
+		child = self.children[0] #sequence
+		if self.parentheses_mode == "always":
+			child.give_parentheses(True)
+		elif self.parentheses_mode in ["weak", "strong"]:
+			if len(child.children) > 1:
+				child.give_parentheses(True)
+			elif isinstance(child.children[0], [SmartAdd, SmartSub]):
+				child.give_parentheses(True)
+			else:
+				if self.parentheses_mode == "strong":
+					if isinstance(child.children[0], SmartOperation):
+						child.give_parentheses(True)
+		elif self.parentheses_mode == "never":
+			child.give_parentheses(False)
+		else:
+			raise ValueError(f"Unsupported parentheses mode {self.parentheses_mode}.")
+		
 	def compute(self, *args):
 		return self.rule(*args)
 

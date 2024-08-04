@@ -1,6 +1,3 @@
-from manim_smart_algebra.expressions import *
-from manim_smart_algebra.nicknames import *
-
 """
 Most of the important functions are in the SmartExpression class,
 but in order to make any reasonable SmartExpressions I first have
@@ -60,10 +57,39 @@ def test_SmartNegative():
 
 
 def test_get_glyph_indices():
-    A = (x+y)**2-(-4)
-    assert A.get_glyph_indices("") == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    A = (x+y)**2-(-x)
+    assert A.get_glyph_indices("") == [0,1,2,3,4,5,6,7,8,9,10]
     assert A.get_glyph_indices("0") == [0,1,2,3,4,5]
     assert A.get_glyph_indices("1") == [7,8,9,10]
     assert A.get_glyph_indices("_") == [6]
+    assert A.get_glyph_indices("(") == []
+    assert A.get_glyph_indices(")") == []
+    assert A.get_glyph_indices("(_)") == [6]
+    assert A.get_glyph_indices("(_())") == [6]
+    assert A.get_glyph_indices("0()") == []
+    assert A.get_glyph_indices("0_") == []
+    assert A.get_glyph_indices("00()") == [0,4]
+    assert A.get_glyph_indices("00_") == [2]
+    assert A.get_glyph_indices("00(_") == [0,2]
+    assert A.get_glyph_indices("000") == [1]
+    assert A.get_glyph_indices("1(") == [7]
+    assert A.get_glyph_indices("1)") == [10]
+    assert A.get_glyph_indices("1_") == [8]
+    assert A.get_glyph_indices("10") == [9]
+    assert A.get_glyph_indices("1_0") == [8,9]
+    assert A.get_glyph_indices("1_)0") == [8,9,10]
+    assert A.get_glyph_indices("10()") == []
+
+
+
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+from manim import *
+from manim_smart_algebra.expressions import *
+from manim_smart_algebra.actions import *
+from manim_smart_algebra.nicknames import *
+test_get_glyph_indices()
+
 
 
