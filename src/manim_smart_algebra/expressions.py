@@ -542,6 +542,7 @@ class SmartFunction(SmartExpression):
 	
 	def set_spacing(self, spacing):
 		self.spacing = spacing
+		return self
 	
 	def auto_parentheses(self):
 		if len(self.children) == 0:
