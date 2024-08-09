@@ -66,14 +66,14 @@ class PolarRectConversions(Scene):
             self.clear()
 
 
-class NewActions(Scene):
+class NewSwapChildren(Scene):
     def construct(self):
         E = a/b+(c-4)/d**2
         preads = {ad[:-1] for ad in E.get_all_addresses()}
         print(preads)
         for ad in preads:
             E_ = E.copy()
-            SC = SwapChildren(preaddress=ad)
+            SC = swap_children_(preaddress=ad)
             SC.input_expression = E_
             self.add(E_)
             self.wait()
@@ -81,3 +81,26 @@ class NewActions(Scene):
             self.wait()
             self.clear()
         self.wait()
+
+
+class NewApplyOperation(Scene):
+    def construct(self):
+        A = x+2
+        self.add(A)
+        act = sub_(3+y, side="left")
+        act.input_expression = A
+        self.wait()
+        self.play(AnimationGroup(*act.get_animations()))
+        self.wait()
+
+
+class AnimAutoParen(Scene):
+    def construct(self):
+        A = -a - -b
+        self.add(A)
+        act = swap_children_()
+        act.input_expression = A
+        self.wait()
+        self.play(AnimationGroup(*act.get_animations()))
+        self.wait()
+

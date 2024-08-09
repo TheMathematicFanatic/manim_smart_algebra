@@ -139,12 +139,12 @@ class SmartAction:
                 )
                 active_in_glyphs.update(entry[0])
                 active_out_glyphs.update(entry[1])
-            elif isinstance(entry[0], list) and isinstance(entry[1], Animation):
+            elif isinstance(entry[0], list) and issubclass(entry[1], Animation):
                 animations.append(
                     entry[1](A_vgroup(entry[0]), **anim_kwargs)
                 )
                 active_in_glyphs.update(entry[0])
-            elif isinstance(entry[0], Animation) and isinstance(entry[1], list):
+            elif issubclass(entry[0], Animation) and isinstance(entry[1], list):
                 animations.append(
                     entry[0](B_vgroup(entry[1]), **anim_kwargs)
                 )
@@ -196,7 +196,7 @@ def preaddressmap(getmap):
 
 
 
-class SwapChildren(SmartAction):
+class swap_children_(SmartAction):
     def __init__(self, mode="arc", arc_size=0.75*PI, **kwargs):
         self.mode = mode
         self.arc_size = arc_size
@@ -214,4 +214,57 @@ class SwapChildren(SmartAction):
             ["1", "0", {"path_arc": self.arc_size}]
         ]
 
+
+class apply_operation_(SmartAction):
+    def __init__(self, OpClass, other, side="right", introducer=Write, **kwargs):
+        self.OpClass = OpClass
+        self.other = Smarten(other)
+        self.introducer = introducer
+        self.side = side
+        super().__init__(**kwargs)
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        if self.side == "right":
+            output_expression = self.OpClass(input_expression, self.other)
+        elif self.side == "left":
+            output_expression = self.OpClass(self.other, input_expression)
+        else:
+            raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
+        return output_expression
+
+    @preaddressmap
+    def get_addressmap(self):
+        if self.side == "right":
+            return [
+                 ["", "0"],
+                 [self.introducer, "_1", {"rate_func":rate_functions.rush_into}]
+            ]
+        elif self.side == "left":
+            return [
+                 ["", "1"],
+                 [self.introducer, "_0", {"rate_func":rate_functions.rush_into}]
+            ]
+        else:
+            raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
+
+class add_(apply_operation_):
+    def __init__(self, other, introducer=Write, **kwargs):
+        super().__init__(SmartAdd, other, introducer=introducer, **kwargs)
+
+class sub_(apply_operation_):
+    def __init__(self, other, introducer=Write, **kwargs):
+        super().__init__(SmartSub, other, introducer=introducer, **kwargs)
+
+class mul_(apply_operation_):
+    def __init__(self, other, introducer=Write, **kwargs):
+        super().__init__(SmartMul, other, introducer=introducer, **kwargs)
+
+class div_(apply_operation_):
+    def __init__(self, other, introducer=Write, **kwargs):
+        super().__init__(SmartDiv, other, introducer=introducer, **kwargs)
+
+class pow_(apply_operation_):
+    def __init__(self, other, introducer=Write, **kwargs):
+        super().__init__(SmartPow, other, introducer=introducer, **kwargs)
 

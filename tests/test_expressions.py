@@ -79,7 +79,7 @@ def test_get_glyph_indices():
     assert A.get_glyph_indices("1_0") == [8,9]
     assert A.get_glyph_indices("1_)0") == [8,9,10]
     assert A.get_glyph_indices("10()") == []
-
+    # This is not really done but it'll work for now.
 
 
 import sys
