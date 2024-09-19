@@ -23,3 +23,14 @@ Refactor SmartRational to be only a subclass of SmartDivision and not SmartNumbe
 
 This is sensible because 5/3 is no more a number than 5^3 or 5+3, and this way
 it can share all code with SmartDivision and still get its own methods like reduce.
+
+
+
+
+
+Refactor SmartFunction to simply have a single child which is a SmartSequence,
+the SmartCombiner with a symbol of a comma, which can have all of the arguments
+as children.
+
+This is sensible because now its parentheses are accessible as simply the parentheses of
+its child, and do not need separate code.
