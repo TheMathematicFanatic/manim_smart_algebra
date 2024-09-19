@@ -61,6 +61,61 @@ class SmartExpression(MathTex):
 				addresses.append(ad)
 		return addresses
 
+	def get_glyphs_at_address(self, address):
+		start = 0
+		for n,a in enumerate(address):
+			parent = self.get_subex(address[:n])
+			if parent.parentheses:
+				start += parent.paren_length()
+			if isinstance(parent, SmartCombiner):
+				for i in range(int(a)):
+					sibling = parent.children[i]
+					start += len(sibling)
+					start += parent.symbol_glyph_length
+			elif isinstance(parent, SmartNegative):
+				start += 1
+			elif isinstance(parent, SmartFunction):
+				start += parent.symbol_glyph_length
+			else:
+				raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
+		end = start + len(self.get_subex(address))
+		return list(range(start, end))
+
+	def get_left_paren_glyphs(self, address):
+		subex = self.get_subex(address)
+		if not subex.parentheses:
+			return []
+		subex_glyphs = self.get_glyphs_at_address(address)
+		start = subex_glyphs[0]
+		end = start + subex.paren_length()
+		return list(range(start, end))
+
+	def get_right_paren_glyphs(self, address):
+		subex = self.get_subex(address)
+		if not subex.parentheses:
+			return []
+		subex_glyphs = self.get_glyphs_at_address(address)
+		end = subex_glyphs[-1]
+		start = end - subex.paren_length()
+		return list(range(start+1, end+1))
+	
+	def get_exp_glyphs_without_parentheses(self, address):
+		all_exp_glyphs = self.get_glyphs_at_address(address)
+		subex = self.get_subex(address)
+		if not subex.parentheses:
+			return all_exp_glyphs
+		else:
+			paren_length = subex.paren_length()
+			return all_exp_glyphs[paren_length:-paren_length]
+	
+	def get_op_glyphs(self, address):
+		...
+		
+		
+
+
+
+
 	def get_glyph_indices(self, psuedoaddress=""):
 		# Returns the list of glyph indices corresponding to the subexpression at the given address
 		# Can accept special characters at the end to get the parentheses or operation glyph at the given address
