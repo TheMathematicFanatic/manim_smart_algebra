@@ -1,0 +1,25 @@
+
+
+Refactor get_glyphs_indices_at_address into several methods
+- get_glyphs_at_address
+- get_left_paren_glyphs
+- get_right_paren_glyphs
+- get_op_glyphs
+- get_exp_glyphs_without_parentheses
+
+Then make get_glyphs which can accept a pseudoaddress: an address which
+may contain some special characters ( ) * _ which will trigger one or more
+of the above methods.
+
+This is sensible because it will allow these pseudoaddresses to be used in
+the addressmap of SmartActions, making it easy to tell actions what to do
+with parentheses and such, when you want.
+
+
+
+
+
+Refactor SmartRational to be only a subclass of SmartDivision and not SmartNumber.
+
+This is sensible because 5/3 is no more a number than 5^3 or 5+3, and this way
+it can share all code with SmartDivision and still get its own methods like reduce.
