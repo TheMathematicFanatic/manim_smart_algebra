@@ -524,32 +524,6 @@ class SmartInteger(SmartNumber):
 	def prime_factorization(self):
 		...
 
-class SmartRational(SmartNumber): #multiclassing SmartDiv is not worth the trouble
-	def __init__(self, a, b, **kwargs):
-		for n in [a, b]:
-			if not isinstance(n, (SmartInteger, int)):
-				raise TypeError (f"Unsupported type {type(n)}")
-		self.a = Smarten(a)
-		self.b = Smarten(b)
-		self.children = [self.a, self.b]
-		super().__init__(**kwargs)
-
-	@tex
-	def __str__(self):
-		return "{" + str(self.a) + r" \over " + str(self.b) + "}"
-
-	def __float__(self):
-		return float(self.a) / float(self.b)
-
-	def is_identical_to(self, other):
-		return type(self) == type(other) and self.a.is_identical_to(other.a) and self.b.is_identical_to(other.b)
-
-	def is_negative(self):
-		return self.a.is_negative() or self.b.is_negative()
-
-	def convert_to_smartdiv(self):
-		return SmartDiv(self.a, self.b)
-
 class SmartReal(SmartNumber):
 	def __init__(self, x, symbol=None, **kwargs):
 		self.x = x
@@ -574,6 +548,17 @@ class SmartReal(SmartNumber):
 
 	def is_negative(self):
 		return self.x < 0
+
+class SmartRational(SmartDiv): # Better to subclass SmartDiv than SmartNumber because 5/3 is no more a number than 5^3 or 5+3
+	def __init__(self, a, b, **kwargs):
+		if not isinstance(a, (SmartInteger, int)):
+			raise TypeError (f"Unsupported numerator type {type(a)}: {a}")
+		if not isinstance(b, (SmartInteger, int)):
+			raise TypeError (f"Unsupported denominator type {type(b)}: {b}")
+		super().__init__(a, b, **kwargs)
+
+	def simplify(self):
+		pass #idk will make later
 
 # Odds and Ends
 class SmartNegative(SmartExpression):
