@@ -1,5 +1,5 @@
 
-
+~~~ Done!
 Refactor get_glyphs_indices_at_address into several methods
 - get_glyphs_at_address
 - get_left_paren_glyphs
@@ -14,6 +14,7 @@ of the above methods.
 This is sensible because it will allow these pseudoaddresses to be used in
 the addressmap of SmartActions, making it easy to tell actions what to do
 with parentheses and such, when you want.
+~~~ Done!
 
 
 
