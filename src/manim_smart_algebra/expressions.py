@@ -143,69 +143,6 @@ class SmartExpression(MathTex):
 				elif c in "+-*/^":
 					results += self.get_op_glyphs(address)
 			return sorted(set(results))
-	
-		
-		
-
-
-
-
-	# def get_glyph_indices(self, psuedoaddress=""):
-	# 	# Returns the list of glyph indices corresponding to the subexpression at the given address
-	# 	# Can accept special characters at the end to get the parentheses or operation glyph at the given address
-	# 	special_chars = "()_"
-	# 	found_special_chars = [(i,c) for (i, c) in enumerate(psuedoaddress) if c in special_chars]
-
-	# 	def pure_address_case(address):
-	# 		start = 0
-	# 		for n,a in enumerate(address):
-	# 			parent = self.get_subex(address[:n])
-	# 			if parent.parentheses:
-	# 				start += parent.paren_length()
-	# 			if isinstance(parent, SmartCombiner):
-	# 				for i in range(int(a)):
-	# 					sibling = parent.children[i]
-	# 					start += len(sibling)
-	# 					start += parent.symbol_glyph_length
-	# 			elif isinstance(parent, SmartNegative):
-	# 				start += 1
-	# 			elif isinstance(parent, SmartFunction):
-	# 				start += parent.symbol_glyph_length
-	# 			else:
-	# 				raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
-	# 		end = start + len(self.get_subex(address))
-	# 		return start, end
-		
-	# 	if len(found_special_chars) == 0:
-	# 		start, end = pure_address_case(psuedoaddress)
-	# 		glyphs = range(start, end)
-	# 		return list(glyphs)
-
-	# 	glyphs = set()
-	# 	base_address = psuedoaddress[:found_special_chars[0][0]]
-	# 	subex = self.get_subex(base_address)
-	# 	start, end = pure_address_case(base_address)
-	# 	for i,c in found_special_chars:
-	# 		if c == "(" and subex.parentheses:
-	# 			glyphs.update(range(start, start+self.paren_length()))
-	# 		if c == ")" and subex.parentheses:
-	# 			glyphs.update(range(end-self.paren_length(), end))
-	# 		if c == "_":
-	# 			if isinstance(subex, SmartCombiner):
-	# 				for child_index in range(1, len(subex.children)):
-	# 					start, end = pure_address_case(base_address+str(child_index))
-	# 					glyphs.update(range(start-subex.symbol_glyph_length, start))
-	# 			if isinstance(subex, SmartNegative):
-	# 				if subex.parentheses:
-	# 					start += subex.paren_length()
-	# 				glyphs.update(range(start, start+1))
-	# 			if isinstance(subex, SmartFunction):
-	# 				raise NotImplementedError
-	# 	if found_special_chars[-1][0] < len(psuedoaddress)-1:
-	# 		extended_address = base_address + psuedoaddress[found_special_chars[-1][0]+1:]
-	# 		start, end = pure_address_case(extended_address)
-	# 		glyphs.update(range(start, end))
-	# 	return list(glyphs)
 
 	def __len__(self):
 		return len(self.submobjects[0].submobjects)
@@ -551,7 +488,9 @@ class SmartReal(SmartNumber):
 	def is_negative(self):
 		return self.x < 0
 
-class SmartRational(SmartDiv): # Better to subclass SmartDiv than SmartNumber because 5/3 is no more a number than 5^3 or 5+3
+class SmartRational(SmartDiv):
+	# Better to subclass SmartDiv than SmartNumber because 5/3 is no more a number than 5^3 or 5+3
+	# Multiclassing is an option but seems to be more trouble than it's worth
 	def __init__(self, a, b, **kwargs):
 		if not isinstance(a, (SmartInteger, int)):
 			raise TypeError (f"Unsupported numerator type {type(a)}: {a}")
@@ -612,9 +551,10 @@ class SmartFunction(SmartExpression):
 		return self.symbol + self.spacing + (str(self.children[0]) if len(self.children) > 0 else "")
 
 	def __call__(self, *inputs, **kwargs):
-		assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
-		self.children = [SmartSequence(*list(map(Smarten, inputs)), **kwargs)]
-		return self
+		#assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
+		new_func = SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode, **kwargs)
+		new_func.children = [SmartSequence(*list(map(Smarten, inputs)), **kwargs)]
+		return new_func
 	
 	def set_spacing(self, spacing):
 		self.spacing = spacing
