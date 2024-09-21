@@ -142,7 +142,7 @@ class SmartExpression(MathTex):
 					results += self.get_exp_glyphs_without_parentheses(address)
 				elif c in "+-*/^":
 					results += self.get_op_glyphs(address)
-			return results
+			return sorted(set(results))
 	
 		
 		
