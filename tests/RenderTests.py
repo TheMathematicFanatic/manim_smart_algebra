@@ -123,3 +123,18 @@ class MultiChildren(Scene):
         self.add(S.scale(2))
         self.add(index_labels(S[0], color=RED))
         self.wait()
+
+
+class TestCombiners(Scene):
+    def construct(self):
+        algebra_config["division_mode"] = "inline"
+        algebra_config["multiplication_mode"] = "times" # This does not work :(
+        self.add(VGroup(
+            SmartAdd(1,2,3,4,5),
+            SmartSub(1,2,3,4,5),
+            SmartMul(1,2,3,4,5, mode="times"),
+            SmartDiv(1,2,3,4,5, mode="inline"),
+            #SmartPow(1,2,3,4,5),
+            SmartSequence(1,2,3,4,5),
+            SmartEquation(1,2,3,4,5)
+        ).arrange(DOWN))
