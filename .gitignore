@@ -20,5 +20,8 @@ slides/
 **/__pycache__/
 .pytest_cache/
 
+# Ignore pytest prof folder
+prof/
+
 # Ignore files marked as old
 /src/actions_old.py
