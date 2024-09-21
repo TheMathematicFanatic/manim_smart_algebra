@@ -639,7 +639,10 @@ class SmartFunction(SmartExpression):
 			raise ValueError(f"Unsupported parentheses mode {self.parentheses_mode}.")
 		
 	def compute(self, *args):
-		return self.rule(*args)
+		if len(args) == 0:
+			return self.rule(*map(lambda exp: exp.compute(), self.children[0].children))
+		else:
+			return self.rule(*args)
 
 
 

@@ -29,10 +29,17 @@ it can share all code with SmartDivision and still get its own methods like redu
 
 
 
-
+~~~ Done!
 Refactor SmartFunction to simply have a single child which is a SmartSequence,
 the SmartCombiner with a symbol of a comma, which can have all of the arguments
 as children.
 
 This is sensible because now its parentheses are accessible as simply the parentheses of
 its child, and do not need separate code.
+~~~ Done!
+
+
+
+
+Refactor SmartAction to use TransformByGlyphMap imported from MF-Tools
+instead of its own knockoff method version.
