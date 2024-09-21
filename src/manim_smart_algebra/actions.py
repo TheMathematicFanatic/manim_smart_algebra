@@ -2,6 +2,7 @@
 from manim import *
 from .expressions import *
 from .utils import *
+from MF_Tools import TransformByGlyphMap
 
 
 class SmartAction:
@@ -111,55 +112,14 @@ class SmartAction:
         self.glyphmap = glyphmap
         return glyphmap
     
-    def get_animations(self):
+    def get_animations(self, **kwargs):
         if self.glyphmap is None:
             self.get_glyphmap()
-        A = self.input_expression
-        B = self.output_expression
-        animations = []
-        active_in_glyphs = set()
-        active_out_glyphs = set()
-        def A_vgroup(glyph_list):
-            V = VGroup()
-            for g in glyph_list:
-                if g in active_in_glyphs: V.add(A[0][g].copy())
-                else: V.add(A[0][g])
-            return V
-        def B_vgroup(glyph_list):
-            V = VGroup()
-            for g in glyph_list:
-                V.add(B[0][g])
-            return V
-        for entry in self.glyphmap:
-            if len(entry) == 3: anim_kwargs = entry[2]
-            else: anim_kwargs = {}
-            if isinstance(entry[0], list) and isinstance(entry[1], list):
-                animations.append(
-                    ReplacementTransform(A_vgroup(entry[0]), B_vgroup(entry[1]), **anim_kwargs)
-                )
-                active_in_glyphs.update(entry[0])
-                active_out_glyphs.update(entry[1])
-            elif isinstance(entry[0], list) and issubclass(entry[1], Animation):
-                animations.append(
-                    entry[1](A_vgroup(entry[0]), **anim_kwargs)
-                )
-                active_in_glyphs.update(entry[0])
-            elif issubclass(entry[0], Animation) and isinstance(entry[1], list):
-                animations.append(
-                    entry[0](B_vgroup(entry[1]), **anim_kwargs)
-                )
-                active_out_glyphs.update(entry[1])
-            else:
-                assert False, f"Invalid glyphmap entry: {entry}"
-        inactive_in_glyphs = set(range(len(A))) - active_in_glyphs
-        inactive_out_glyphs = set(range(len(B))) - active_out_glyphs
-        assert len(inactive_in_glyphs) == len(inactive_out_glyphs), f"Inactive glyphs have mismatched lengths. \n {inactive_in_glyphs} \n {inactive_out_glyphs}"
-        for i,j in zip(inactive_in_glyphs, inactive_out_glyphs):
-            animations.append(
-                ReplacementTransform(A[0][i], B[0][j])
+        return TransformByGlyphMap(
+            self.input_expression,
+            self.output_expression,
+            *self.glyphmap
             )
-        self.animations = animations
-        return animations
 
 
 def preaddressfunc(func):

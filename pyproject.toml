@@ -10,9 +10,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.8,<=3.12"
 manim = ">=0.17"
-
-[tool.poetry.plugins."manim.plugins"]
-"manim_play_timeline" = "manim_play_timeline"
+MF-Tools = ">=1.1.2"
 
 [build-system]
 requires = ["poetry-core"]
