@@ -118,7 +118,8 @@ class SmartAction:
         return TransformByGlyphMap(
             self.input_expression,
             self.output_expression,
-            *self.glyphmap
+            *self.glyphmap,
+            **kwargs
             )
 
 
