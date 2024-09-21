@@ -132,9 +132,22 @@ class TestCombiners(Scene):
         self.add(VGroup(
             SmartAdd(1,2,3,4,5),
             SmartSub(1,2,3,4,5),
-            SmartMul(1,2,3,4,5, mode="times"),
+            SmartMul(1,2,3,4,5, mode="x"),
             SmartDiv(1,2,3,4,5, mode="inline"),
             #SmartPow(1,2,3,4,5),
             SmartSequence(1,2,3,4,5),
             SmartEquation(1,2,3,4,5)
         ).arrange(DOWN))
+        self.wait()
+        self.clear()
+        pieces = [1, x**2, x/y, f(x,y,theta), -12*(1-x**2)**3]
+        self.add(VGroup(
+            SmartAdd(*pieces),
+            SmartSub(*pieces),
+            SmartMul(*pieces, mode="dot"),
+            SmartDiv(*pieces, mode="inline"),
+            #SmartPow(*pieces),
+            SmartSequence(*pieces),
+            SmartEquation(*pieces)
+        ).arrange(DOWN))
+        self.wait()
