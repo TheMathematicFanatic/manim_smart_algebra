@@ -104,3 +104,22 @@ class AnimAutoParen(Scene):
         self.play(AnimationGroup(*act.get_animations()))
         self.wait()
 
+
+class FindParenNumber(Scene):
+    def construct(self):
+        A = (2*x+y)/(x-25*y**3)
+        A = A**2
+        A = A/A
+        A = A**2
+        self.add(A.scale(2))
+        self.add(index_labels(A[0], color=RED))
+        self.wait()
+
+
+class MultiChildren(Scene):
+    def construct(self):
+        S = SmartAdd(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
+        S = (3+e**x)/S
+        self.add(S.scale(2))
+        self.add(index_labels(S[0], color=RED))
+        self.wait()

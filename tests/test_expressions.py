@@ -6,6 +6,27 @@ most of its subclasses, then follow that up with testing each of the
 methods in the main class.
 """
 
+import pytest
+
+@pytest.fixture
+def Q(): #simple rational exp
+    Q = (x/y)**2
+    return Q
+
+@pytest.fixture
+def B(): #big parentheses at "0" with 3 glyphs each
+    B = (2*x+y)/(x-25*y**3)
+    B = B**2
+    B = B/B
+    return B**2
+
+@pytest.fixture
+def S():
+    S = SmartAdd(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
+    S = (3+e**x)/S
+    return S
+
+
 def test_SmartVariable():
     assert x == x
     assert x.is_identical_to(x)
@@ -54,32 +75,79 @@ def test_SmartNegative():
     assert neg_x.is_negative()
 
 
+def test_glyph_indices_small(Q):
+    assert len(Q) == 6
+    assert Q.get_glyphs_at_address("") == [0,1,2,3,4,5]
+    assert Q.get_left_paren_glyphs("") == []
+    assert Q.get_right_paren_glyphs("") == []
+    assert Q.get_exp_glyphs_without_parentheses("") == [0,1,2,3,4,5]
+    assert Q.get_op_glyphs("") == []
+    assert Q.get_glyphs_at_address("0") == [0,1,2,3,4]
+    assert Q.get_left_paren_glyphs("0") == [0]
+    assert Q.get_right_paren_glyphs("0") == [4]
+    assert Q.get_exp_glyphs_without_parentheses("0") == [1,2,3]
+    assert Q.get_op_glyphs("0") == [2]
+    assert Q.get_glyphs_at_address("1") == [5]
+    assert Q.get_left_paren_glyphs("1") == []
+    assert Q.get_right_paren_glyphs("1") == []
+    assert Q.get_exp_glyphs_without_parentheses("1") == [5]
+    assert Q.get_op_glyphs("1") == []
+
+def test_glyph_indices_large(B):
+    assert len(B) == 36
+    assert B.get_glyphs_at_address("") == list(range(36))
+    assert B.get_left_paren_glyphs("") == []
+    assert B.get_right_paren_glyphs("") == []
+    assert B.get_exp_glyphs_without_parentheses("") == list(range(36))
+    assert B.get_op_glyphs("") == []
+    assert B.get_glyphs_at_address("0") == list(range(35))
+    assert B.get_left_paren_glyphs("0") == [0,1,2]
+    assert B.get_right_paren_glyphs("0") == [32,33,34]
+    assert B.get_exp_glyphs_without_parentheses("0") == list(range(3,32))
+    assert B.get_op_glyphs("0") == [17]
+    assert B.get_glyphs_at_address("1") == [35]
+    assert B.get_left_paren_glyphs("1") == []
+    assert B.get_right_paren_glyphs("1") == []
+    assert B.get_exp_glyphs_without_parentheses("1") == [35]
+    assert B.get_op_glyphs("1") == []
+    assert B.get_glyphs_at_address("00") == list(range(3,17))
+    assert B.get_left_paren_glyphs("00") == []
+    assert B.get_right_paren_glyphs("00") == []
+    assert B.get_exp_glyphs_without_parentheses("00") == list(range(3,17))
+    assert B.get_op_glyphs("00") == []
+    assert B.get_glyphs_at_address("000") == list(range(3,16))
+    assert B.get_left_paren_glyphs("000") == [3]
+    assert B.get_right_paren_glyphs("000") == [15]
+    assert B.get_exp_glyphs_without_parentheses("000") == list(range(4,15))
+    assert B.get_op_glyphs("000") == [8]
+    assert B.get_glyphs_at_address("0000") == [4,5,6,7]
+    assert B.get_left_paren_glyphs("0000") == []
+    assert B.get_right_paren_glyphs("0000") == []
+    assert B.get_exp_glyphs_without_parentheses("0000") == [4,5,6,7]
+    assert B.get_op_glyphs("0000") == [6]
+
+def test_glyph_indices_multi_children(S):
+    assert len(S) == 23
+    assert S.get_glyphs_at_address("") == list(range(23))
+    assert S.get_left_paren_glyphs("") == []
+    assert S.get_right_paren_glyphs("") == []
+    assert S.get_exp_glyphs_without_parentheses("") == list(range(23))
+    assert S.get_op_glyphs("") == [4]
+    assert S.get_glyphs_at_address("0") == [0,1,2,3]
+    assert S.get_left_paren_glyphs("0") == []
+    assert S.get_right_paren_glyphs("0") == []
+    assert S.get_exp_glyphs_without_parentheses("0") == [0,1,2,3]
+    assert S.get_op_glyphs("0") == [1]
+    assert S.get_glyphs_at_address("1") == list(range(5,23))
+    assert S.get_left_paren_glyphs("1") == []
+    assert S.get_right_paren_glyphs("1") == []
+    assert S.get_exp_glyphs_without_parentheses("1") == list(range(5,23))
+    assert S.get_op_glyphs("1") == [6,11,17]
+    
+    
 
 
-def test_get_glyph_indices():
-    A = (x+y)**2-(-x)
-    assert A.get_glyph_indices("") == [0,1,2,3,4,5,6,7,8,9,10]
-    assert A.get_glyph_indices("0") == [0,1,2,3,4,5]
-    assert A.get_glyph_indices("1") == [7,8,9,10]
-    assert A.get_glyph_indices("_") == [6]
-    assert A.get_glyph_indices("(") == []
-    assert A.get_glyph_indices(")") == []
-    assert A.get_glyph_indices("(_)") == [6]
-    assert A.get_glyph_indices("(_())") == [6]
-    assert A.get_glyph_indices("0()") == []
-    assert A.get_glyph_indices("0_") == []
-    assert A.get_glyph_indices("00()") == [0,4]
-    assert A.get_glyph_indices("00_") == [2]
-    assert A.get_glyph_indices("00(_") == [0,2]
-    assert A.get_glyph_indices("000") == [1]
-    assert A.get_glyph_indices("1(") == [7]
-    assert A.get_glyph_indices("1)") == [10]
-    assert A.get_glyph_indices("1_") == [8]
-    assert A.get_glyph_indices("10") == [9]
-    assert A.get_glyph_indices("1_0") == [8,9]
-    assert A.get_glyph_indices("1_)0") == [8,9,10]
-    assert A.get_glyph_indices("10()") == []
-    # This is not really done but it'll work for now.
+
 
 
 import sys
@@ -89,7 +157,7 @@ from manim import *
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.actions import *
 from manim_smart_algebra.nicknames import *
-test_get_glyph_indices()
+#test_get_glyph_indices()
 
 
 

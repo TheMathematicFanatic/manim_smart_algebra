@@ -23,7 +23,7 @@ class SmartExpression(MathTex):
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			return VGroup(*[self[0][g] for g in self.get_glyph_indices(key)])
+			return VGroup(*[self[0][g] for g in self.get_glyphs(key)])
 		else: # preserve behavior of MathTex indexing
 			return super().__getitem__(key)
 
@@ -100,79 +100,113 @@ class SmartExpression(MathTex):
 		return list(range(start+1, end+1))
 	
 	def get_exp_glyphs_without_parentheses(self, address):
-		all_exp_glyphs = self.get_glyphs_at_address(address)
 		subex = self.get_subex(address)
+		subex_glyphs = self.get_glyphs_at_address(address)
 		if not subex.parentheses:
-			return all_exp_glyphs
+			return subex_glyphs
 		else:
 			paren_length = subex.paren_length()
-			return all_exp_glyphs[paren_length:-paren_length]
+			return subex_glyphs[paren_length:-paren_length]
 	
 	def get_op_glyphs(self, address):
-		...
-		
-		
-
-
-
-
-	def get_glyph_indices(self, psuedoaddress=""):
-		# Returns the list of glyph indices corresponding to the subexpression at the given address
-		# Can accept special characters at the end to get the parentheses or operation glyph at the given address
-		special_chars = "()_"
+		subex = self.get_subex(address)
+		if not isinstance(subex, SmartCombiner) or subex.symbol_glyph_length==0:
+			return []
+		subex_glyphs = self.get_glyphs_at_address(address)
+		results = []
+		turtle = subex_glyphs[0]
+		if subex.parentheses:
+			turtle += subex.paren_length()
+		for child in subex.children[:-1]:
+			turtle += len(child)
+			results += list(range(turtle, turtle + subex.symbol_glyph_length))
+			turtle += subex.symbol_glyph_length
+		return results
+	
+	def get_glyphs(self, psuedoaddress):
+		# Returns the list of glyph indices corresponding to the subexpression at the given address.
+		# Can accept special characters at the end to trigger one of the special methods above.
+		special_chars = "()_+-*/^"
 		found_special_chars = [(i,c) for (i, c) in enumerate(psuedoaddress) if c in special_chars]
-
-		def pure_address_case(address):
-			start = 0
-			for n,a in enumerate(address):
-				parent = self.get_subex(address[:n])
-				if parent.parentheses:
-					start += parent.paren_length()
-				if isinstance(parent, SmartCombiner):
-					for i in range(int(a)):
-						sibling = parent.children[i]
-						start += len(sibling)
-						start += parent.symbol_glyph_length
-				elif isinstance(parent, SmartNegative):
-					start += 1
-				elif isinstance(parent, SmartFunction):
-					start += parent.symbol_glyph_length
-				else:
-					raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
-			end = start + len(self.get_subex(address))
-			return start, end
-		
 		if len(found_special_chars) == 0:
-			start, end = pure_address_case(psuedoaddress)
-			glyphs = range(start, end)
-			return list(glyphs)
-
-		glyphs = set()
-		base_address = psuedoaddress[:found_special_chars[0][0]]
-		subex = self.get_subex(base_address)
-		start, end = pure_address_case(base_address)
-		for i,c in found_special_chars:
-			if c == "(" and subex.parentheses:
-				glyphs.update(range(start, start+self.paren_length()))
-			if c == ")" and subex.parentheses:
-				glyphs.update(range(end-self.paren_length(), end))
-			if c == "_":
-				if isinstance(subex, SmartCombiner):
-					for child_index in range(1, len(subex.children)):
-						start, end = pure_address_case(base_address+str(child_index))
-						glyphs.update(range(start-subex.symbol_glyph_length, start))
-				if isinstance(subex, SmartNegative):
-					if subex.parentheses:
-						start += subex.paren_length()
-					glyphs.update(range(start, start+1))
-				if isinstance(subex, SmartFunction):
-					raise NotImplementedError
-		if found_special_chars[-1][0] < len(psuedoaddress)-1:
-			extended_address = base_address + psuedoaddress[found_special_chars[-1][0]+1:]
-			start, end = pure_address_case(extended_address)
-			glyphs.update(range(start, end))
-		return list(glyphs)
+			return self.get_glyphs_at_address(psuedoaddress)
+		else:
+			address = psuedoaddress[:found_special_chars[0][0]]
+			results = []
+			for i,c in found_special_chars:
+				if c == "(":
+					results += self.get_left_paren_glyphs(address)
+				elif c == ")":
+					results += self.get_right_paren_glyphs(address)
+				elif c == "_":
+					results += self.get_exp_glyphs_without_parentheses(address)
+				elif c in "+-*/^":
+					results += self.get_op_glyphs(address)
+			return results
+	
 		
+		
+
+
+
+
+	# def get_glyph_indices(self, psuedoaddress=""):
+	# 	# Returns the list of glyph indices corresponding to the subexpression at the given address
+	# 	# Can accept special characters at the end to get the parentheses or operation glyph at the given address
+	# 	special_chars = "()_"
+	# 	found_special_chars = [(i,c) for (i, c) in enumerate(psuedoaddress) if c in special_chars]
+
+	# 	def pure_address_case(address):
+	# 		start = 0
+	# 		for n,a in enumerate(address):
+	# 			parent = self.get_subex(address[:n])
+	# 			if parent.parentheses:
+	# 				start += parent.paren_length()
+	# 			if isinstance(parent, SmartCombiner):
+	# 				for i in range(int(a)):
+	# 					sibling = parent.children[i]
+	# 					start += len(sibling)
+	# 					start += parent.symbol_glyph_length
+	# 			elif isinstance(parent, SmartNegative):
+	# 				start += 1
+	# 			elif isinstance(parent, SmartFunction):
+	# 				start += parent.symbol_glyph_length
+	# 			else:
+	# 				raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
+	# 		end = start + len(self.get_subex(address))
+	# 		return start, end
+		
+	# 	if len(found_special_chars) == 0:
+	# 		start, end = pure_address_case(psuedoaddress)
+	# 		glyphs = range(start, end)
+	# 		return list(glyphs)
+
+	# 	glyphs = set()
+	# 	base_address = psuedoaddress[:found_special_chars[0][0]]
+	# 	subex = self.get_subex(base_address)
+	# 	start, end = pure_address_case(base_address)
+	# 	for i,c in found_special_chars:
+	# 		if c == "(" and subex.parentheses:
+	# 			glyphs.update(range(start, start+self.paren_length()))
+	# 		if c == ")" and subex.parentheses:
+	# 			glyphs.update(range(end-self.paren_length(), end))
+	# 		if c == "_":
+	# 			if isinstance(subex, SmartCombiner):
+	# 				for child_index in range(1, len(subex.children)):
+	# 					start, end = pure_address_case(base_address+str(child_index))
+	# 					glyphs.update(range(start-subex.symbol_glyph_length, start))
+	# 			if isinstance(subex, SmartNegative):
+	# 				if subex.parentheses:
+	# 					start += subex.paren_length()
+	# 				glyphs.update(range(start, start+1))
+	# 			if isinstance(subex, SmartFunction):
+	# 				raise NotImplementedError
+	# 	if found_special_chars[-1][0] < len(psuedoaddress)-1:
+	# 		extended_address = base_address + psuedoaddress[found_special_chars[-1][0]+1:]
+	# 		start, end = pure_address_case(extended_address)
+	# 		glyphs.update(range(start, end))
+	# 	return list(glyphs)
+
 	def __len__(self):
 		return len(self.submobjects[0].submobjects)
 
