@@ -92,6 +92,23 @@ def test_glyph_indices_small(Q):
     assert Q.get_right_paren_glyphs("1") == []
     assert Q.get_exp_glyphs_without_parentheses("1") == [5]
     assert Q.get_op_glyphs("1") == []
+    # ~~~ now with shortened syntax ~~~
+    assert Q.get_glyphs("") == [0,1,2,3,4,5]
+    assert Q.get_glyphs("(") == []
+    assert Q.get_glyphs(")") == []
+    assert Q.get_glyphs("_") == [0,1,2,3,4,5]
+    assert Q.get_glyphs("+") == []
+    assert Q.get_glyphs("0") == [0,1,2,3,4]
+    assert Q.get_glyphs("0(") == [0]
+    assert Q.get_glyphs("0)") == [4]
+    assert Q.get_glyphs("0_") == [1,2,3]
+    assert Q.get_glyphs("0+") == [2]
+    assert Q.get_glyphs("1") == [5]
+    assert Q.get_glyphs("1(") == []
+    assert Q.get_glyphs("1)") == []
+    assert Q.get_glyphs("1_") == [5]
+    assert Q.get_glyphs("1+") == []
+    assert Q.get_glyphs("0(+)") == [0,2,4]
 
 def test_glyph_indices_large(B):
     assert len(B) == 36
@@ -125,6 +142,39 @@ def test_glyph_indices_large(B):
     assert B.get_right_paren_glyphs("0000") == []
     assert B.get_exp_glyphs_without_parentheses("0000") == [4,5,6,7]
     assert B.get_op_glyphs("0000") == [6]
+    # ~~~ now with shortened syntax ~~~
+    assert B.get_glyphs("") == list(range(36))
+    assert B.get_glyphs("(") == []
+    assert B.get_glyphs(")") == []
+    assert B.get_glyphs("_") == list(range(36))
+    assert B.get_glyphs("+") == []
+    assert B.get_glyphs("0") == list(range(35))
+    assert B.get_glyphs("0(") == [0,1,2]
+    assert B.get_glyphs("0)") == [32,33,34]
+    assert B.get_glyphs("0_") == list(range(3,32))
+    assert B.get_glyphs("0+") == [17]
+    assert B.get_glyphs("1") == [35]
+    assert B.get_glyphs("1(") == []
+    assert B.get_glyphs("1)") == []
+    assert B.get_glyphs("1_") == [35]
+    assert B.get_glyphs("1+") == []
+    assert B.get_glyphs("00") == list(range(3,17))
+    assert B.get_glyphs("00(") == []
+    assert B.get_glyphs("00)") == []
+    assert B.get_glyphs("00_") == list(range(3,17))
+    assert B.get_glyphs("00+") == []
+    assert B.get_glyphs("000") == list(range(3,16))
+    assert B.get_glyphs("000(") == [3]
+    assert B.get_glyphs("000)") == [15]
+    assert B.get_glyphs("000_") == list(range(4,15))
+    assert B.get_glyphs("000+") == [8]
+    assert B.get_glyphs("0000") == [4,5,6,7]
+    assert B.get_glyphs("0000(") == []
+    assert B.get_glyphs("0000)") == []
+    assert B.get_glyphs("0000_") == [4,5,6,7]
+    assert B.get_glyphs("0000+") == [6]
+    assert B.get_glyphs("0()") == [0,1,2,32,33,34]
+    assert B.get_glyphs("000()/") == [3,8,15]
 
 def test_glyph_indices_multi_children(S):
     assert len(S) == 23
@@ -143,6 +193,24 @@ def test_glyph_indices_multi_children(S):
     assert S.get_right_paren_glyphs("1") == []
     assert S.get_exp_glyphs_without_parentheses("1") == list(range(5,23))
     assert S.get_op_glyphs("1") == [6,11,17]
+    # ~~~ now with shortened syntax ~~~
+    assert S.get_glyphs("") == list(range(23))
+    assert S.get_glyphs("(") == []
+    assert S.get_glyphs(")") == []
+    assert S.get_glyphs("_") == list(range(23))
+    assert S.get_glyphs("+") == [4]
+    assert S.get_glyphs("0") == [0,1,2,3]
+    assert S.get_glyphs("0(") == []
+    assert S.get_glyphs("0)") == []
+    assert S.get_glyphs("0_") == [0,1,2,3]
+    assert S.get_glyphs("0+") == [1]
+    assert S.get_glyphs("1") == list(range(5,23))
+    assert S.get_glyphs("1(") == []
+    assert S.get_glyphs("1)") == []
+    assert S.get_glyphs("1_") == list(range(5,23))
+    assert S.get_glyphs("1+") == [6,11,17]
+    assert S.get_glyphs("1()+*_") == list(range(5,23))
+
     
     
 
