@@ -410,10 +410,12 @@ class SmartMul(SmartOperation):
 		self.mode = mode
 		if mode == "dot":
 			super().__init__("\\cdot", 1, *children, **kwargs)
+		elif mode == "x":
+			super().__init__("\\times", 1, *children, **kwargs)
 		elif mode == "juxtapose":
 			super().__init__("", 0, *children, **kwargs)
 		else:
-			raise ValueError("multiplication mode must be dot or juxtapose")
+			raise ValueError("multiplication mode must be dot, times, or juxtapose")
 
 	def auto_parentheses(self): # should be more intelligent based on mode
 		for child in self.children:
