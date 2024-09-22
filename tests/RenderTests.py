@@ -77,7 +77,7 @@ class NewSwapChildren(Scene):
             SC.input_expression = E_
             self.add(E_)
             self.wait()
-            self.play(AnimationGroup(*SC.get_animations()))
+            self.play(SC.get_animations())
             self.wait()
             self.clear()
         self.wait()
@@ -151,3 +151,8 @@ class TestCombiners(Scene):
             SmartEquation(*pieces)
         ).arrange(DOWN))
         self.wait()
+
+
+class TestTBGMAction(Scene):
+    def construct(self):
+        pass

@@ -98,17 +98,17 @@ class SmartAction:
         for entry in self.addressmap:
             assert len(entry) in [2, 3], f"Invalid addressmap entry: {entry}"
             glyphmap_entry = [
-                A.get_glyph_indices(entry[0]) if isinstance(entry[0], (str, list)) else entry[0],
-                B.get_glyph_indices(entry[1]) if isinstance(entry[1], (str, list)) else entry[1]
+                A.get_glyphs(entry[0]) if isinstance(entry[0], (str, list)) else entry[0],
+                B.get_glyphs(entry[1]) if isinstance(entry[1], (str, list)) else entry[1]
             ]
             if len(entry) == 3:
                 glyphmap_entry.append(entry[2])
             glyphmap.append(glyphmap_entry)
             if isinstance(entry[0], (str, list)) and isinstance(entry[1], (str, list)):
                 if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
-                    glyphmap.append([A.get_glyph_indices(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
+                    glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
                 elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
-                    glyphmap.append([self.introducer, B.get_glyph_indices(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
+                    glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
         self.glyphmap = glyphmap
         return glyphmap
     
