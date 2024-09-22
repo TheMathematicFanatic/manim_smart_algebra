@@ -198,16 +198,19 @@ class apply_operation_(SmartAction):
     def get_addressmap(self):
         if self.side == "right":
             return [
-                 ["", "0"],
-                 [self.introducer, "_1", {"rate_func":rate_functions.rush_into}]
+                ["", "0"],
+                [self.introducer, "+", {"delay":0.5}],
+                [self.introducer, "1", {"delay":0.6}]
             ]
         elif self.side == "left":
             return [
-                 ["", "1"],
-                 [self.introducer, "_0", {"rate_func":rate_functions.rush_into}]
+                ["", "1"],
+                [self.introducer, "0", {"delay":0.5}],
+                [self.introducer, "+", {"delay":0.6}]
             ]
         else:
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
+
 
 class add_(apply_operation_):
     def __init__(self, other, introducer=Write, **kwargs):

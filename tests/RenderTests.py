@@ -39,8 +39,6 @@ class Interactive(Scene):
         Square().rotate()
 
 
-#TestAlwaysColorConfig().render()
-
 class PolarRectConversions(Scene):
     def construct(self):
         color_dict = {theta:GREEN, x:RED, y:BLUE, r:YELLOW}
@@ -69,11 +67,11 @@ class PolarRectConversions(Scene):
 class NewSwapChildren(Scene):
     def construct(self):
         E = a/b+(c-4)/d**2
-        preads = {ad[:-1] for ad in E.get_all_addresses()}
+        preads = E.get_all_nonleaf_addresses()
         print(preads)
-        for ad in preads:
+        for pread in preads:
             E_ = E.copy()
-            SC = swap_children_(preaddress=ad)
+            SC = swap_children_(preaddress=pread)
             SC.input_expression = E_
             self.add(E_)
             self.wait()
@@ -90,7 +88,28 @@ class NewApplyOperation(Scene):
         act = sub_(3+y, side="left")
         act.input_expression = A
         self.wait()
-        self.play(AnimationGroup(*act.get_animations()))
+        self.play(act.get_animations())
+        self.wait()
+
+
+class ApplyOpChild(Scene):
+    def construct(self):
+        A = (x**2+3*x)/(x-2)
+        B = 2*x+3
+        act = pow_(B, preaddress="010")
+        act.input_expression = A
+        self.add(A)
+        self.wait()
+        self.play(act.get_animations())
+        self.wait()
+        return
+        B = act.output_expression
+        print(A in self.mobjects)
+        print(B in self.mobjects)
+        print(self.mobjects)
+        for m in self.mobjects:
+            print(m)
+            self.play(Indicate(m))
         self.wait()
 
 
@@ -101,7 +120,7 @@ class AnimAutoParen(Scene):
         act = swap_children_()
         act.input_expression = A
         self.wait()
-        self.play(AnimationGroup(*act.get_animations()))
+        self.play(act.get_animations())
         self.wait()
 
 
