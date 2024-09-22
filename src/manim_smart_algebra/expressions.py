@@ -34,6 +34,12 @@ class SmartExpression(MathTex):
 			for child_address in self.children[n].get_all_addresses():
 				addresses.append(str(n)+child_address)
 		return addresses
+	
+	def get_all_nonleaf_addresses(self):
+		return sorted(list({a[:-1] for a in self.get_all_addresses() if a != ""}))
+	
+	def get_all_leaf_addresses(self):
+		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
 
 	def get_subex(self, address_string):
 		# Returns the SmartTex object corresponding to the subexpression at the given address.
