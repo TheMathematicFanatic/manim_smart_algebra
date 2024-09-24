@@ -1,4 +1,3 @@
-
 ~~~ Done!
 Refactor get_glyphs_indices_at_address into several methods
 - get_glyphs_at_address
@@ -18,14 +17,12 @@ with parentheses and such, when you want.
 
 
 
-
 ~~~ Done!
 Refactor SmartRational to be only a subclass of SmartDivision and not SmartNumber.
 
 This is sensible because 5/3 is no more a number than 5^3 or 5+3, and this way
 it can share all code with SmartDivision and still get its own methods like reduce.
 ~~~ Done!
-
 
 
 
@@ -48,3 +45,9 @@ instead of its own knockoff method version.
 
 
 Add ParallelAction subclass of SmartAction, which merges the addressmaps of its constituents... I think?
+
+
+
+Fix the problem with indexing SmartFunctions
+
+
