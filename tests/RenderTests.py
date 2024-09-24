@@ -67,18 +67,16 @@ class PolarRectConversions(Scene):
 class NewSwapChildren(Scene):
     def construct(self):
         E = a/b+(c-4)/d**2
-        preads = E.get_all_nonleaf_addresses()
-        print(preads)
-        for pread in preads:
+        tree_addresses = E.get_all_nonleaf_addresses()
+        for ad in tree_addresses:
             E_ = E.copy()
-            SC = swap_children_(preaddress=pread)
+            SC = swap_children_(preaddress=ad)
             SC.input_expression = E_
             self.add(E_)
             self.wait()
             self.play(SC.get_animations())
             self.wait()
             self.clear()
-        self.wait()
 
 
 class NewApplyOperation(Scene):
@@ -95,8 +93,8 @@ class NewApplyOperation(Scene):
 class ApplyOpChild(Scene):
     def construct(self):
         A = (x**2+3*x)/(x-2)
-        B = 2*x+3
-        act = pow_(B, preaddress="010")
+        B = e**x
+        act = sub_(B, preaddress="0")
         act.input_expression = A
         self.add(A)
         self.wait()
@@ -172,6 +170,12 @@ class TestCombiners(Scene):
         self.wait()
 
 
-class TestTBGMAction(Scene):
+class TestSubstituteAction(Scene):
     def construct(self):
-        pass
+        A = (x**2+3*x)/(x-2)
+        self.add(A)
+        act = substitute_({x:3-y*z}, mode="transform", path_arc=PI)
+        act.input_expression = A
+        self.wait()
+        self.play(act.get_animations())
+        self.wait()

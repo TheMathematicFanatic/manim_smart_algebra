@@ -66,6 +66,7 @@ class SmartAction:
         preaddress="",
         introducer=Write,
         remover=FadeOut,
+        **kwargs
     ):
         self.input_expression = None
         self.output_expression = None
@@ -75,6 +76,7 @@ class SmartAction:
         self.preaddress = preaddress
         self.introducer = introducer
         self.remover = remover
+        self.kwargs = kwargs
 
     def get_output_expression(self, input_expression):
         pass # define in subclasses
@@ -104,11 +106,12 @@ class SmartAction:
             if len(entry) == 3:
                 glyphmap_entry.append(entry[2])
             glyphmap.append(glyphmap_entry)
-            if isinstance(entry[0], (str, list)) and isinstance(entry[1], (str, list)):
-                if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
-                    glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
-                elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
-                    glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
+            # Good idea but turning off for now, need to rethink
+            # if isinstance(entry[0], (str, list)) and isinstance(entry[1], (str, list)):
+            #     if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
+            #         glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
+            #     elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
+            #         glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
         self.glyphmap = glyphmap
         return glyphmap
     
@@ -211,7 +214,6 @@ class apply_operation_(SmartAction):
         else:
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
 
-
 class add_(apply_operation_):
     def __init__(self, other, introducer=Write, **kwargs):
         super().__init__(SmartAdd, other, introducer=introducer, **kwargs)
@@ -231,4 +233,35 @@ class div_(apply_operation_):
 class pow_(apply_operation_):
     def __init__(self, other, introducer=Write, **kwargs):
         super().__init__(SmartPow, other, introducer=introducer, **kwargs)
+
+
+class substitute_(SmartAction):
+    def __init__(self, sub_dict, mode="transform", fade_shift=DOWN*0.2, lag=0,**kwargs):
+        self.sub_dict = sub_dict
+        self.mode = mode
+        self.fade_shift = fade_shift
+        self.lag = lag #usually looks like shit but can be cool sometimes
+        super().__init__(**kwargs)
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        return input_expression.substitute_expressions(self.sub_dict)
+
+    @preaddressmap
+    def get_addressmap(self):
+        target_addresses = []
+        for var in self.sub_dict:
+            target_addresses += self.input_expression.get_addresses_of_subex(var)
+        addressmap = []
+        if self.mode == "transform":
+            for i,ad in enumerate(target_addresses):
+                addressmap.append([ad, ad, {"delay": self.lag*i} | self.kwargs])
+            return addressmap
+        elif self.mode == "fade":
+            for i,ad in enumerate(target_addresses):
+                addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i} | self.kwargs])
+                addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i} | self.kwargs])
+            return addressmap
+
+
 
