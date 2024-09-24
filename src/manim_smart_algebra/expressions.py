@@ -542,11 +542,13 @@ class SmartVariable(SmartExpression):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
 
 class SmartFunction(SmartExpression):
-	def __init__(self, symbol, symbol_glyph_length, rule=None, algebra_rule=None, parentheses_mode="always", **kwargs):
+	def __init__(self, symbol, symbol_glyph_length, rule=None, algebra_rule=None, parentheses_mode="always", arguments=[], **kwargs):
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
 		self.rule = rule #callable
 		self.children = [] # may be given one child, a sequence which could have multiple children
+		if len(arguments) > 0:
+			self.children = [SmartSequence(*list(map(Smarten, arguments)), **kwargs)]
 		self.algebra_rule = algebra_rule #SmE version of rule?
 		self.parentheses_mode = parentheses_mode
 		self.spacing = ""
@@ -557,9 +559,8 @@ class SmartFunction(SmartExpression):
 		return self.symbol + self.spacing + (str(self.children[0]) if len(self.children) > 0 else "")
 
 	def __call__(self, *inputs, **kwargs):
-		#assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
-		new_func = SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode, **kwargs)
-		new_func.children = [SmartSequence(*list(map(Smarten, inputs)), **kwargs)]
+		assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
+		new_func = SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode, arguments=inputs, **kwargs)
 		return new_func
 	
 	def set_spacing(self, spacing):
