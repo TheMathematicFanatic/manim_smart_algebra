@@ -44,3 +44,7 @@ its child, and do not need separate code.
 Refactor SmartAction to use TransformByGlyphMap imported from MF-Tools
 instead of its own knockoff method version.
 ~~~ Done!
+
+
+
+Add ParallelAction subclass of SmartAction, which merges the addressmaps of its constituents... I think?
