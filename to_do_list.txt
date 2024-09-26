@@ -49,5 +49,11 @@ Add ParallelAction subclass of SmartAction, which merges the addressmaps of its 
 
 
 Fix the problem with indexing SmartFunctions
+Test the solution
+
+
+
+Fix/rewrite nest and denest
+
 
 

@@ -46,7 +46,7 @@ cos = SmartFunction("\\cos", 3, rule=np.cos, parentheses_mode="weak")
 tan = SmartFunction("\\tan", 3, rule=np.tan, parentheses_mode="weak")
 
 def log(base):
-    return SmartFunction(f"\\log_{base}", 3+len(base),
+    return SmartFunction(f"\\log_{base}", 3+len(str(base)),
     rule=lambda x: np.log(x)/np.log(base),
     parentheses_mode="weak")
 

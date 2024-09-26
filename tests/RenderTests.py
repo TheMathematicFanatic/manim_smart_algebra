@@ -181,11 +181,11 @@ class TestSubstituteAction(Scene):
         self.wait()
 
 
-from MF_Tools import indexx_labels
 class TestFunctionParentheses(Scene):
     def construct(self):
         f = sin(x,y)
-        self.add(f) #indexx_labels(f))
+        self.add(f, index_labels(f[0], color=RED))
         self.wait()
 
-TestFunctionParentheses().render()
+
+

@@ -211,6 +211,12 @@ def test_glyph_indices_multi_children(S):
     assert S.get_glyphs("1+") == [6,11,17]
     assert S.get_glyphs("1()+*_") == list(range(5,23))
 
+def test_substitute(Q,B):
+    assert Q.substitute_at_address(B, "1").is_identical_to((x/y)**B)
+    assert Q.substitute_at_address(B, "01").is_identical_to((x/B)**2)
+    assert Q.substitute_at_addresses(B, ["0", "1"]).is_identical_to(B**B)
+    assert Q.substitute_expressions({x:0, y:0}).is_identical_to((SmZ(0)/SmZ(0))**2)
+    assert ((e**x - 1)/(3*e**x + 1)).substitute_expressions({e**x:x-2}).is_identical_to(((x-2) - 1)/(3*(x-2) + 1))
     
     
 
@@ -225,7 +231,7 @@ from manim import *
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.actions import *
 from manim_smart_algebra.nicknames import *
-#test_get_glyph_indices()
+
 
 
 

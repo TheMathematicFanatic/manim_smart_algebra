@@ -152,8 +152,6 @@ def preaddressmap(getmap):
 		action.addressmap = addressmap
 		return action.addressmap
 	return wrapper
-            
-
 
 
 
