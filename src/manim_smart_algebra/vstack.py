@@ -14,10 +14,10 @@ or even glyphmaps.
 
 class VStack(VGroup):
     def __init__(self, expression, actions, color_dict={}, scale=1.5, **kwargs):
-        if isinstance(expressions, SmartExpression):
-            expressions = [expressions]
+        if isinstance(expression, SmartExpression):
+            expressions = [expression]
         elif isinstance(expressions, (list, tuple)):
-            expressions = list(expressions)
+            expressions = list(expression)
 
         if isinstance(actions, SmartAction):
             actions = [actions]
@@ -54,7 +54,7 @@ class VStack(VGroup):
         scene.play(Write(self.submobjects[0]))
         scene.wait()
         for i in range(len(self.actions)):
-            scene.play(self.actions[i].get_animations())
+            scene.play(self.actions[i].get_anim())
             scene.clear()
             scene.add(self.submobjects[i+1])
             scene.wait()

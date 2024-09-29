@@ -225,9 +225,10 @@ class TestVStack_2(Scene):
                 substitute_({y+x:pi/5, z:-120}),
                 swap_children_(preaddress="010"),
                 swap_children_(),
+                (
+                    ([[0,1,2], [2,3,4], {"path_arc":PI}])
+                ),
             ],
             color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE}    
         )
         V.play_actions(self)
-
-

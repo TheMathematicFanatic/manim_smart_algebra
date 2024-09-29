@@ -18,7 +18,6 @@ SmEq = SmartEquation
 a = SmartVariable("a")
 b = SmartVariable("b")
 c = SmartVariable("c")
-d = SmartVariable("d")
 
 n = SmartVariable("n")
 
