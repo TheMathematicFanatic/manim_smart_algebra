@@ -9,6 +9,7 @@ from manim import *
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.actions import *
 from manim_smart_algebra.nicknames import *
+from manim_smart_algebra.vstack import *
 
 
 class TestApplyAction(Scene):
@@ -187,5 +188,46 @@ class TestFunctionParentheses(Scene):
         self.add(f, index_labels(f[0], color=RED))
         self.wait()
 
+
+class TestVStack(Scene):
+    def construct(self):
+        A = x**2+3*x
+        V = VStack(A, [
+            div_(e**x),
+            swap_children_(),
+            substitute_({x:z}),
+        ])
+        #self.add(V[0])
+        #self.add(Circle())
+        # self.add(A := MathTex("3x+5"))
+        # self.add(B := MathTex("x^2+3x"))
+        self.wait()
+        self.play(V.actions[0].get_animations())
+        self.wait()
+        self.play(V.actions[1].get_animations())
+        self.wait()
+        self.interactive_embed()
+        # self.wait()
+        # self.play(V.actions[2].get_animations())
+        # self.wait()
+
+
+class TestVStack_2(Scene):
+    def construct(self):
+        A = x**2+3*x
+        V = VStack(A,
+            [
+                div_(e**x),
+                swap_children_(),
+                substitute_({x:z}),
+                add_((x+y)**3),
+                swap_children_(preaddress="10"),
+                substitute_({y+x:pi/5, z:-120}),
+                swap_children_(preaddress="010"),
+                swap_children_(),
+            ],
+            color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE}    
+        )
+        V.play_actions(self)
 
 
