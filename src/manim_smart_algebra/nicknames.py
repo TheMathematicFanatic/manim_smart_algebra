@@ -1,4 +1,5 @@
 from .expressions import *
+from .calculus import *
 
 
 SmE = SmartExpression
@@ -50,3 +51,12 @@ def log(base):
     parentheses_mode="weak")
 
 # i = SmartComplex(1j) ? Don't have this class currently
+
+d = Differential()
+dx = d(x)
+dy = d(y)
+dz = d(z)
+dt = d(t)
+dr = d(r)
+dtheta = d(theta)
+inf = Infinity()
