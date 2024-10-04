@@ -339,7 +339,7 @@ class substitute_(SmartAction):
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
-        return input_expression.substitute_expressions(self.sub_dict)
+        return input_expression.substitute(self.sub_dict)
 
     @preaddressmap
     def get_addressmap(self):

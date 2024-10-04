@@ -252,7 +252,7 @@ class substitute_(SmartAction):
 
     @preaddress
     def generate_output_expression(self, input_expression):
-        return input_expression.substitute_expressions(self.expression_dict)
+        return input_expression.substitute(self.expression_dict)
 
     def generate_address_map(self):
         address_map = ()

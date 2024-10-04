@@ -202,7 +202,7 @@ class SmartExpression(MathTex):
 		return self.__pow__(other)
 
 	def __matmul__(self, expression_dict):
-		return self.substitute_expressions(expression_dict)
+		return self.substitute(expression_dict)
 
 	def __and__(self, other):
 		return SmartEquation(self, other)
@@ -277,7 +277,7 @@ class SmartExpression(MathTex):
 			result = result.substitute_at_address(subex, address)
 		return result
 
-	def substitute_expressions(self, expression_dict):
+	def substitute(self, expression_dict):
 		result = self.copy()
 		for from_subex, to_subex in expression_dict.items():
 			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(from_subex))
