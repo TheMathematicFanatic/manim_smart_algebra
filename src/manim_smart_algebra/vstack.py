@@ -37,7 +37,7 @@ class VStack(VGroup):
             self.add(self.actions[i].get_output_expression(self.submobjects[i]))
     
     def get_anim(self, i, **kwargs):
-        if isintance(self.actions[i], SmartAction):
+        if isinstance(self.actions[i], SmartAction):
             return self.actions[i].get_animations(**kwargs)
         elif isinstance(self.actions[i], Animation):
             return self.actions[i]
@@ -54,7 +54,7 @@ class VStack(VGroup):
         scene.play(Write(self.submobjects[0]))
         scene.wait()
         for i in range(len(self.actions)):
-            scene.play(self.actions[i].get_anim())
+            scene.play(self.get_anim(i))
             scene.clear()
             scene.add(self.submobjects[i+1])
             scene.wait()

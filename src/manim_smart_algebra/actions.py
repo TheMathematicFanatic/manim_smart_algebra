@@ -239,7 +239,7 @@ class pow_(apply_operation_):
 
 
 class substitute_(SmartAction):
-    def __init__(self, sub_dict, mode="transform", fade_shift=DOWN*0.2, lag=0,**kwargs):
+    def __init__(self, sub_dict, mode="transform", fade_shift=DOWN*0.2, lag=0, **kwargs):
         self.sub_dict = sub_dict
         self.mode = mode
         self.fade_shift = fade_shift
