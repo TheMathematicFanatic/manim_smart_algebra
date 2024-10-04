@@ -63,16 +63,21 @@ class SmartAction:
     Broadly speaking, that's that!
     """
     def __init__(self,
+        input_expression=None,
+        output_expression=None,
+        addressmap=None,
+        glyphmap=None,
+        animations=None,
         preaddress="",
         introducer=Write,
         remover=FadeOut,
         **kwargs
     ):
-        self.input_expression = None
-        self.output_expression = None
-        self.addressmap = None
-        self.glyphmap = None
-        self.animations = None
+        self.input_expression = input_expression
+        self.output_expression = output_expression
+        self.addressmap = addressmap
+        self.glyphmap = glyphmap
+        self.animations = animations
         self.preaddress = preaddress
         self.introducer = introducer
         self.remover = remover
