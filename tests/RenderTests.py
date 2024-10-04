@@ -232,3 +232,52 @@ class TestVStack_2(Scene):
             color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE}    
         )
         V.play_actions(self)
+
+
+
+class TestVStack_3(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        V = VStack(A,
+            [
+                div_(e**x),
+                swap_children_(),
+                substitute_({x:z}),
+                add_((x+y)**3),
+                swap_children_(preaddress="10"),
+                substitute_({y+x:pi/5, z:-120}, lag_ratio=0.02),
+                swap_children_(preaddress="010"),
+                swap_children_(),
+                
+                # (
+                #     ([[0,1,2], [2,3,4], {"path_arc":PI}])
+                # ),
+            ],
+            color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE}    
+        )
+        V.play_actions(self)
+
+
+class TestVStack_4(Scene):
+    def construct(self):
+        A = x**2 + y/2
+        V = VStack(A,
+            [
+                div_(A),
+                swap_children_(),
+                substitute_({x:z}),
+                swap_children_(preaddress="10"),
+                substitute_({y:A}, preaddress="0"),
+                swap_children_(preaddress="010"),
+                substitute_({x:1, y:2, z:3}),
+                compute_(preaddress="0"),
+                swap_children_(),
+                compute_(preaddress="0"),
+                compute_()
+            ],
+            color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE}    
+        )
+        V.play_actions(self)
+
+
+TestVStack_4().render()
