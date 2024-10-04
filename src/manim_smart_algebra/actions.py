@@ -358,7 +358,7 @@ class substitute_(SmartAction):
             return addressmap
 
 
-class compute_(SmartAction):
+class evaluate_(SmartAction):
     def __init__(self, mode="random leaf", **kwargs):
         super().__init__(**kwargs)
         # if mode == "random leaf":
@@ -369,11 +369,11 @@ class compute_(SmartAction):
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
-        return input_expression.compute()
+        return input_expression.evaluate()
     
     @preaddressmap
     def get_addressmap(self):
         return [
-            [self.preaddress, self.preaddress]
+            ["", ""] #extension by preaddress is done by decorator!
         ]
 
