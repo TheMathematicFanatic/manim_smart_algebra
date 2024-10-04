@@ -263,21 +263,25 @@ class TestVStack_4(Scene):
         A = x**2 + y/2
         V = VStack(A,
             [
-                mul_(A),
+                add_(A),
                 swap_children_(),
                 substitute_({x:z}),
                 swap_children_(preaddress="10"),
-                substitute_({y:4}, preaddress=""),
+                substitute_({y:A}, preaddress="1"),
                 swap_children_(preaddress="1"),
                 substitute_({x:1, y:2, z:3}),
                 evaluate_(preaddress="0"),
                 swap_children_(),
                 evaluate_(preaddress="0"),
+                evaluate_(),
+                add_(SmQ(2,3)),
+                #evaluate_(preaddress="1"),
                 evaluate_()
             ],
-            color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE}
+            color_dict={x:RED,y:BLUE,z:GREEN,e:GREEN_E,pi:PURPLE},
+            scale=2
         )
         V.play_actions(self)
 
 
-TestVStack_4().render()
+#TestVStack_4().render()

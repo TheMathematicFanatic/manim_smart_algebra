@@ -1,4 +1,4 @@
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 __author__ = 'John Connell - The Mathematic Fanatic'
 __description__ = 'Manim plugin which subclasses MathTex to make it much easier to animate algebra.'
 

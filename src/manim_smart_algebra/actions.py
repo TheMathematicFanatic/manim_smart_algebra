@@ -160,7 +160,7 @@ class SmartAction:
 def preaddressfunc(func):
 	def wrapper(action, expr=None, *args, **kwargs):
 		address = action.preaddress
-		if expr is None: expr = action.input_expression
+		if expr is None: expr = action.input_expression.copy()
 		if len(address)==0:
 			action.output_expression = func(action, expr, *args, **kwargs)
 		else:
@@ -345,7 +345,7 @@ class substitute_(SmartAction):
     def get_addressmap(self):
         target_addresses = []
         for var in self.sub_dict:
-            target_addresses += self.input_expression.get_addresses_of_subex(var)
+            target_addresses += self.input_expression.get_subex(self.preaddress).get_addresses_of_subex(var)
         addressmap = []
         if self.mode == "transform":
             for i,ad in enumerate(target_addresses):
