@@ -7,60 +7,60 @@ from MF_Tools import TransformByGlyphMap
 
 class SmartAction:
     """
-    Transforms SmartExpressions into other SmartExpressions,
-    both as static objects and also with an animation.
+        Transforms SmartExpressions into other SmartExpressions,
+        both as static objects and also with an animation.
 
-    An action is defined by two main things:
-    the get_output_expression method, which controls how it acts on static expressions,
-    and the get_addressmap method, which controls how it acts as an animation.
-    Both set attributes of the corresponding name and return them.
+        An action is defined by two main things:
+        the get_output_expression method, which controls how it acts on static expressions,
+        and the get_addressmap method, which controls how it acts as an animation.
+        Both set attributes of the corresponding name and return them.
 
-    It may also have a preaddress parameter/attribute which will determine the subexpression
-    address at which the action is applied, and a few other attributes which may adjust some
-    specifics.
+        It may also have a preaddress parameter/attribute which will determine the subexpression
+        address at which the action is applied, and a few other attributes which may adjust some
+        specifics.
 
-    self.input_expression is set to None during __init__. It is critical that actions
-    can exist prior to being given expressions, so that they can be combined together.
-    When an input expression is received, this attribute is set, and the method
-    .get_output_expression is called, setting self.output_expression.
-    This is all that is required for static actions, no animations.
+        self.input_expression is set to None during __init__. It is critical that actions
+        can exist prior to being given expressions, so that they can be combined together.
+        When an input expression is received, this attribute is set, and the method
+        .get_output_expression is called, setting self.output_expression.
+        This is all that is required for static actions, no animations.
 
-    Now, to create the animation between these expressions:
+        Now, to create the animation between these expressions:
 
-    get_addressmap is also unique to each action, and returns something like
-    [
-        ["00", "01"],
-        ["01", "00", {"path_arc":PI/2}],
-        [FadeIn, "1"],
-        ["1", FadeOut]
-    ]
-    which contains all the expression-agnostic information about the animation.
-    Often this will simply define and return this list with no computation.
+        get_addressmap is also unique to each action, and returns something like
+        [
+            ["00", "01"],
+            ["01", "00", {"path_arc":PI/2}],
+            [FadeIn, "1"],
+            ["1", FadeOut]
+        ]
+        which contains all the expression-agnostic information about the animation.
+        Often this will simply define and return this list with no computation.
 
-    get_glyphmap combines the input_expression, output_expression, and addressmap
-    to create a list like
-    [
-        ([0,1,2], [5,6]),
-        ([3,4,5], [1,2,3], {"path_arc":PI/2}),
-        (FadeIn, [8,9]),
-        ([6], FadeOut)
-    ]
-    which tells which glyphs of the mobjects to send to which others, and how.
+        get_glyphmap combines the input_expression, output_expression, and addressmap
+        to create a list like
+        [
+            ([0,1,2], [5,6]),
+            ([3,4,5], [1,2,3], {"path_arc":PI/2}),
+            (FadeIn, [8,9]),
+            ([6], FadeOut)
+        ]
+        which tells which glyphs of the mobjects to send to which others, and how.
 
-    get_animations then simply parses this glyphmap list to create a list of
-    animations, probably to be passed to AnimationGroup, like
-    [
-        ReplacementTransform(A[0][0,1,2], B[0][5,6]),
-        ReplacementTransform(A[0][3,4,5], B[0][1,2,3], path_arc=PI/2),
-        FadeIn(B[0][8,9]),
-        FadeOut(A[0][6]),
-        ...
-    ]
-    or something like that, the syntax is partially made up. The ... is
-    ReplacementTransforms of all the individual glyphs not mentioned in the glyphmap,
-    whose lengths have to exactly match.
+        get_animations then simply parses this glyphmap list to create a list of
+        animations, probably to be passed to AnimationGroup, like
+        [
+            ReplacementTransform(A[0][0,1,2], B[0][5,6]),
+            ReplacementTransform(A[0][3,4,5], B[0][1,2,3], path_arc=PI/2),
+            FadeIn(B[0][8,9]),
+            FadeOut(A[0][6]),
+            ...
+        ]
+        or something like that, the syntax is partially made up. The ... is
+        ReplacementTransforms of all the individual glyphs not mentioned in the glyphmap,
+        whose lengths have to exactly match.
 
-    Broadly speaking, that's that!
+        Broadly speaking, that's that!
     """
     def __init__(self,
         input_expression=None,
@@ -127,8 +127,34 @@ class SmartAction:
             self.input_expression,
             self.output_expression,
             *self.glyphmap,
-            **kwargs
+            default_introducer=self.introducer,
+            default_remover=self.remover,
+            **(self.kwargs|kwargs)
             )
+
+    def __rshift__(self, other):
+        if isinstance(other, SequentialAction):
+            return SequentialAction(self, *other.actions)
+        elif isinstance(other, SmartAction):
+            return SequentialAction(self, other)
+        else:
+            return ValueError("Can only use >> with other SequentialAction or SmartAction")
+
+    def __or__(self, other):
+        if isinstance(other, ParallelAction):
+            return ParallelAction(self, *other.actions)
+        elif isinstance(other, SmartAction):
+            return ParallelAction(self, other)
+        else:
+            return ValueError("Can only use | with other ParallelAction or SmartAction")
+    
+    def __ror__(self, other):
+        if isinstance(other, ParallelAction):
+            return ParallelAction(*other.actions, self)
+        elif isinstance(other, SmartAction):
+            return ParallelAction(other, self)
+        else:
+            return ValueError("Can only use | with other ParallelAction or SmartAction")
 
 
 def preaddressfunc(func):
@@ -145,7 +171,6 @@ def preaddressfunc(func):
 		return action.output_expression
 	return wrapper
 
-
 def preaddressmap(getmap):
 	def wrapper(action, *args, **kwargs):
 		addressmap = getmap(action, *args, **kwargs)
@@ -160,6 +185,72 @@ def preaddressmap(getmap):
 
 
 
+class AlgebraicAction(SmartAction):
+    def __init__(self, template1, template2, var_kwarg_dict={}, **kwargs):
+        super().__init__(**kwargs)
+        self.template1 = template1
+        self.template2 = template2
+        self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
+        template_leaves = {
+            self.template1.get_subex(ad)
+            for ad in input_expression.get_all_leaf_addresses()
+            }
+        variables = [var for var in template_leaves if isinstance(var, SmartVariable)]
+        self.template1_address_dict = {var: self.template1.get_addresses_of_subex(var) for var in variables}
+        self.template2_address_dict = {var: self.template2.get_addresses_of_subex(var) for var in variables}
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        for var, addresslist in self.template1_address_dict.items():
+            pass
+
+
+
+class ParallelAction(SmartAction):
+    def __init__(self, *actions, **kwargs):
+        self.actions = actions
+        super().__init__(**kwargs)
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        expr = input_expression
+        for action in self.actions:
+            expr = action.get_output_expression(expr)
+        return expr
+    
+    @preaddressmap
+    def get_addressmap(self):
+        return sum([action.get_addressmap() for action in self.actions], [])
+    
+    def __or__(self, other):
+        if isinstance(other, ParallelAction):
+            return ParallelAction(*self.actions, *other.actions)
+        elif isinstance(other, SmartAction):
+            return ParallelAction(*self.actions, other)
+        else:
+            return ValueError("Can only use | with other ParallelAction or SmartAction")
+    
+    def __ror__(self, other):
+        if isinstance(other, ParallelAction):
+            return ParallelAction(*other.actions, *self.actions)
+        elif isinstance(other, SmartAction):
+            return ParallelAction(other, *self.actions)
+        else:
+            return ValueError("Can only use | with other ParallelAction or SmartAction")
+
+
+
+class SequentialAction(SmartAction): #??? I don't know the best way to make what I'm trying to make here...
+    def __init__(self, *actions, **kwargs):
+        self.actions = actions
+        super().__init__(**kwargs)
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        expr = input_expression
+        for action in self.actions:
+            expr = action.get_output_expression(expr)
+        return expr
 
 
 
@@ -267,4 +358,22 @@ class substitute_(SmartAction):
             return addressmap
 
 
+class compute_(SmartAction):
+    def __init__(self, mode="random leaf", **kwargs):
+        super().__init__(**kwargs)
+        # if mode == "random leaf":
+        #     leaf_addresses = input_expression.get_all_leaf_addresses()
+        #     leaf_address = np.random.choice(leaves)
+        #     self.preaddress = leaf_address
+
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        return input_expression.compute()
+    
+    @preaddressmap
+    def get_addressmap(self):
+        return [
+            [self.preaddress, self.preaddress]
+        ]
 
