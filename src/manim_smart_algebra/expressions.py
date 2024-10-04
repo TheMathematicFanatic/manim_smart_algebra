@@ -291,6 +291,9 @@ class SmartExpression(MathTex):
 					self[ad+"()"].set_color(self.color)
 		return self
 
+	def evaluate(self):
+		return Smarten(self.compute())
+
 class SmartCombiner(SmartExpression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
 		self.symbol = symbol
@@ -318,7 +321,7 @@ class SmartOperation(SmartCombiner):
 		result = self.children[0].compute()
 		for child in self.children[1:]:
 			result = self.eval_op(result, child.compute())
-		return Smarten(result)
+		return result
 
 class SmartAdd(SmartOperation):
 	def __init__(self, *children, **kwargs):
@@ -386,6 +389,16 @@ class SmartDiv(SmartOperation):
 
 	def is_negative(self):
 		return self.children[0].is_negative() or self.children[1].is_negative()
+	
+	def compute(self):
+		num = self.children[0].compute()
+		den = self.children[1].compute()
+		if den == 0:
+			raise ZeroDivisionError
+		if num % den == 0:
+			return int(num / den)
+		else:
+			return float(num) / float(den)
 
 class SmartPow(SmartOperation):
 	def __init__(self, *children, **kwargs):
@@ -447,6 +460,9 @@ class SmartInteger(SmartNumber):
 
 	def __float__(self):
 		return float(self.n)
+	
+	def compute(self):
+		return self.n
 
 	def is_identical_to(self, other):
 		return type(self) == type(other) and self.n == other.n
@@ -524,6 +540,9 @@ class SmartNegative(SmartExpression):
 
 	def is_negative(self):
 		return True
+
+	def compute(self):
+		return -self.children[0].compute()
 
 class SmartVariable(SmartExpression):
 	def __init__(self, symbol, **kwargs):
