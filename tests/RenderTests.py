@@ -285,3 +285,15 @@ class TestVStack_4(Scene):
 
 
 #TestVStack_4().render()
+
+
+class DemoSub(Scene):
+    def construct(self):
+        A = a**2 + b**2
+
+        B = A / (3 - e**x)
+
+        C = B @ {a:3, b:-4, e**x:z}
+
+        self.add(VGroup(A,B,C).arrange(DOWN, buff=0.8).scale_to_fit_height(7.5))
+

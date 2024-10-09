@@ -38,7 +38,7 @@ class VStack(VGroup):
     
     def get_anim(self, i, **kwargs):
         if isinstance(self.actions[i], SmartAction):
-            return self.actions[i].get_animations(**kwargs)
+            return self.actions[i].get_animation(**kwargs)
         elif isinstance(self.actions[i], Animation):
             return self.actions[i]
         elif isinstance(self.actions[i], (list, tuple)):

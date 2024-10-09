@@ -47,7 +47,7 @@ class SmartAction:
         ]
         which tells which glyphs of the mobjects to send to which others, and how.
 
-        get_animations then simply parses this glyphmap list to create a list of
+        get_animation then simply parses this glyphmap list to create a list of
         animations, probably to be passed to AnimationGroup, like
         [
             ReplacementTransform(A[0][0,1,2], B[0][5,6]),
@@ -120,7 +120,7 @@ class SmartAction:
         self.glyphmap = glyphmap
         return glyphmap
     
-    def get_animations(self, **kwargs):
+    def get_animation(self, **kwargs):
         if self.glyphmap is None:
             self.get_glyphmap()
         return TransformByGlyphMap(
@@ -156,6 +156,12 @@ class SmartAction:
         else:
             return ValueError("Can only use | with other ParallelAction or SmartAction")
 
+    def __lt__(self, other):
+        self.input_expression = Smarten(other)
+    
+    def __le__(self, other):
+        return self.get_output_expression(Smarten(other))
+
 
 def preaddressfunc(func):
 	def wrapper(action, expr=None, *args, **kwargs):
@@ -164,7 +170,7 @@ def preaddressfunc(func):
 		if len(address)==0:
 			action.output_expression = func(action, expr, *args, **kwargs)
 		else:
-			active_part = expr.copy().get_subex(address)
+			active_part = expr.get_subex(address)
 			result = func(action, active_part, *args, **kwargs)
 			result_in_context = expr.substitute_at_address(result, address)
 			action.output_expression = result_in_context
@@ -201,8 +207,7 @@ class AlgebraicAction(SmartAction):
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
-        for var, addresslist in self.template1_address_dict.items():
-            pass
+        pass
 
 
 
@@ -240,9 +245,9 @@ class ParallelAction(SmartAction):
 
 
 
-class SequentialAction(SmartAction): #??? I don't know the best way to make what I'm trying to make here...
+class SequentialAction(SmartAction):
     def __init__(self, *actions, **kwargs):
-        self.actions = actions
+        self.actions = list(actions)
         super().__init__(**kwargs)
     
     @preaddressfunc
@@ -251,6 +256,36 @@ class SequentialAction(SmartAction): #??? I don't know the best way to make what
         for action in self.actions:
             expr = action.get_output_expression(expr)
         return expr
+
+    def get_animations(self):
+        return [action.get_animation() for action in self.actions]
+    
+    def get_animation(self, i):
+        return self.actions[i].get_animation()
+        
+    def __rshift__(self, other):
+        if isinstance(other, SequentialAction):
+            return SequentialAction(*self.actions, *other.actions)
+        elif isinstance(other, SmartAction):
+            return SequentialAction(*self.actions, other)
+        else:
+            return ValueError("Can only use >> with other SequentialAction or SmartAction")
+    
+    def __rrshift__(self, other):
+        if isinstance(other, SequentialAction):
+            return SequentialAction(*other.actions, *self.actions)
+        elif isinstance(other, SmartAction):
+            return SequentialAction(other, *self.actions)
+        else:
+            return ValueError("Can only use >> with other SequentialAction or SmartAction")
+    
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.actions[key]
+        elif isinstance(key, slice):
+            return SequentialAction(*self.actions[key])
+
+  
 
 
 
