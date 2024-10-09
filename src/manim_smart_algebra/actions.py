@@ -197,17 +197,19 @@ class AlgebraicAction(SmartAction):
         self.template1 = template1
         self.template2 = template2
         self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
-        template_leaves = {
-            self.template1.get_subex(ad)
-            for ad in input_expression.get_all_leaf_addresses()
-            }
-        variables = [var for var in template_leaves if isinstance(var, SmartVariable)]
-        self.template1_address_dict = {var: self.template1.get_addresses_of_subex(var) for var in variables}
-        self.template2_address_dict = {var: self.template2.get_addresses_of_subex(var) for var in variables}
+        # The following seems helpful but cannot be done without an input, idk where to do it then
+        # template_leaves = {
+        #     self.template1.get_subex(ad)
+        #     for ad in self.input_expression.get_all_leaf_addresses()
+        #     }
+        # variables = [var for var in template_leaves if isinstance(var, SmartVariable)]
+        # self.template1_address_dict = {var: self.template1.get_addresses_of_subex(var) for var in variables}
+        # self.template2_address_dict = {var: self.template2.get_addresses_of_subex(var) for var in variables}
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
-        pass
+        var_dict = match_expressions(self.template1, input_expression)
+        return self.template2.substitute(var_dict)
 
 
 
