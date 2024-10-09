@@ -1,5 +1,8 @@
 from .expressions import *
 from .calculus import *
+from .actions import *
+from .vstack import *
+from .utils import *
 
 
 SmE = SmartExpression

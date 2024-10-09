@@ -1,5 +1,6 @@
 # utils.py
 from manim import *
+#from .expressions import SmartVariable
 
 
 def tex(func):
@@ -58,4 +59,58 @@ def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show
 			scene.play(Indicate(subm, color=BLUE))
 			scene.remove(subm_number)
 
+
+def match_expressions(template, expression):
+	"""
+	This function will either return a ValueError if the expression
+	simply does not match the structure of the template, such as a missing
+	operand or a plus in place of a times, or if they do match it will return
+	a dictionary of who's who. For example,
+	
+	template:      (a*b)**n
+	expression:    (4*x)**(3+y)
+	return value:  {a:4, b:x, n:3+y}
+
+	template:      n + x**5
+	expression:    12 + x**3
+	return value:  ValueError("Structures do not match at address 11, 5 vs 3")
+	
+	template:      x**n*x**m
+	expression:    2**2*3**3
+	return value:  ValueError("Conflicting matches for x: 2 and 3")
+
+	Obviously this has to be recursive, but gee I am feeling a bit challenged atm...
+	...
+	Ok I think I've done it! Ugly af type check in the base case but I can't just use
+	SmartVariable itself because it leads to a circular import. Surely there is a better way?
+	"""
+
+	# Leaf case
+	if not template.children:
+		#if isinstance(template, SmartVariable):
+		if template.__class__.__name__ == 'SmartVariable':
+			return {template: expression}
+		elif template.is_identical_to(expression):
+			return {}
+		else:
+			raise ValueError("Expressions do not match")
+	
+	# Node case
+	var_dict = {}
+	if not isinstance(expression, type(template)):
+		raise ValueError("Expressions do not match type")
+	if not len(template.children) == len(expression.children):
+		raise ValueError("Expressions do not match children length")
+	for tc,ec in zip(template.children, expression.children):
+		child_dict = match_expressions(tc,ec)
+		matching_keys = child_dict.keys() & var_dict.keys()
+		if any(not child_dict[key].is_identical_to(var_dict[key]) for key in matching_keys):
+			raise ValueError("Conflicting matches for " + str(matching_keys))
+		var_dict.update(child_dict)
+
+	return var_dict
+
+
+				
+		
 
