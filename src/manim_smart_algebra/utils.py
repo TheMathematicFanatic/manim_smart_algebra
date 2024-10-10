@@ -3,6 +3,17 @@ from manim import *
 from . import expressions
 
 
+def Smarten(input):
+	if isinstance(input, expressions.SmartExpression):
+		return input
+	elif isinstance(input, int):
+		return expressions.SmartInteger(input)
+	elif isinstance(input, float):
+		return expressions.SmartReal(input)
+	else:
+		raise NotImplementedError(f"Unsupported type {type(input)}")
+
+
 def tex(func):
 	def wrapper(expr, *args, **kwargs):
 		pretex = func(expr, *args, **kwargs)
@@ -109,6 +120,89 @@ def match_expressions(template, expression):
 	return var_dict
 
 
-				
-		
+def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
+	import random
+	nodes = [expressions.SmartAdd, expressions.SmartSub, expressions.SmartMul, expressions.SmartPow]
+	node = random.choice(nodes)
+	def generate_child(current_depth):
+		if np.random.random() < 1 / (current_depth + 1):
+			return expressions.SmartInteger(random.choice(leaves))
+		else:
+			return random_number_expression(leaves, max_depth - 1)
+	def generate_children(current_depth, number_of_children):
+		return [generate_child(current_depth) for _ in range(number_of_children)]
+	if node == expressions.SmartAdd or node == expressions.SmartMul:
+		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node))))
+	elif node == expressions.SmartNegative:
+		children = generate_children(max_depth, 1)
+	else:
+		children = generate_children(max_depth, 2)
+	return node(*children, **kwargs)
+
+
+def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
+	def create_node(address):
+		type_to_symbol_dict = {
+			expressions.SmartInteger: lambda expr: str(expr.n),
+			expressions.SmartVariable: lambda expr: expr.symbol,
+			expressions.SmartAdd: lambda expr: "+",
+			expressions.SmartSub: lambda expr: "-",
+			expressions.SmartMul: lambda expr: "\\times",
+			expressions.SmartDiv: lambda expr: "\\div",
+			expressions.SmartPow: lambda expr: "\\hat{} }",
+			expressions.SmartNegative: lambda expr: "-",
+			expressions.SmartFunction: lambda expr: expr.symbol,
+			expressions.SmartRelation: lambda expr: expr.symbol,
+			expressions.SmartReal: lambda expr: str(expr.x),
+			expressions.SmartEquation: lambda expr: "=",
+			expressions.SmartSequence: lambda expr: ","
+		}
+		subex = expr.get_subex(address)
+		symbol = type_to_symbol_dict[type(subex)](subex)
+		tex = MathTex(symbol)
+		# if tex.width > tex.height:
+		# 	tex.scale_to_fit_width(node_size)
+		# else:
+		# 	tex.scale_to_fit_height(node_size)
+		return tex
+	addresses = expr.get_all_addresses()
+	if printing: print(addresses)
+	max_length = max(len(address) for address in addresses)
+	layered_addresses = [
+		[ad for ad in addresses if len(ad) == i]
+		for i in range(max_length + 1)
+	]
+	if printing: print(layered_addresses)
+	max_index = max(range(len(layered_addresses)), key=lambda i: len(layered_addresses[i]))
+	max_layer = layered_addresses[max_index]
+	max_width = len(max_layer)
+	if printing: print(max_index, max_width, max_layer)
+	Nodes = VDict({ad: create_node(ad) for ad in addresses})
+	Max_layer = VGroup(*[Nodes[ad] for ad in max_layer]).arrange(RIGHT,buff=horizontal_buff)
+	def position_children(parent_address):
+		parent = Nodes[parent_address]
+		child_addresses = [ad for ad in layered_addresses[len(parent_address)+1] if ad[:-1] == parent_address]
+		if printing: print(child_addresses)
+		child_Nodes = VGroup(*[Nodes[ad] for ad in child_addresses]).arrange(RIGHT,buff=1)
+		child_Nodes.move_to(parent.get_center()+DOWN*vertical_buff)
+	for i in range(max_index, max_length):
+		for ad in layered_addresses[i]:
+			position_children(ad)
+	def position_parent(child_address):
+		sibling_Nodes = VGroup(*[Nodes[ad] for ad in layered_addresses[len(child_address)] if ad[:-1] == child_address[:-1]])
+		parent_Node = Nodes[child_address[:-1]]
+		parent_Node.move_to(sibling_Nodes.get_center()+UP*vertical_buff)
+	for i in range(max_index, 0, -1):
+		for ad in layered_addresses[i]:
+			position_parent(ad)
+	Edges = VGroup(*[
+		Line(
+			Nodes[ad[:-1]].get_critical_point(DOWN),
+			Nodes[ad].get_critical_point(UP),
+			buff=0.2, stroke_opacity=0.4
+			)
+		for ad in addresses if len(ad) > 0
+		])
+	return VGroup(Nodes, Edges)
+
 
