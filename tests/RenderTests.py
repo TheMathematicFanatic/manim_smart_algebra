@@ -297,3 +297,25 @@ class DemoSub(Scene):
 
         self.add(VGroup(A,B,C).arrange(DOWN, buff=0.8).scale_to_fit_height(7.5))
 
+
+
+class TestAlgebraicAction_1(Scene):
+    def construct(self):
+        A = x/3
+        s = AlgebraicAction(a/b, b/a, {a:{"path_arc":PI, "delay":0.3}, b:{"path_arc":PI}})
+        V = VStack(A, [s], scale=3)
+        self.add(V[0])
+        V.play_actions(self)
+
+
+class TestAlgebraicAction_2(Scene):
+    def construct(self):
+        A = (a**2 + b**2) / (3 - e**x)
+        pow_reciprocal_ = AlgebraicAction(
+            a/b, (b/a)**-1, {a:{"path_arc":PI}, b:{"path_arc":PI}}
+        )
+        V = VStack(A, [pow_reciprocal_])
+        self.add(V[0])
+        V.play_actions(self)
+
+
