@@ -1,6 +1,6 @@
 # utils.py
 from manim import *
-#from .expressions import SmartVariable
+from . import expressions
 
 
 def tex(func):
@@ -81,14 +81,12 @@ def match_expressions(template, expression):
 
 	Obviously this has to be recursive, but gee I am feeling a bit challenged atm...
 	...
-	Ok I think I've done it! Ugly af type check in the base case but I can't just use
-	SmartVariable itself because it leads to a circular import. Surely there is a better way?
+	Ok I think I've done it!
 	"""
 
 	# Leaf case
 	if not template.children:
-		#if isinstance(template, SmartVariable):
-		if template.__class__.__name__ == 'SmartVariable':
+		if isinstance(template, expressions.SmartVariable):
 			return {template: expression}
 		elif template.is_identical_to(expression):
 			return {}
