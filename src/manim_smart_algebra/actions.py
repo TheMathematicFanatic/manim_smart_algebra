@@ -197,14 +197,6 @@ class AlgebraicAction(SmartAction):
         self.template1 = template1
         self.template2 = template2
         self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
-        # The following seems helpful but cannot be done without an input, idk where to do it then
-        # template_leaves = {
-        #     self.template1.get_subex(ad)
-        #     for ad in self.input_expression.get_all_leaf_addresses()
-        #     }
-        # variables = [var for var in template_leaves if isinstance(var, SmartVariable)]
-        # self.template1_address_dict = {var: self.template1.get_addresses_of_subex(var) for var in variables}
-        # self.template2_address_dict = {var: self.template2.get_addresses_of_subex(var) for var in variables}
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
@@ -437,3 +429,60 @@ class evaluate_(SmartAction):
             ["", ""] #extension by preaddress is done by decorator!
         ]
 
+
+class distribute_(SmartAction):
+    # Not done yet, multilayer does not work... this is so necessary but rather nontrivial... hm...
+    def __init__(self, mode="auto", multilayer=False, **kwargs):
+        self.mode = mode #"auto", "left", "right"
+        super().__init__(**kwargs)
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        if self.mode == "auto":
+            self.determine_direction(input_expression)
+        if self.mode == "left":
+            new_children = [
+                type(input_expression)(input_expression.children[0], child)
+                for child in input_expression.children[-1].children
+                ]
+            return type(input_expression.children[-1])(*new_children)
+        elif self.mode == "right":
+            new_children = [
+                type(input_expression)(child, input_expression.children[-1])
+                for child in input_expression.children[0].children
+                ]
+            return type(input_expression.children[0])(*new_children)
+
+    def determine_direction(self, input_expression):
+        if self.mode == "auto":
+            if isinstance(input_expression, SmartMul):
+                left_distributable = isinstance(input_expression.children[-1], (SmartAdd, SmartSub))
+                right_distributable = isinstance(input_expression.children[0], (SmartAdd, SmartSub))
+                if left_distributable and right_distributable:
+                    raise ValueError("Cannot auto-distribute if both sides are distributable, please set mode manually.")
+                elif left_distributable:
+                    self.mode = "left"
+                elif right_distributable:
+                    self.mode = "right"
+                else:
+                    raise ValueError("Cannot distribute, neither side is distributable.")
+            elif isinstance(input_expression, SmartDiv):
+                right_distributable = isinstance(input_expression.children[0], (SmartAdd, SmartSub))
+                if right_distributable:
+                    self.mode = "right"
+                else:
+                    raise ValueError("Cannot distribute, right side is not distributable.")
+            elif isinstance(input_expression, SmartPow):
+                right_distributable = isinstance(input_expression.children[0], (SmartMul, SmartDiv))
+                if right_distributable:
+                    self.mode = "right"
+                else:
+                    raise ValueError("Cannot distribute, right side is not distributable.")
+            else:
+                raise ValueError("Cannot auto-distribute, must be a multiplication or division.")
+
+    @preaddressmap
+    def get_addressmap(self):
+        return [
+            ["", ""] #standin idk what the fuck im doing here
+        ]
