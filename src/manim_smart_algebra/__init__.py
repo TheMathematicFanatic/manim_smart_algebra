@@ -1,13 +1,13 @@
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 __author__ = 'John Connell - The Mathematic Fanatic'
 __description__ = 'Manim plugin which subclasses MathTex to make it much easier to animate algebra.'
 
 from .expressions import *
-#from .actions import *
+from .actions import *
 
 """
 .expressions contains the main mobject classes of the entire plugin
-.actions contains the animation classes, not currently imported because they are not ready yet
+.actions contains the animation classes, still pretty under construction but good enough for now
 .utils not imported because they are intended for internal use only
 .nicknames not imported, they are intended to be optionally imported with * if desired.
 
