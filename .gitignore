@@ -23,5 +23,5 @@ slides/
 # Ignore pytest prof folder
 prof/
 
-# Ignore files marked as old
-/src/actions_old.py
+# Ignore VSCode tasks
+.vscode/
