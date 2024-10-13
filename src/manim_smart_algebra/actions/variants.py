@@ -38,15 +38,22 @@ class AlgebraicAction(SmartAction):
 
 
 class AddressMapAction(SmartAction):
-    def __init__(self, *address_map, **kwargs):
+    def __init__(self, *address_map, extra_animations=[], **kwargs):
         super().__init__(**kwargs)
         self.address_map = address_map
+        self.extra_animations = extra_animations
+    
+    def get_animation(self, **kwargs):
+        return AnimationGroup(super().get_animation(), *self.extra_animations)
 
 
 class GlyphMapAction(SmartAction):
-    def __init__(self, *glyph_map, **kwargs):
+    def __init__(self, *glyph_map, extra_animations=[], **kwargs):
         super().__init__(**kwargs)
         self.glyph_map = glyph_map
+    
+    def get_animation(self, **kwargs):
+        return AnimationGroup(super().get_animation(), *self.extra_animations)
 
 
 class AnimationAction(SmartAction):

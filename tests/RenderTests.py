@@ -11,6 +11,11 @@ from manim_smart_algebra.actions import *
 from manim_smart_algebra.nicknames import *
 from manim_smart_algebra.vstack import *
 
+from ..src.manim_smart_algebra import *
+from ..src.manim_smart_algebra.expressions import *
+from ..src.manim_smart_algebra.actions import *
+
+
 
 class TestApplyAction(Scene):
     def construct(self):
@@ -319,3 +324,45 @@ class TestAlgebraicAction_2(Scene):
         V.play_actions(self)
 
 
+class TestZipper(Scene):
+    def construct(self):
+        a = 6
+        b = 1
+        p = 3
+        q = 9
+
+        x = SmVar("x")
+        factor1 = x+p
+        factor2 = x+q
+        expanded = x**2 + (p+q)*x + (p*q)
+        numerator = a*x+b
+        A, B = SmVar("A"), SmVar("B")
+
+        Z = Zipper(
+
+            (
+                SmEq(numerator / expanded, A/factor1 + B/factor2),
+                
+                    AddressMapAction(("01", "01"))
+            ),
+            (
+                SmEq(numerator / (factor1 * factor2), A/factor1 + B/factor2),
+                
+                    AddressMapAction(("01", "11", {"path_arc":-PI}), (Write, "11()", {"delay":0.8}))
+            ),
+            (
+                SmEq(numerator, (A/factor1 + B/factor2)*(factor1*factor2)),
+                
+                    distribute_(preaddress="1", mode="right")
+            ),
+            (
+                _,
+                
+                    _
+            ),
+            (
+                SmEq(numerator, A*factor2 + B*factor1),
+                
+                    _
+            ),
+        )

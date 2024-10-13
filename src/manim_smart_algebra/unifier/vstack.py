@@ -1,5 +1,5 @@
-from .expressions.expression_core import *
-from .actions.action_core import *
+from ..expressions.expression_core import *
+from ..actions.action_core import *
 
 
 """

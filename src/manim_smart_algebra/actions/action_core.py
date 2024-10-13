@@ -3,7 +3,7 @@ from manim import *
 from ..expressions.expression_core import *
 from ..utils import *
 from MF_Tools import TransformByGlyphMap
-from . import combinations, variants
+from . import combinations
 
 
 class SmartAction:
@@ -161,6 +161,12 @@ class SmartAction:
         self.input_expression = Smarten(other)
     
     def __le__(self, other):
+        return self.get_output_expression(Smarten(other))
+
+    def __gt__(self, other):
+        self.output_expression = Smarten(other)
+
+    def __ge__(self, other):
         return self.get_output_expression(Smarten(other))
 
 
