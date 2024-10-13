@@ -1,13 +1,12 @@
-from manim import *
-from .expressions import *
-from .actions import *
-from .utils import *
+from ..expressions.expression_core import *
+from ..expressions.numbers import SmartReal
+from ..expressions.functions import SmartFunction
+from ..utils import *
 
 
 class Infinity(SmartReal):
     def __init__(self, **kwargs):
         super().__init__(np.inf, "\\infty", **kwargs)
-inf = Infinity()
 
 
 
@@ -26,7 +25,6 @@ class Limit(SmartFunction):
 class Differential(SmartFunction):
     def __init__(self, **kwargs):
         super().__init__("\\text{d} \\! \\!", 1, parentheses_mode="weak", **kwargs)
-d = Differential()
 
 
 class Integral(SmartFunction):
@@ -45,11 +43,3 @@ class Integral(SmartFunction):
             **kwargs
         )
 
-# None of this works currently due to a problem in SmartFunction lol
-# a = SmartVariable('a')
-# b = SmartVariable('b')
-# SumRule = AlgebraicAction(d(a+b), d(a) + d(b))
-# DifferenceRule = AlgebraicAction(d(a-b), d(a) - d(b))
-# ProductRule = AlgebraicAction(d(a*b), d(a)*b + a*d(b))
-# QuotientRule = AlgebraicAction(d(a/b), (d(a)*b - a*d(b))/b**2)
-# PowerRule = AlgebraicAction(d(a**b), b*d(a**(b-1))*d(a))

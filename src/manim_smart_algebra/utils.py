@@ -1,15 +1,15 @@
 # utils.py
 from manim import *
-from . import expressions
+from .expressions import expression_core, operations, numbers, functions, relations, sequences, variables
 
 
 def Smarten(input):
-	if isinstance(input, expressions.SmartExpression):
+	if isinstance(input, expression_core.SmartExpression):
 		return input
 	elif isinstance(input, int):
-		return expressions.SmartInteger(input)
+		return expression_core.SmartInteger(input)
 	elif isinstance(input, float):
-		return expressions.SmartReal(input)
+		return expression_core.SmartReal(input)
 	else:
 		raise NotImplementedError(f"Unsupported type {type(input)}")
 
@@ -97,7 +97,7 @@ def match_expressions(template, expression):
 
 	# Leaf case
 	if not template.children:
-		if isinstance(template, expressions.SmartVariable):
+		if isinstance(template, expression_core.SmartVariable):
 			return {template: expression}
 		elif template.is_identical_to(expression):
 			return {}
@@ -122,18 +122,18 @@ def match_expressions(template, expression):
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random
-	nodes = [expressions.SmartAdd, expressions.SmartSub, expressions.SmartMul, expressions.SmartPow]
+	nodes = [operations.SmartAdd, operations.SmartSub, operations.SmartMul, operations.SmartPow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
 		if np.random.random() < 1 / (current_depth + 1):
-			return expressions.SmartInteger(random.choice(leaves))
+			return numbers.SmartInteger(random.choice(leaves))
 		else:
 			return random_number_expression(leaves, max_depth - 1)
 	def generate_children(current_depth, number_of_children):
 		return [generate_child(current_depth) for _ in range(number_of_children)]
-	if node == expressions.SmartAdd or node == expressions.SmartMul:
+	if node == operations.SmartAdd or node == operations.SmartMul:
 		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node))))
-	elif node == expressions.SmartNegative:
+	elif node == operations.SmartNegative:
 		children = generate_children(max_depth, 1)
 	else:
 		children = generate_children(max_depth, 2)
@@ -143,19 +143,19 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
 	def create_node(address):
 		type_to_symbol_dict = {
-			expressions.SmartInteger: lambda expr: str(expr.n),
-			expressions.SmartVariable: lambda expr: expr.symbol,
-			expressions.SmartAdd: lambda expr: "+",
-			expressions.SmartSub: lambda expr: "-",
-			expressions.SmartMul: lambda expr: "\\times",
-			expressions.SmartDiv: lambda expr: "\\div",
-			expressions.SmartPow: lambda expr: "\\hat{} }",
-			expressions.SmartNegative: lambda expr: "-",
-			expressions.SmartFunction: lambda expr: expr.symbol,
-			expressions.SmartRelation: lambda expr: expr.symbol,
-			expressions.SmartReal: lambda expr: str(expr.x),
-			expressions.SmartEquation: lambda expr: "=",
-			expressions.SmartSequence: lambda expr: ","
+			numbers.SmartInteger: lambda expr: str(expr.n),
+			numbers.SmartReal: lambda expr: str(expr.x),
+			variables.SmartVariable: lambda expr: expr.symbol,
+			operations.SmartAdd: lambda expr: "+",
+			operations.SmartSub: lambda expr: "-",
+			operations.SmartMul: lambda expr: "\\times",
+			operations.SmartDiv: lambda expr: "\\div",
+			operations.SmartPow: lambda expr: "\\hat{} }",
+			operations.SmartNegative: lambda expr: "-",
+			functions.SmartFunction: lambda expr: expr.symbol,
+			sequences.SmartSequence: lambda expr: ",",
+			relations.SmartRelation: lambda expr: expr.symbol,
+			relations.SmartEquation: lambda expr: "=",
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)
@@ -178,7 +178,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 	max_width = len(max_layer)
 	if printing: print(max_index, max_width, max_layer)
 	Nodes = VDict({ad: create_node(ad) for ad in addresses})
-	Max_layer = VGroup(*[Nodes[ad] for ad in max_layer]).arrange(RIGHT,buff=horizontal_buff)
+	#Max_layer = VGroup(*[Nodes[ad] for ad in max_layer]).arrange(RIGHT,buff=horizontal_buff)
 	def position_children(parent_address):
 		parent = Nodes[parent_address]
 		child_addresses = [ad for ad in layered_addresses[len(parent_address)+1] if ad[:-1] == parent_address]
