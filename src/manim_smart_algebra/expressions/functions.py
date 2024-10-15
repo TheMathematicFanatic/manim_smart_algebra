@@ -1,6 +1,5 @@
 from .expression_core import *
-from .operations import *
-from .sequences import *
+from .sequences import SmartSequence
 
 
 class SmartFunction(SmartExpression):
@@ -37,6 +36,7 @@ class SmartFunction(SmartExpression):
 		if self.parentheses_mode == "always":
 			child.give_parentheses(True)
 		elif self.parentheses_mode in ["weak", "strong"]:
+			from ..expressions.operations import SmartOperation, SmartAdd, SmartSub
 			if len(child.children) > 1:
 				child.give_parentheses(True)
 			elif isinstance(child.children[0], (SmartAdd, SmartSub)):

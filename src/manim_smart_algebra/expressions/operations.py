@@ -11,6 +11,7 @@ class SmartOperation(SmartCombiner):
 			result = self.eval_op(result, child.compute())
 		return result
 
+
 class SmartAdd(SmartOperation):
 	def __init__(self, *children, **kwargs):
 		self.eval_op = lambda x,y: x+y
@@ -102,6 +103,7 @@ class SmartPow(SmartOperation):
 
 	def is_negative(self):
 		return False
+
 
 class SmartNegative(SmartExpression):
 	def __init__(self, child, **kwargs):

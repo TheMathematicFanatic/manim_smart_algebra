@@ -229,9 +229,6 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from manim import *
 from manim_smart_algebra.expressions import *
-from manim_smart_algebra.actions import *
-from manim_smart_algebra.nicknames import *
-
 
 
 

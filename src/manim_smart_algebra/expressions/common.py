@@ -1,8 +1,9 @@
 from .expression_core import *
-from .numbers import *
-from .operations import *
-from .functions import *
-from .relations import *
+from .numbers import SmartInteger, SmartReal, SmartRational
+from .variables import SmartVariable
+from .operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
+from .functions import SmartFunction
+from .relations import SmartEquation
 import numpy as np
 
 

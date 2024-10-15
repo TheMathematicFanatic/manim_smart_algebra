@@ -1,15 +1,15 @@
-# utils.py
 from manim import *
-from .expressions import expression_core, operations, numbers, functions, relations, sequences, variables
 
 
 def Smarten(input):
-	if isinstance(input, expression_core.SmartExpression):
+	from .expressions.expression_core import SmartExpression
+	from .expressions.numbers import SmartInteger, SmartReal
+	if isinstance(input, SmartExpression):
 		return input
 	elif isinstance(input, int):
-		return expression_core.SmartInteger(input)
+		return SmartInteger(input)
 	elif isinstance(input, float):
-		return expression_core.SmartReal(input)
+		return SmartReal(input)
 	else:
 		raise NotImplementedError(f"Unsupported type {type(input)}")
 
@@ -73,31 +73,31 @@ def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show
 
 def match_expressions(template, expression):
 	"""
-	This function will either return a ValueError if the expression
-	simply does not match the structure of the template, such as a missing
-	operand or a plus in place of a times, or if they do match it will return
-	a dictionary of who's who. For example,
-	
-	template:      (a*b)**n
-	expression:    (4*x)**(3+y)
-	return value:  {a:4, b:x, n:3+y}
+		This function will either return a ValueError if the expression
+		simply does not match the structure of the template, such as a missing
+		operand or a plus in place of a times, or if they do match it will return
+		a dictionary of who's who. For example,
+		
+		template:      (a*b)**n
+		expression:    (4*x)**(3+y)
+		return value:  {a:4, b:x, n:3+y}
 
-	template:      n + x**5
-	expression:    12 + x**3
-	return value:  ValueError("Structures do not match at address 11, 5 vs 3")
-	
-	template:      x**n*x**m
-	expression:    2**2*3**3
-	return value:  ValueError("Conflicting matches for x: 2 and 3")
+		template:      n + x**5
+		expression:    12 + x**3
+		return value:  ValueError("Structures do not match at address 11, 5 vs 3")
+		
+		template:      x**n*x**m
+		expression:    2**2*3**3
+		return value:  ValueError("Conflicting matches for x: 2 and 3")
 
-	Obviously this has to be recursive, but gee I am feeling a bit challenged atm...
-	...
-	Ok I think I've done it!
+		Obviously this has to be recursive, but gee I am feeling a bit challenged atm...
+		...
+		Ok I think I've done it!
 	"""
-
+	from .expressions.variables import SmartVariable
 	# Leaf case
 	if not template.children:
-		if isinstance(template, expression_core.SmartVariable):
+		if isinstance(template, SmartVariable):
 			return {template: expression}
 		elif template.is_identical_to(expression):
 			return {}
@@ -122,18 +122,20 @@ def match_expressions(template, expression):
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random
-	nodes = [operations.SmartAdd, operations.SmartSub, operations.SmartMul, operations.SmartPow]
+	from .expressions.numbers import SmartInteger
+	from .expressions.expression_core import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
+	nodes = [SmartAdd, SmartSub, SmartMul, SmartPow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
 		if np.random.random() < 1 / (current_depth + 1):
-			return numbers.SmartInteger(random.choice(leaves))
+			return SmartInteger(random.choice(leaves))
 		else:
 			return random_number_expression(leaves, max_depth - 1)
 	def generate_children(current_depth, number_of_children):
 		return [generate_child(current_depth) for _ in range(number_of_children)]
-	if node == operations.SmartAdd or node == operations.SmartMul:
+	if node == SmartAdd or node == SmartMul:
 		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node))))
-	elif node == operations.SmartNegative:
+	elif node == SmartNegative:
 		children = generate_children(max_depth, 1)
 	else:
 		children = generate_children(max_depth, 2)
@@ -142,20 +144,27 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
 	def create_node(address):
+		#from .expressions import numbers, variables, operations, functions, sequences, relations
+		from .expressions.numbers import SmartInteger, SmartReal, SmartRational
+		from .expressions.variables import SmartVariable
+		from expressions.operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
+		from .expressions.functions import SmartFunction
+		from .expressions.sequences import SmartSequence
+		from .expressions.equations import SmartEquation
 		type_to_symbol_dict = {
-			numbers.SmartInteger: lambda expr: str(expr.n),
-			numbers.SmartReal: lambda expr: str(expr.x),
-			variables.SmartVariable: lambda expr: expr.symbol,
-			operations.SmartAdd: lambda expr: "+",
-			operations.SmartSub: lambda expr: "-",
-			operations.SmartMul: lambda expr: "\\times",
-			operations.SmartDiv: lambda expr: "\\div",
-			operations.SmartPow: lambda expr: "\\hat{} }",
-			operations.SmartNegative: lambda expr: "-",
-			functions.SmartFunction: lambda expr: expr.symbol,
-			sequences.SmartSequence: lambda expr: ",",
-			relations.SmartRelation: lambda expr: expr.symbol,
-			relations.SmartEquation: lambda expr: "=",
+			SmartInteger: lambda expr: str(expr.n),
+			SmartReal: lambda expr: str(expr.x),
+			SmartRational: lambda expr: "\\div",
+			SmartVariable: lambda expr: expr.symbol,
+			SmartAdd: lambda expr: "+",
+			SmartSub: lambda expr: "-",
+			SmartMul: lambda expr: "\\times",
+			SmartDiv: lambda expr: "\\div",
+			SmartPow: lambda expr: "\\hat{} }",
+			SmartNegative: lambda expr: "-",
+			SmartFunction: lambda expr: expr.symbol,
+			SmartSequence: lambda expr: ",",
+			SmartEquation: lambda expr: "=",
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)

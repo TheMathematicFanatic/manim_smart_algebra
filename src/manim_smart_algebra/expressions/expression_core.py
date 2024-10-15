@@ -1,7 +1,6 @@
 # expressions.py
 from manim import *
-from  . import operations, functions, relations
-from ..utils import *
+from ..utils import Smarten, tex, add_spaces_around_brackets
 
 
 algebra_config = {
@@ -154,61 +153,59 @@ class SmartExpression(MathTex):
 		return len(self.submobjects[0].submobjects)
 
 	def __neg__(self):
-		return operations.SmartNegative(self)
+		from .operations import SmartNegative
+		return SmartNegative(self)
 
 	def __add__(self, other):
-		return operations.SmartAdd(self, other)
+		from .operations import SmartAdd
+		return SmartAdd(self, other)
 
 	def __sub__(self, other):
-		return operations.SmartSub(self, other)
+		from .operations import SmartSub
+		return SmartSub(self, other)
 
 	def __mul__(self, other):
-		return operations.SmartMul(self, other)
+		from .operations import SmartMul
+		return SmartMul(self, other)
 
 	def __truediv__(self, other):
-		return operations.SmartDiv(self, other)
+		from .operations import SmartDiv
+		return SmartDiv(self, other)
 
 	def __pow__(self, other):
-		return operations.SmartPow(self, other)
+		from .operations import SmartPow
+		return SmartPow(self, other)
 
 	def __radd__(self, other):
-		return operations.SmartAdd(other, self)
+		from .operations import SmartAdd
+		return SmartAdd(other, self)
 
 	def __rsub__(self, other):
-		return operations.SmartSub(other, self)
+		from .operations import SmartSub
+		return SmartSub(other, self)
 
 	def __rmul__(self, other):
-		return operations.SmartMul(other, self)
+		from .operations import SmartMul
+		return SmartMul(other, self)
 
 	def __rtruediv__(self, other):
-		return operations.SmartDiv(other, self)
+		from .operations import SmartDiv
+		return SmartDiv(other, self)
 
 	def __rpow__(self, other):
-		return operations.SmartPow(other, self)
-
-	def __iadd__(self, other):
-		return self.__add__(other)
-
-	def __isub__(self, other):
-		return self.__sub__(other)
-
-	def __imul__(self, other):
-		return self.__mul__(other)
-
-	def __itruediv__(self, other):
-		return self.__truediv__(other)
-
-	def __ipow__(self, other):
-		return self.__pow__(other)
+		from .operations import SmartPow
+		return SmartPow(other, self)
 
 	def __matmul__(self, expression_dict):
 		return self.substitute(expression_dict)
 
 	def __and__(self, other):
-		return relations.SmartEquation(self, other)
+		from .relations import SmartEquation
+		return SmartEquation(self, other)
 	
 	def __rand__(self, other):
-		return relations.SmartEquation(other, self)
+		from .relations import SmartEquation
+		return SmartEquation(other, self)
 
 	def is_negative(self):
 		return False # catchall if not defined in subclasses
