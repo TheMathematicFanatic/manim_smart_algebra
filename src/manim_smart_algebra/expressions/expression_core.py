@@ -13,11 +13,17 @@ algebra_config = {
 
 
 class SmartExpression(MathTex):
-	def __init__(self, parentheses=False, **kwargs):
+	def __init__(self, parentheses=False, initialize_MathTex=False, **kwargs):
 		self.parentheses = parentheses
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
-		string = add_spaces_around_brackets(str(self))
+		self.initialized_MathTex = initialize_MathTex
+		if initialize_MathTex:
+			self.init_MathTex(**kwargs)
+
+	def init_MathTex(self, **kwargs):
+		self.initialized_MathTex = True
+		string = add_spaces_around_brackets(str(self))	
 		super().__init__(string, **kwargs)
 
 	def __getitem__(self, key):
@@ -156,6 +162,8 @@ class SmartExpression(MathTex):
 			return sorted(set(results))
 
 	def __len__(self):
+		if not self.initialized_MathTex:
+			self.init_MathTex()
 		return len(self.submobjects[0].submobjects)
 
 	def __neg__(self):
