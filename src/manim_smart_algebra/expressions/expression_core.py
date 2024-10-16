@@ -41,7 +41,7 @@ class SmartExpression(MathTex):
 		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
 
 	def get_subex(self, address_string):
-		# Returns the SmartTex object corresponding to the subexpression at the given address.
+		# Returns the SmartExpression object corresponding to the subexpression at the given address.
 		# Note that this is not a submobject of self! It is a different mobject probably not on screen,
 		# it was just created to help create self.
 		if address_string == "":
@@ -67,6 +67,8 @@ class SmartExpression(MathTex):
 		return addresses
 
 	def get_glyphs_at_address(self, address):
+		from .operations import SmartNegative
+		from .functions import SmartFunction
 		start = 0
 		for n,a in enumerate(address):
 			parent = self.get_subex(address[:n])
@@ -77,9 +79,9 @@ class SmartExpression(MathTex):
 					sibling = parent.children[i]
 					start += len(sibling)
 					start += parent.symbol_glyph_length
-			elif isinstance(parent, operations.SmartNegative):
+			elif isinstance(parent, SmartNegative):
 				start += 1
-			elif isinstance(parent, functions.SmartFunction):
+			elif isinstance(parent, SmartFunction):
 				start += parent.symbol_glyph_length
 			else:
 				raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
@@ -114,24 +116,28 @@ class SmartExpression(MathTex):
 			return subex_glyphs[paren_length:-paren_length]
 	
 	def get_op_glyphs(self, address):
+		from .functions import SmartFunction
 		subex = self.get_subex(address)
-		if not isinstance(subex, SmartCombiner) or subex.symbol_glyph_length==0:
+		if not isinstance(subex, (SmartCombiner, SmartFunction)) or subex.symbol_glyph_length==0:
 			return []
 		subex_glyphs = self.get_glyphs_at_address(address)
 		results = []
 		turtle = subex_glyphs[0]
 		if subex.parentheses:
 			turtle += subex.paren_length()
-		for child in subex.children[:-1]:
-			turtle += len(child)
+		if isinstance(subex, SmartFunction):
 			results += list(range(turtle, turtle + subex.symbol_glyph_length))
-			turtle += subex.symbol_glyph_length
+		elif isinstance(subex, SmartCombiner):
+			for child in subex.children[:-1]:
+				turtle += len(child)
+				results += list(range(turtle, turtle + subex.symbol_glyph_length))
+				turtle += subex.symbol_glyph_length
 		return results
 	
 	def get_glyphs(self, psuedoaddress):
 		# Returns the list of glyph indices corresponding to the subexpression at the given address.
 		# Can accept special characters at the end to trigger one of the special methods above.
-		special_chars = "()_+-*/^"
+		special_chars = "()_+-*/^,"
 		found_special_chars = [(i,c) for (i,c) in enumerate(psuedoaddress) if c in special_chars]
 		if len(found_special_chars) == 0:
 			return self.get_glyphs_at_address(psuedoaddress)
@@ -145,7 +151,7 @@ class SmartExpression(MathTex):
 					results += self.get_right_paren_glyphs(address)
 				elif c == "_":
 					results += self.get_exp_glyphs_without_parentheses(address)
-				elif c in "+-*/^":
+				elif c in "+-*/^,":
 					results += self.get_op_glyphs(address)
 			return sorted(set(results))
 
@@ -261,12 +267,16 @@ class SmartExpression(MathTex):
 		return type(self)(*new_children)
 
 	def substitute_at_address(self, subex, address):
+		from .functions import SmartFunction
 		subex = Smarten(subex).copy() #?
 		if len(address) == 0:
 			return subex
 		new_child = self.children[int(address[0])].substitute_at_address(subex, address[1:])
 		new_children = self.children[:int(address[0])] + [new_child] + self.children[int(address[0])+1:]
-		return type(self)(*new_children)
+		if isinstance(self, SmartCombiner):
+			return type(self)(*new_children)
+		elif isinstance(self, SmartFunction):
+			SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode)(*new_children)
 
 	def substitute_at_addresses(self, subex, addresses):
 		result = self.copy()

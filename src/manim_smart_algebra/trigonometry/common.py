@@ -1,4 +1,5 @@
 from ..expressions.functions import *
+from ..expressions.variables import SmartVariable
 import numpy as np
 
 

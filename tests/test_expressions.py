@@ -7,6 +7,11 @@ methods in the main class.
 """
 
 import pytest
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+from manim import *
+from manim_smart_algebra.expressions import *
 
 @pytest.fixture
 def Q(): #simple rational exp
@@ -25,6 +30,14 @@ def S():
     S = SmartAdd(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
     S = (3+e**x)/S
     return S
+
+@pytest.fixture
+def F():
+    sin = SmartFunction("\\sin", 3, rule=np.sin, parentheses_mode="weak")
+    theta = SmartVariable("\\theta")
+    F = f(x,y,y**2-x**2)
+    F = F / sin(theta)
+    return F
 
 
 def test_SmartVariable():
@@ -211,6 +224,29 @@ def test_glyph_indices_multi_children(S):
     assert S.get_glyphs("1+") == [6,11,17]
     assert S.get_glyphs("1()+*_") == list(range(5,23))
 
+def test_glyph_indices_function(F):
+    assert len(F) == 17
+    assert F.get_glyphs("") == [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    assert F.get_glyphs("()") == []
+    assert F.get_glyphs("_") == [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    assert F.get_glyphs("/") == [12]
+    assert F.get_glyphs("0") == [0,1,2,3,4,5,6,7,8,9,10,11]
+    assert F.get_glyphs("0()") == []
+    assert F.get_glyphs("0_") == [0,1,2,3,4,5,6,7,8,9,10,11]
+    assert F.get_glyphs("0/") == [0]
+    assert F.get_glyphs("00") == [1,2,3,4,5,6,7,8,9,10,11]
+    assert F.get_glyphs("00()") == [1,11]
+    assert F.get_glyphs("00_") == [2,3,4,5,6,7,8,9,10]
+    assert F.get_glyphs("00,") == [3,5]
+    assert F.get_glyphs("002") == [6,7,8,9,10]
+    assert F.get_glyphs("002-") == [8]
+    assert F.get_glyphs("1") == [13,14,15,16]
+    assert F.get_glyphs("1()") == []
+    assert F.get_glyphs("1_") == [13,14,15,16]
+    assert F.get_glyphs("1*") == [13,14,15]
+    assert F.get_glyphs("10") == [16]
+    assert F.get_glyphs("100") == [16]
+
 def test_substitute(Q,B):
     assert Q.substitute_at_address(B, "1").is_identical_to((x/y)**B)
     assert Q.substitute_at_address(B, "01").is_identical_to((x/B)**2)
@@ -224,11 +260,8 @@ def test_substitute(Q,B):
 
 
 
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from manim import *
-from manim_smart_algebra.expressions import *
+
+
 
 
 
