@@ -309,6 +309,9 @@ class SmartExpression(MathTex):
 	def evaluate(self):
 		return Smarten(self.compute())
 
+	def __repr__(self):
+		return str(self)
+
 
 class SmartCombiner(SmartExpression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
