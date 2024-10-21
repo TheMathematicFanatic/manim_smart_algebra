@@ -221,6 +221,9 @@ class SmartExpression(MathTex):
 		from .relations import SmartEquation
 		return SmartEquation(other, self)
 
+	def __gt__(self, other):
+		return other.get_output_expression(self)
+
 	def is_negative(self):
 		return False # catchall if not defined in subclasses
 
@@ -310,7 +313,7 @@ class SmartExpression(MathTex):
 		return Smarten(self.compute())
 
 	def __repr__(self):
-		return str(self)
+		return type(self).__name__ + "(" + str(self) + ")"
 
 
 class SmartCombiner(SmartExpression):

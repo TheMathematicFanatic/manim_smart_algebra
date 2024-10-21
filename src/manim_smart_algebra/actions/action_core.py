@@ -3,7 +3,6 @@ from manim import *
 from ..expressions.expression_core import *
 from ..utils import *
 from MF_Tools import TransformByGlyphMap
-from . import combinations
 
 
 class SmartAction:
@@ -64,46 +63,66 @@ class SmartAction:
         Broadly speaking, that's that!
     """
     def __init__(self,
-        input_expression=None,
-        output_expression=None,
-        addressmap=None,
-        glyphmap=None,
-        animations=None,
         preaddress="",
         introducer=Write,
         remover=FadeOut,
         **kwargs
     ):
-        self.input_expression = input_expression
-        self.output_expression = output_expression
-        self.addressmap = addressmap
-        self.glyphmap = glyphmap
-        self.animations = animations
         self.preaddress = preaddress
         self.introducer = introducer
         self.remover = remover
         self.kwargs = kwargs
 
+    def __init_subclass__(cls, **kwargs):
+        cls.get_output_expression = cls.preaddressfunc(cls.get_output_expression)
+        cls.get_addressmap = cls.preaddressmap(cls.get_addressmap)
+
+    @staticmethod
+    def preaddressfunc(func):
+        def wrapper(action, expr, *args, **kwargs):
+            print(f"Calling preaddressfunc wrapper with action: {action}, expr: {expr}, args: {args}, kwargs: {kwargs}")
+            if 'preaddress' in kwargs:
+                address = kwargs['preaddress']
+            elif action.preaddress is not None:
+                address = action.preaddress
+            else:
+                address = ''
+            if len(address)==0:
+                output_expression = func(action, expr)
+            else:
+                active_part = expr.get_subex(address)
+                result = func(action, active_part)
+                output_expression = expr.substitute_at_address(result, address)
+            return output_expression
+        return wrapper
+
+    @staticmethod
+    def preaddressmap(getmap):
+        def wrapper(action, expr, *args, **kwargs):
+            addressmap = getmap(action, expr, *args, **kwargs)
+            if action.preaddress:
+                for entry in addressmap:
+                    for i, ad in enumerate(entry):
+                        if isinstance(ad, (str, list)):
+                            entry[i] = action.preaddress + ad
+            return addressmap
+        return wrapper
+
     def get_output_expression(self, input_expression):
-        pass # define in subclasses
-        # always decorate with @preaddressfunc to allow preaddressing and set attribute
-        # just return the output_expression
+        # auto-decorated with preaddressfunc thanks to __init_subclass__
+        # define in subclasses
+        return input_expression
 
-    def get_addressmap(self):
-        pass # define in subclasses
-        # always decorate with @preaddressfunc to allow preaddressing and set attribute
-        # just return the addressmap
+    def get_addressmap(self, input_expression, **kwargs):
+        # auto-decorated with preaddressmap thanks to __init_subclass__
+        # define in subclasses
+        return []
 
-    def get_glyphmap(self):
-        assert self.input_expression is not None
-        if self.output_expression is None:
-            self.get_output_expression()
-        if self.addressmap is None:
-            self.get_addressmap()
-        A = self.input_expression
-        B = self.output_expression
+    def get_glyphmap(self, input_expression, **kwargs):
+        A = input_expression
+        B = self.get_output_expression(A)
         glyphmap = []
-        for entry in self.addressmap:
+        for entry in self.get_addressmap(input_expression):
             assert len(entry) in [2, 3], f"Invalid addressmap entry: {entry}"
             glyphmap_entry = [
                 A.get_glyphs(entry[0]) if isinstance(entry[0], (str, list)) else entry[0],
@@ -118,83 +137,40 @@ class SmartAction:
             #         glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
             #     elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
             #         glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
-        self.glyphmap = glyphmap
         return glyphmap
     
     def get_animation(self, **kwargs):
-        if self.glyphmap is None:
-            self.get_glyphmap()
-        return TransformByGlyphMap(
-            self.input_expression,
-            self.output_expression,
-            *self.glyphmap,
+        return lambda input_exp, output_exp: TransformByGlyphMap(
+            input_exp,
+            output_exp,
+            *self.get_glyphmap,
             default_introducer=self.introducer,
             default_remover=self.remover,
             **(self.kwargs|kwargs)
             )
 
-    def __rshift__(self, other):
-        if isinstance(other, combinations.SequentialAction):
-            return combinations.SequentialAction(self, *other.actions)
-        elif isinstance(other, SmartAction):
-            return combinations.SequentialAction(self, other)
-        else:
-            return ValueError("Can only use >> with other SequentialAction or SmartAction")
-
     def __or__(self, other):
-        if isinstance(other, combinations.ParallelAction):
-            return combinations.ParallelAction(self, *other.actions)
+        from .combinations import ParallelAction
+        if isinstance(other, ParallelAction):
+            return ParallelAction(self, *other.actions)
         elif isinstance(other, SmartAction):
-            return combinations.ParallelAction(self, other)
+            return ParallelAction(self, other)
         else:
             return ValueError("Can only use | with other ParallelAction or SmartAction")
     
     def __ror__(self, other):
-        if isinstance(other, combinations.ParallelAction):
-            return combinations.ParallelAction(*other.actions, self)
+        from .combinations import ParallelAction
+        if isinstance(other, ParallelAction):
+            return ParallelAction(*other.actions, self)
         elif isinstance(other, SmartAction):
-            return combinations.ParallelAction(other, self)
+            return ParallelAction(other, self)
         else:
             return ValueError("Can only use | with other ParallelAction or SmartAction")
 
-    def __lt__(self, other):
-        self.input_expression = Smarten(other)
     
-    def __le__(self, other):
-        return self.get_output_expression(Smarten(other))
-
-    def __gt__(self, other):
-        self.output_expression = Smarten(other)
-
-    def __ge__(self, other):
-        return self.get_output_expression(Smarten(other))
 
 
-def preaddressfunc(func):
-	def wrapper(action, expr=None, *args, **kwargs):
-		address = action.preaddress
-		if expr is None: expr = action.input_expression.copy()
-		if len(address)==0:
-			action.output_expression = func(action, expr, *args, **kwargs)
-		else:
-			active_part = expr.get_subex(address)
-			result = func(action, active_part, *args, **kwargs)
-			result_in_context = expr.substitute_at_address(result, address)
-			action.output_expression = result_in_context
-		return action.output_expression
-	return wrapper
 
-def preaddressmap(getmap):
-	def wrapper(action, *args, **kwargs):
-		addressmap = getmap(action, *args, **kwargs)
-		if action.preaddress:
-			for entry in addressmap:
-				for i, ad in enumerate(entry):
-					if isinstance(ad, (str, list)):
-						entry[i] = action.preaddress + ad
-		action.addressmap = addressmap
-		return action.addressmap
-	return wrapper
 
 
 

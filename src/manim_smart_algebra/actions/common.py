@@ -1,6 +1,8 @@
 from .action_core import *
 from .variants import *
 from .combinations import *
+from ..expressions.operations import *
+
 
 class swap_children_(SmartAction):
     def __init__(self, mode="arc", arc_size=0.75*PI, **kwargs):
@@ -8,13 +10,11 @@ class swap_children_(SmartAction):
         self.arc_size = arc_size
         super().__init__(**kwargs)
     
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         assert len(input_expression.children) == 2, f"Cannot swap children of {input_expression}, must have two children."
         return type(input_expression)(input_expression.children[1], input_expression.children[0])
 
-    @preaddressmap
-    def get_addressmap(self):
+    def get_addressmap(self, input_expression=None):
         return [
             ["0", "1", {"path_arc": self.arc_size}],
             ["1", "0", {"path_arc": self.arc_size}]
@@ -29,8 +29,7 @@ class apply_operation_(SmartAction):
         self.side = side
         super().__init__(**kwargs)
     
-    @preaddressfunc
-    def get_output_expression(self, input_expression=None):
+    def get_output_expression(self, input_expression):
         if self.side == "right":
             output_expression = self.OpClass(input_expression, self.other)
         elif self.side == "left":
@@ -39,8 +38,7 @@ class apply_operation_(SmartAction):
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
         return output_expression
 
-    @preaddressmap
-    def get_addressmap(self):
+    def get_addressmap(self, input_expression):
         if self.side == "right":
             return [
                 ["", "0"],
@@ -85,11 +83,9 @@ class substitute_(SmartAction):
         self.lag = lag #usually looks like shit but can be cool sometimes
         super().__init__(**kwargs)
     
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         return input_expression.substitute(self.sub_dict)
 
-    @preaddressmap
     def get_addressmap(self):
         target_addresses = []
         for var in self.sub_dict:
@@ -114,12 +110,9 @@ class evaluate_(SmartAction):
         #     leaf_address = np.random.choice(leaves)
         #     self.preaddress = leaf_address
 
-    
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         return input_expression.evaluate()
     
-    @preaddressmap
     def get_addressmap(self):
         return [
             ["", ""] #extension by preaddress is done by decorator!
@@ -132,7 +125,6 @@ class distribute_(SmartAction):
         self.mode = mode #"auto", "left", "right"
         super().__init__(**kwargs)
     
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         if self.mode == "auto":
             self.determine_direction(input_expression)
@@ -177,8 +169,11 @@ class distribute_(SmartAction):
             else:
                 raise ValueError("Cannot auto-distribute, must be a multiplication or division.")
 
-    @preaddressmap
     def get_addressmap(self):
         return [
             ["", ""] #standin idk what the fuck im doing here
         ]
+
+
+
+

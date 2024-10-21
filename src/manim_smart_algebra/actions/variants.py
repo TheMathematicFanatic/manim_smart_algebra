@@ -8,12 +8,10 @@ class AlgebraicAction(SmartAction):
         self.template2 = template2
         self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
     
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         var_dict = match_expressions(self.template1, input_expression)
         return self.template2.substitute(var_dict)
     
-    @preaddressmap
     def get_addressmap(self):
         addressmap = []
         def get_var_ad_dict(template):

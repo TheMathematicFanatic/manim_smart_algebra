@@ -6,14 +6,12 @@ class ParallelAction(SmartAction):
         self.actions = actions
         super().__init__(**kwargs)
     
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         expr = input_expression
         for action in self.actions:
             expr = action.get_output_expression(expr)
         return expr
     
-    @preaddressmap
     def get_addressmap(self):
         return sum([action.get_addressmap() for action in self.actions], [])
     
@@ -40,7 +38,6 @@ class SequentialAction(SmartAction):
         self.actions = list(actions)
         super().__init__(**kwargs)
     
-    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         expr = input_expression
         for action in self.actions:
