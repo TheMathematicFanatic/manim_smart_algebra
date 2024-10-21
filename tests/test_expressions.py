@@ -254,11 +254,21 @@ def test_substitute(Q,B):
     assert Q.substitute({x:0, y:0}).is_identical_to((SmZ(0)/SmZ(0))**2)
     assert ((e**x - 1)/(3*e**x + 1)).substitute({e**x:x-2}).is_identical_to(((x-2) - 1)/(3*(x-2) + 1))
     
+def _disable_test_nest():
+    Nl, Nr = SmZ(1), SmZ(1)
+    for i in range(2,9):
+        Nl = Nl + i
+        Nr = i + Nr
+    D = SmartAdd(*list(range(1,9)))
     
+    assert D.copy().nest("left").is_identical_to(Nl)
+    assert D.copy().nest("right").is_identical_to(Nr)
 
+    assert SmartMul(a,b,c,d).nest("left").is_identical_to(a*b*c*d)
+    assert SmartMul(a,b,c,d).nest("right").is_identical_to(a*(b*(c*d)))
 
-
-
+    assert SmartMul(a,b,c,d).nest("left", recurse=False).is_identical_to(SmartMul(a,b,c)*d)
+    assert SmartMul(a,b,c,d).nest("right", recurse=False).is_identical_to(a*SmartMul(b,c,d))
 
 
 

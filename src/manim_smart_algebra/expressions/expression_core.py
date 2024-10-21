@@ -247,14 +247,14 @@ class SmartExpression(MathTex):
 		return num_paren_glyphs // 2
 
 	#Man these guys do not work correctly yet
-	def nest(self, direction="right"):
+	def nest(self, direction="right", recurse=True):
 		if len(self.children) <= 2:
 			return self
 		else:
 			if direction == "right":
-				return type(self)(self.children[0], type(self)(*self.children[1:]))
+				return type(self)(self.children[0], type(self)(*self.children[1:]).nest(direction, recurse))
 			elif direction == "left":
-				return type(self)(type(self)(*self.children[:-1]), self.children[-1])
+				return type(self)(type(self)(*self.children[:-1]).nest(direction, recurse), self.children[-1])
 			else:
 				raise ValueError(f"Invalid direction: {direction}. Must be right or left.")
 
