@@ -167,8 +167,49 @@ class SmartAction:
         else:
             return ValueError("Can only use | with other ParallelAction or SmartAction")
 
-    
+	def __le__(self, other):
+		from ..expressions.expression_core import SmartExpression
+		from ..unifier.zipper import Zipper
+		if isinstance(other, SmartExpression):
+			return self.get_output_expression(other)
+		elif isinstance(other, Zipper):
+			return self.get_output_expression(other.expressions[-1])
+		else:
+			return NotImplemented
+	
+	def __rshift__(self, other):
+		other = Smarten(other)
+		from ..expressions.expression_core import SmartExpression
+		from ..unifier.zipper import Zipper
+		if isinstance(other, SmartExpression):
+			return Zipper(
+				(None, self),
+				(other, None)
+			)
+		elif isinstance(other, SmartAction):
+			return Zipper(
+				(None, self),
+				(None, other)
+			)
+		elif isinstance(other, Zipper):
+			return Zipper(
+				(None, self),
+				*other.exp_act_pairs,
+				**other.kwargs
+			)
+		else:
+			return NotImplemented
 
+	def __rrshift__(self, other):
+		return Smarten(other).__rshift__(self)
+	
+	def __repr__(self):
+		return type(self).__name__ + "(" + self.kwargs.get('preaddress', '') + ")"
+	
+
+
+class IncompatibleExpression(Exception):
+	pass
 
 
 

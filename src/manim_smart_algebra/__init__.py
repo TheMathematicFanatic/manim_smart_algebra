@@ -4,6 +4,7 @@ __description__ = 'Manim plugin which subclasses MathTex to make it much easier 
 
 from .expressions import *
 from .actions import *
+from .unifier.zipper import *
 
 """
 .expressions contains the main mobject classes of the entire plugin

@@ -221,8 +221,37 @@ class SmartExpression(MathTex):
 		from .relations import SmartEquation
 		return SmartEquation(other, self)
 
-	def __gt__(self, other):
-		return other.get_output_expression(self)
+	def __rshift__(self, other):
+		other = Smarten(other)
+		from ..actions.action_core import SmartAction
+		from ..unifier.zipper import Zipper
+		if isinstance(other, SmartExpression):
+			return Zipper(
+				(self, None),
+				(other, None)
+			)
+		elif isinstance(other, SmartAction):
+			return Zipper(
+				(self, other)
+			)
+		elif isinstance(other, Zipper):
+			if other.expressions[0]:
+				return Zipper(
+					(self, None),
+					*other.exp_act_pairs,
+					**other.kwargs
+				)
+			else:
+				return Zipper(
+					(self, other.actions[0]),
+					*other.exp_act_pairs[1:],
+					**other.kwargs
+				)
+		else:
+			return NotImplemented
+
+	def __rrshift__(self, other):
+		return Smarten(other).__rshift__(self)
 
 	def is_negative(self):
 		return False # catchall if not defined in subclasses

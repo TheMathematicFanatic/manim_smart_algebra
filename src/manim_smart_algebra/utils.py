@@ -3,8 +3,10 @@ from manim import *
 
 def Smarten(input):
 	from .expressions.expression_core import SmartExpression
+	from .actions.action_core import SmartAction
+	from .unifier.zipper import Zipper
 	from .expressions.numbers import SmartInteger, SmartReal
-	if isinstance(input, SmartExpression):
+	if isinstance(input, (SmartExpression, SmartAction, Zipper)):
 		return input
 	elif isinstance(input, int):
 		return SmartInteger(input)
