@@ -53,5 +53,5 @@ def log(base):
     parentheses_mode="weak")
 
 
-for i in range(16):
-    exec(f"_{i} = SmZ({i})")
+for i in range(21):
+    exec(f"_{i} = SmZ({i})", globals())

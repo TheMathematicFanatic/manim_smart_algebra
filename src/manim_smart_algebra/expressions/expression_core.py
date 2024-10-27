@@ -1,5 +1,5 @@
 # expressions.py
-from manim import *
+from manim import MathTex, VGroup
 from ..utils import Smarten, tex, add_spaces_around_brackets
 
 
