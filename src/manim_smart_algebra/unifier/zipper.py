@@ -111,4 +111,10 @@ class Zipper:
 	
 	def __repr__(self):
 		return f"Zipper({self.exp_act_pairs})"
+	
+	def __eq__(self, other):
+		if isinstance(other, Zipper):
+			return self.exp_act_pairs == other.exp_act_pairs and self.kwargs == other.kwargs
+		else:
+			return NotImplemented
 
