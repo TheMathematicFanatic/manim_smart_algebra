@@ -152,10 +152,10 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		from expressions.operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
 		from .expressions.functions import SmartFunction
 		from .expressions.sequences import SmartSequence
-		from .expressions.equations import SmartEquation
+		from .expressions.relations import SmartEquation, SmartLessThan, SmartLessThanOrEqualTo, SmartGreaterThan, SmartGreaterThanOrEqualTo
 		type_to_symbol_dict = {
 			SmartInteger: lambda expr: str(expr.n),
-			SmartReal: lambda expr: str(expr.x),
+			SmartReal: lambda expr: expr.symbol if expr.symbol else str(expr),
 			SmartRational: lambda expr: "\\div",
 			SmartVariable: lambda expr: expr.symbol,
 			SmartAdd: lambda expr: "+",
@@ -167,6 +167,10 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 			SmartFunction: lambda expr: expr.symbol,
 			SmartSequence: lambda expr: ",",
 			SmartEquation: lambda expr: "=",
+			SmartLessThan: lambda expr: "<",
+			SmartLessThanOrEqualTo: lambda expr: "\\leq",
+			SmartGreaterThan: lambda expr: ">",
+			SmartGreaterThanOrEqualTo: lambda expr: "\\geq",
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)

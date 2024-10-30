@@ -1,5 +1,5 @@
 # expressions.py
-from manim import *
+from manim import MathTex, VGroup, Scene
 from ..utils import Smarten, tex, add_spaces_around_brackets
 
 
@@ -267,7 +267,8 @@ class SmartExpression(MathTex):
 		return self
 
 	def auto_parentheses(self):
-		pass # Implement in subclasses
+		for child in self.children:
+			child.auto_parentheses()
 
 	def paren_length(self):
 		# Returns the number of glyphs taken up by the expression's potential parentheses.
