@@ -365,5 +365,11 @@ class SmartCombiner(SmartExpression):
 		self.right_spacing = right_spacing
 
 
-
+old_add = Scene.add
+def new_add(scene, *mobs):
+	for mob in mobs:
+		if isinstance(mob, SmartExpression) and not mob.initialized_MathTex:
+			mob.init_MathTex()
+	old_add(scene, *mobs)
+Scene.add = new_add
 

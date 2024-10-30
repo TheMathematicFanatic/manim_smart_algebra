@@ -8,12 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 from manim import *
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.actions import *
-from manim_smart_algebra.nicknames import *
-from manim_smart_algebra.vstack import *
-
-from ..src.manim_smart_algebra import *
-from ..src.manim_smart_algebra.expressions import *
-from ..src.manim_smart_algebra.actions import *
+from manim_smart_algebra.unifier.zipper import *
 
 
 
@@ -366,3 +361,11 @@ class TestZipper(Scene):
                     _
             ),
         )
+
+
+class TestAddOverride(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        self.add(A, Square())
+
+TestAddOverride().render()
