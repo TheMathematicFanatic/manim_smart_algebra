@@ -27,6 +27,7 @@ class SmartExpression(MathTex):
 		self.initialized_MathTex = True
 		string = add_spaces_around_brackets(str(self))	
 		super().__init__(string, **kwargs)
+		self.set_color_by_subex(config.always_color)
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression

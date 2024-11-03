@@ -374,3 +374,20 @@ class TestAddOverride2(Scene):
         A = x**2 + y**2
         V = VGroup(A, Square())
         self.add(V)
+
+from manim_smart_algebra.trigonometry.common import *
+class TestAlwaysColor(Scene):
+    def __init__(self, *args, **kwargs):
+        # config.background_color = WHITE
+        # MathTex.set_default(color=BLACK)
+        super().__init__(*args, **kwargs)
+    
+    def construct(self):
+        config.always_color = {x:RED, y:BLUE, r:YELLOW_D, theta:GREEN_E}
+        V = VGroup(
+            x & r*cos(theta),
+            y & r*sin(theta),
+            r**2 & x**2 + y**2,
+            tan(theta) & y/x,
+        ).arrange_in_grid(2,2,buff=1)
+        self.add(V)
