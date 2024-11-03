@@ -1,5 +1,5 @@
 # expressions.py
-from manim import MathTex, VGroup, Scene
+from manim import MathTex, VGroup, VDict, Mobject, Scene, config
 from ..utils import Smarten, tex, add_spaces_around_brackets
 
 
@@ -368,11 +368,12 @@ class SmartCombiner(SmartExpression):
 		self.right_spacing = right_spacing
 
 
-old_add = Scene.add
-def new_add(scene, *mobs):
-	for mob in mobs:
-		if isinstance(mob, SmartExpression) and not mob.initialized_MathTex:
-			mob.init_MathTex()
-	old_add(scene, *mobs)
-Scene.add = new_add
-
+for cls in (Scene, VGroup, VDict, Mobject):
+    def make_new_add(old_add):
+        def new_add(instance, *mobs):
+            for mob in mobs:
+                if isinstance(mob, SmartExpression) and not mob.initialized_MathTex:
+                    mob.init_MathTex()
+            old_add(instance, *mobs)
+        return new_add
+    cls.add = make_new_add(cls.add)
