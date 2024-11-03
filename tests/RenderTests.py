@@ -145,13 +145,13 @@ class MultiChildren(Scene):
 
 class TestCombiners(Scene):
     def construct(self):
-        algebra_config["division_mode"] = "inline"
-        algebra_config["multiplication_mode"] = "times" # This does not work :(
+        config.division_mode = "inline"
+        config.multiplication_mode = "x" # Does this work? Yes!
         self.add(VGroup(
             SmartAdd(1,2,3,4,5),
             SmartSub(1,2,3,4,5),
-            SmartMul(1,2,3,4,5, mode="x"),
-            SmartDiv(1,2,3,4,5, mode="inline"),
+            SmartMul(1,2,3,4,5),
+            SmartDiv(1,2,3,4,5),
             #SmartPow(1,2,3,4,5),
             SmartSequence(1,2,3,4,5),
             SmartEquation(1,2,3,4,5)
@@ -368,4 +368,9 @@ class TestAddOverride(Scene):
         A = x**2 + y**2
         self.add(A, Square())
 
-TestAddOverride().render()
+
+class TestAddOverride2(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        V = VGroup(A, Square())
+        self.add(V)

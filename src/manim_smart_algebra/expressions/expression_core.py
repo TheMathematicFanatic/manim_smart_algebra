@@ -10,12 +10,14 @@ algebra_config = {
 		"decimal_precision": 4,
 		"always_color": {}
 	}
+for key,value in algebra_config.items():
+	setattr(config, key, value)
 
 
 class SmartExpression(MathTex):
 	def __init__(self, parentheses=False, initialize_MathTex=False, **kwargs):
 		self.parentheses = parentheses
-		if algebra_config["auto_parentheses"]:
+		if config.auto_parentheses:
 			self.auto_parentheses()
 		self.initialized_MathTex = initialize_MathTex
 		if initialize_MathTex:
