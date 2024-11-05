@@ -23,11 +23,13 @@ class SmartExpression(MathTex):
 		if initialize_MathTex:
 			self.init_MathTex(**kwargs)
 
-	def init_MathTex(self, **kwargs):
-		self.initialized_MathTex = True
-		string = add_spaces_around_brackets(str(self))	
-		super().__init__(string, **kwargs)
-		self.set_color_by_subex(config.always_color)
+	def init_MathTex(self, force=False, **kwargs):
+		if not self.initialized_MathTex or force:
+			self.initialized_MathTex = True
+			string = add_spaces_around_brackets(str(self))
+			super().__init__(string, **kwargs)
+			self.set_color_by_subex(config.always_color)
+		return self
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
@@ -348,6 +350,31 @@ class SmartExpression(MathTex):
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self) + ")"
 
+	def __getattribute__(self, name):
+		"""
+		Allows MathTex initialization to be lazy by only initializing it when an attribute
+		from the superclass is requested! Works for callables and non-callables. For example,
+		if A is a SmartExpression, it will initialize MathTex when A.color is called, or A.shift(UP).
+		This allows us to NOT have to monkeypatch Scene.add or VGroup.add to initialize MathTex, as these
+		call attributes and methods on the expression not found in the SmartExpression class.
+		"""
+		if hasattr(MathTex, name):
+			self.init_MathTex()
+		return super().__getattribute__(name)
+	
+	def __getattr__(self, name):
+		try:
+			import src.manim_smart_algebra.actions as actions
+			action_class = getattr(actions, name)
+			if issubclass(action_class, actions.SmartAction):
+				def action_callable(*args, **kwargs):
+					action_instance = action_class(*args, **kwargs)
+					return action_instance.get_output_expression(self, *args, **kwargs)
+				return action_callable
+		except:
+			super().__getattr__(name)
+				
+
 
 class SmartCombiner(SmartExpression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
@@ -368,13 +395,3 @@ class SmartCombiner(SmartExpression):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
-
-for cls in (Scene, VGroup, VDict, Mobject):
-    def make_new_add(old_add):
-        def new_add(instance, *mobs):
-            for mob in mobs:
-                if isinstance(mob, SmartExpression) and not mob.initialized_MathTex:
-                    mob.init_MathTex()
-            old_add(instance, *mobs)
-        return new_add
-    cls.add = make_new_add(cls.add)
