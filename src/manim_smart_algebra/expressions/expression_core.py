@@ -363,6 +363,12 @@ class SmartExpression(MathTex):
 		return super().__getattribute__(name)
 	
 	def __getattr__(self, name):
+		"""
+		If an attribute is not found in the class or superclasses, try to find it in the actions module.
+		If it is an action, then call its get_output_expression method and return the expression that results.
+		Consequently, these can be chained together. For example:
+		A = (x**2 + 3*x).div_(e**x).swap_children_().substitute_({x:z})
+		"""
 		try:
 			import src.manim_smart_algebra.actions as actions
 			action_class = getattr(actions, name)
