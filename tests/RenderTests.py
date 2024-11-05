@@ -389,5 +389,30 @@ class TestAlwaysColor(Scene):
             y & r*sin(theta),
             r**2 & x**2 + y**2,
             tan(theta) & y/x,
-        ).arrange_in_grid(2,2,buff=1)
+        ).arrange_in_grid(2,2,buff=1).to_edge(UP)
         self.add(V)
+
+        NP = NumberPlane(
+            x_range=[-1.5,1.5,0.5],
+            y_range=[-1.5,1.5,0.5],
+            x_length=4, 
+            y_length=4,
+            background_line_style={"stroke_color":GREY, "stroke_opacity":0.5},
+        ).to_edge(DOWN)
+        circle = NP.plot_implicit_curve(lambda x,y: x**2 + y**2 - 1)
+        from MF_Tools import VT
+        th = VT(0.01)
+        r_line = always_redraw(lambda:
+            Line(NP.coords_to_point(0,0,0), NP.c2p(np.cos(~th), np.sin(~th), 0)).set_color(config.always_color[r])
+        )
+        x_line = always_redraw(lambda:
+            Line(NP.c2p(0,0,0), NP.c2p(np.cos(~th),0,0)).set_color(config.always_color[x])
+        )
+        y_line = always_redraw(lambda:
+            Line(NP.c2p(np.cos(~th),0,0), NP.c2p(np.cos(~th), np.sin(~th), 0)).set_color(config.always_color[y])
+        )
+        theta_arc = always_redraw(lambda:
+            Arc(angle=~th, radius=0.3, arc_center=NP.c2p(0,0,0)).set_color(config.always_color[theta])
+        )
+        self.add(NP, circle, r_line, x_line, y_line, theta_arc)
+        self.play(th@TAU, run_time=10, rate_func=linear)
