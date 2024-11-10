@@ -350,35 +350,41 @@ class SmartExpression(MathTex):
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self) + ")"
 
-	def __getattribute__(self, name):
-		"""
-		Allows MathTex initialization to be lazy by only initializing it when an attribute
-		from the superclass is requested! Works for callables and non-callables. For example,
-		if A is a SmartExpression, it will initialize MathTex when A.color is called, or A.shift(UP).
-		This allows us to NOT have to monkeypatch Scene.add or VGroup.add to initialize MathTex, as these
-		call attributes and methods on the expression not found in the SmartExpression class.
-		"""
-		if hasattr(MathTex, name):
-			self.init_MathTex()
-		return super().__getattribute__(name)
+	# def __getattribute__(self, name):
+	# 	"""
+	# 	Allows MathTex initialization to be lazy by only initializing it when an attribute
+	# 	from the superclass is requested! Works for callables and non-callables. For example,
+	# 	if A is a SmartExpression, it will initialize MathTex when A.color is called, or A.shift(UP).
+	# 	This allows us to NOT have to monkeypatch Scene.add or VGroup.add to initialize MathTex, as these
+	# 	call attributes and methods on the expression not found in the SmartExpression class.
+	# 	"""
+	# 	if hasattr(MathTex, name):
+	# 		self.init_MathTex()
+	# 	try:
+	# 		result = super().__getattribute__(name)
+	# 	except AttributeError:
+	# 		result = self.__getattr__(name)
+	# 	return result
+
 	
-	def __getattr__(self, name):
-		"""
-		If an attribute is not found in the class or superclasses, try to find it in the actions module.
-		If it is an action, then call its get_output_expression method and return the expression that results.
-		Consequently, these can be chained together. For example:
-		A = (x**2 + 3*x).div_(e**x).swap_children_().substitute_({x:z})
-		"""
-		try:
-			import src.manim_smart_algebra.actions as actions
-			action_class = getattr(actions, name)
-			if issubclass(action_class, actions.SmartAction):
-				def action_callable(*args, **kwargs):
-					action_instance = action_class(*args, **kwargs)
-					return action_instance.get_output_expression(self, *args, **kwargs)
-				return action_callable
-		except:
-			super().__getattr__(name)
+	# def __getattr__(self, name):
+	# 	"""
+	# 	If an attribute is not found in the class or superclasses, make a last ditch effort to see
+	# 	if it's a mobject thing, and if not, then try to find it in the actions module.
+	# 	If it is an action, then call its get_output_expression method and return the expression
+	# 	that results. Consequently, these can be chained together. For example:
+	# 	A = (x**2 + 3*x).div_(e**x).swap_children_().substitute_({x:z})
+	# 	"""
+	# 	try:
+	# 		import src.manim_smart_algebra.actions as actions
+	# 		action_class = getattr(actions, name)
+	# 		if issubclass(action_class, actions.SmartAction):
+	# 			def action_callable(*args, **kwargs):
+	# 				action_instance = action_class(*args, **kwargs)
+	# 				return action_instance.get_output_expression(self, *args, **kwargs)
+	# 			return action_callable
+	# 	except:
+	# 		super().__getattr__(name)
 				
 
 

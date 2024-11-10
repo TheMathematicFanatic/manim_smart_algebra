@@ -416,3 +416,31 @@ class TestAlwaysColor(Scene):
         )
         self.add(NP, circle, r_line, x_line, y_line, theta_arc)
         self.play(th@TAU, run_time=10, rate_func=linear)
+
+
+class TestDotAction(Scene):
+    def construct(self):
+        A = x+8
+        B = A.swap_children_()
+        self.add(VGroup(A,B).arrange(DOWN))
+#TestDotAction().render()
+
+
+class TestDotAnimate(Scene):
+    def construct(self):
+        A = x/y
+        self.add(A)
+        self.wait()
+        self.play(A.animate.swap_children_())
+        self.wait()
+
+
+class ViewPolar(Scene):
+    def construct(self):
+        from MF_Tools import indexx_labels
+        PP = PolarPlane()
+        self.add(PP, )#indexx_labels(PP, label_height=0.2))
+        for i,c in enumerate([RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE][:len(PP)]):
+            self.play(Indicate(PP[i], color=c))
+        for i in range(len(PP[1])):
+            self.play(Indicate(PP[1][i], color=ORANGE))
