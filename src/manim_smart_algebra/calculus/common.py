@@ -4,6 +4,7 @@ from ..expressions.common import *
 
 inf = Infinity()
 d = Differential()
+Int = Integral()
 dx = d(x)
 dy = d(y)
 dz = d(z)

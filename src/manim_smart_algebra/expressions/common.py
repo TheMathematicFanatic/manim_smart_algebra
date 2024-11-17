@@ -3,7 +3,7 @@ from .numbers import SmartInteger, SmartReal, SmartRational
 from .variables import SmartVariable
 from .operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
 from .functions import SmartFunction
-from .relations import SmartEquation, SmartLessThan, SmartLessThanOrEqualTo, SmartGreaterThan, SmartGreaterThanOrEqualTo
+from .relations import SmartEquation
 import numpy as np
 
 
@@ -20,10 +20,6 @@ SmNeg = SmartNegative
 SmVar = SmartVariable
 SmFunc = SmartFunction
 SmEq = SmartEquation
-SmLt = SmartLessThan
-SmLeq = SmartLessThanOrEqualTo
-SmGt = SmartGreaterThan
-SmGeq = SmartGreaterThanOrEqualTo
 
 a = SmVar("a")
 b = SmVar("b")
@@ -40,11 +36,6 @@ v = SmVar("v")
 x = SmVar("x")
 y = SmVar("y")
 z = SmVar("z")
-
-alpha = SmVar("\\alpha")
-beta = SmVar("\\beta")
-gamma = SmVar("\\gamma")
-theta = SmVar("\\theta")
 
 e = SmR(np.e, "e")
 pi = SmR(np.pi, "\\pi")

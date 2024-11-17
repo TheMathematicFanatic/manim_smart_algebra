@@ -1,5 +1,4 @@
-# expressions.py
-from manim import MathTex, VGroup, VDict, Mobject, Scene, config
+from manimlib import Tex, VGroup
 from ..utils import Smarten, tex, add_spaces_around_brackets
 
 
@@ -10,31 +9,28 @@ algebra_config = {
 		"decimal_precision": 4,
 		"always_color": {}
 	}
-for key,value in algebra_config.items():
-	setattr(config, key, value)
 
 
-class SmartExpression(MathTex):
-	def __init__(self, parentheses=False, initialize_MathTex=False, **kwargs):
+class SmartExpression(Tex):
+	def __init__(self, parentheses=False, initialize_Tex=False, **kwargs):
 		self.parentheses = parentheses
-		if config.auto_parentheses:
+		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
-		self.initialized_MathTex = initialize_MathTex
-		if initialize_MathTex:
-			self.init_MathTex(**kwargs)
+		self.initialized_Tex = initialize_Tex
+		if initialize_Tex:
+			self.init_Tex(**kwargs)
 
-	def init_MathTex(self, force=False, **kwargs):
-		if not self.initialized_MathTex or force:
-			self.initialized_MathTex = True
-			string = add_spaces_around_brackets(str(self))
+	def init_Tex(self, force=False, **kwargs):
+		if self.initialized_Tex or not force:
+			self.initialized_Tex = True
+			string = add_spaces_around_brackets(str(self))	
 			super().__init__(string, **kwargs)
-			self.set_color_by_subex(config.always_color)
 		return self
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			return VGroup(*[self[0][g] for g in self.get_glyphs(key)])
-		else: # preserve behavior of MathTex indexing
+			return VGroup(self[g] for g in self.get_glyphs(key))
+		else: # preserve behavior of Tex indexing
 			return super().__getitem__(key)
 
 	def get_all_addresses(self):
@@ -167,9 +163,9 @@ class SmartExpression(MathTex):
 			return sorted(set(results))
 
 	def __len__(self):
-		if not self.initialized_MathTex:
-			self.init_MathTex()
-		return len(self.submobjects[0].submobjects)
+		if not self.initialized_Tex:
+			self.init_Tex()
+		return len(self.submobjects)
 
 	def __neg__(self):
 		from .operations import SmartNegative
@@ -314,7 +310,8 @@ class SmartExpression(MathTex):
 
 	def substitute_at_address(self, subex, address):
 		from .functions import SmartFunction
-		subex = Smarten(subex).copy() #?
+		from copy import deepcopy
+		subex = deepcopy(Smarten(subex)) #?
 		if len(address) == 0:
 			return subex
 		new_child = self.children[int(address[0])].substitute_at_address(subex, address[1:])
@@ -350,42 +347,6 @@ class SmartExpression(MathTex):
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self) + ")"
 
-	# def __getattribute__(self, name):
-	# 	"""
-	# 	Allows MathTex initialization to be lazy by only initializing it when an attribute
-	# 	from the superclass is requested! Works for callables and non-callables. For example,
-	# 	if A is a SmartExpression, it will initialize MathTex when A.color is called, or A.shift(UP).
-	# 	This allows us to NOT have to monkeypatch Scene.add or VGroup.add to initialize MathTex, as these
-	# 	call attributes and methods on the expression not found in the SmartExpression class.
-	# 	"""
-	# 	if hasattr(MathTex, name):
-	# 		self.init_MathTex()
-	# 	try:
-	# 		result = super().__getattribute__(name)
-	# 	except AttributeError:
-	# 		result = self.__getattr__(name)
-	# 	return result
-
-	
-	# def __getattr__(self, name):
-	# 	"""
-	# 	If an attribute is not found in the class or superclasses, make a last ditch effort to see
-	# 	if it's a mobject thing, and if not, then try to find it in the actions module.
-	# 	If it is an action, then call its get_output_expression method and return the expression
-	# 	that results. Consequently, these can be chained together. For example:
-	# 	A = (x**2 + 3*x).div_(e**x).swap_children_().substitute_({x:z})
-	# 	"""
-	# 	try:
-	# 		import src.manim_smart_algebra.actions as actions
-	# 		action_class = getattr(actions, name)
-	# 		if issubclass(action_class, actions.SmartAction):
-	# 			def action_callable(*args, **kwargs):
-	# 				action_instance = action_class(*args, **kwargs)
-	# 				return action_instance.get_output_expression(self, *args, **kwargs)
-	# 			return action_callable
-	# 	except:
-	# 		super().__getattr__(name)
-				
 
 
 class SmartCombiner(SmartExpression):
@@ -406,4 +367,14 @@ class SmartCombiner(SmartExpression):
 	def set_spacing(self, left_spacing, right_spacing):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
+
+
+from manimlib import Scene
+old_add = Scene.add
+def new_add(self, *args, **kwargs):
+	for mob in args:
+		if isinstance(mob, SmartExpression):
+			mob.init_Tex()
+	old_add(self, *args, **kwargs)
+Scene.add = new_add
 

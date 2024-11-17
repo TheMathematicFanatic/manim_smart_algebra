@@ -1,4 +1,3 @@
-from manim import *
 
 
 def Smarten(input):
@@ -47,6 +46,7 @@ def add_spaces_around_brackets(input_string): #GPT
 
 
 def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show_submobjects=True):
+	from manimlib import Text, GREEN, ORANGE, BLUE, DOWN, Indicate
 	print("Debugging SmartExpression:")
 	print(smarttex)
 	print("Length: ", len(smarttex))
@@ -56,7 +56,7 @@ def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show
 		for index in range(len(smarttex)):
 			index_text = Text(str(index), color=GREEN).next_to(smarttex, DOWN)
 			scene.add(index_text)
-			scene.play(Indicate(smarttex[0][index], color=GREEN))
+			scene.play(Indicate(smarttex[index], color=GREEN))
 			scene.remove(index_text)
 	if show_addresses:
 		for ad in smarttex.get_all_addresses():
@@ -66,7 +66,7 @@ def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show
 			scene.play(Indicate(smarttex[ad], color=ORANGE))
 			scene.remove(ad_text, subex_type)
 	if show_addresses:
-		for i, subm in enumerate(smarttex.submobjects[0]):
+		for i, subm in enumerate(smarttex.submobjects):
 			subm_number = Text(str(i), color=BLUE).next_to(subm, DOWN)
 			scene.add(subm_number)
 			scene.play(Indicate(subm, color=BLUE))
@@ -129,7 +129,7 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 	nodes = [SmartAdd, SmartSub, SmartMul, SmartPow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
-		if np.random.random() < 1 / (current_depth + 1):
+		if random.random() < 1 / (current_depth + 1):
 			return SmartInteger(random.choice(leaves))
 		else:
 			return random_number_expression(leaves, max_depth - 1)
@@ -145,6 +145,7 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 
 
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
+	from manimlib import VDict, VGroup, Line, Tex, UP, DOWN, LEFT, RIGHT
 	def create_node(address):
 		#from .expressions import numbers, variables, operations, functions, sequences, relations
 		from .expressions.numbers import SmartInteger, SmartReal, SmartRational
@@ -174,7 +175,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)
-		tex = MathTex(symbol)
+		tex = Tex(symbol)
 		# if tex.width > tex.height:
 		# 	tex.scale_to_fit_width(node_size)
 		# else:

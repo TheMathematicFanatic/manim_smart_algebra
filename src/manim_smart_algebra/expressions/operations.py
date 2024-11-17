@@ -40,17 +40,17 @@ class SmartSub(SmartOperation):
 		return self.children[0].is_negative()
 
 class SmartMul(SmartOperation):
-	def __init__(self, *children, mode=None, **kwargs):
+	def __init__(self, *children, mode=algebra_config["multiplication_mode"], **kwargs):
 		self.eval_op = lambda x,y: x*y
-		self.mode = config.multiplication_mode if mode is None else mode
-		if self.mode == "dot":
+		self.mode = mode
+		if mode == "dot":
 			super().__init__("\\cdot", 1, *children, **kwargs)
-		elif self.mode == "x":
+		elif mode == "x":
 			super().__init__("\\times", 1, *children, **kwargs)
-		elif self.mode == "juxtapose":
+		elif mode == "juxtapose":
 			super().__init__("", 0, *children, **kwargs)
 		else:
-			raise ValueError(f"Invalid multiplication mode: {self.mode}. Mode must be dot, x, or juxtapose")
+			raise ValueError("multiplication mode must be dot, x, or juxtapose")
 
 	def auto_parentheses(self): # should be more intelligent based on mode
 		for child in self.children:
@@ -62,19 +62,17 @@ class SmartMul(SmartOperation):
 		return self.children[0].is_negative()
 
 class SmartDiv(SmartOperation):
-	def __init__(self, *children, mode=None, **kwargs):
+	def __init__(self, *children, mode=algebra_config["division_mode"], **kwargs):
 		self.eval_op = lambda x,y: x/y
-		self.mode = config.division_mode if mode is None else mode
-		if self.mode == "fraction":
+		self.mode = mode
+		if mode == "fraction":
 			super().__init__("\\over", 1, *children, **kwargs)
-		elif self.mode == "inline":
+		elif mode == "inline":
 			super().__init__("\\div", 1, *children, **kwargs)
-		else:
-			raise ValueError(f"Invalid division mode: {self.mode}. Mode must be fraction or inline")
 
 	def auto_parentheses(self):
 		for child in self.children:
-			if (isinstance(child, (SmartAdd, SmartSub, SmartMul, SmartDiv)) or child.is_negative()) and config.division_mode == "inline":
+			if (isinstance(child, (SmartAdd, SmartSub, SmartMul, SmartDiv)) or child.is_negative()) and algebra_config["division_mode"] == "inline":
 				child.give_parentheses()
 			child.auto_parentheses()
 

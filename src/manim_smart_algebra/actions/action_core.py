@@ -1,8 +1,7 @@
-# actions.py
-from manim import *
+from manimlib import *
 from ..expressions.expression_core import *
 from ..utils import *
-from MF_Tools import TransformByGlyphMap
+from .transforms import TransformByGlyphMap, TransformByAddressMap
 
 
 class SmartAction:
@@ -63,10 +62,12 @@ class SmartAction:
 		Broadly speaking, that's that!
 	"""
 	def __init__(self,
+		preaddress="",
 		introducer=Write,
 		remover=FadeOut,
 		**kwargs
 	):
+		self.preaddress = preaddress
 		self.introducer = introducer
 		self.remover = remover
 		self.kwargs = kwargs
@@ -78,10 +79,11 @@ class SmartAction:
 	@staticmethod
 	def preaddressfunc(func):
 		def wrapper(action, expr, *args, **kwargs):
+			print(f"Calling preaddressfunc wrapper with action: {action}, expr: {expr}, args: {args}, kwargs: {kwargs}")
 			if 'preaddress' in kwargs:
 				address = kwargs['preaddress']
-			elif 'preaddress' in action.kwargs:
-				address = action.kwargs['preaddress']
+			elif action.preaddress is not None:
+				address = action.preaddress
 			else:
 				address = ''
 			if len(address)==0:
@@ -136,27 +138,17 @@ class SmartAction:
 			#         glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
 		return glyphmap
 	
-	def get_animation(self, **kwargs):
-		return lambda input_exp, output_exp: TransformByGlyphMap(
+	def get_animation(self, input_exp, output_exp=None, **kwargs):
+		if output_exp is None:
+			output_exp = self.get_output_expression(input_exp).init_Tex()
+		return TransformByGlyphMap(
 			input_exp,
 			output_exp,
-			*self.get_glyphmap,
+			*self.get_glyphmap(input_exp, **kwargs),
 			default_introducer=self.introducer,
 			default_remover=self.remover,
 			**(self.kwargs|kwargs)
 			)
-	
-	@property
-	def preaddress(self):
-		return self.kwargs.get('preaddress', '')
-	
-	@preaddress.setter
-	def preaddress(self, value):
-		self.kwargs['preaddress'] = value
-	
-	@preaddress.deleter
-	def preaddress(self):
-		del self.kwargs['preaddress']
 
 	def __or__(self, other):
 		from .combinations import ParallelAction
@@ -175,7 +167,7 @@ class SmartAction:
 			return ParallelAction(other, self)
 		else:
 			return ValueError("Can only use | with other ParallelAction or SmartAction")
-	
+
 	def __le__(self, other):
 		from ..expressions.expression_core import SmartExpression
 		from ..unifier.zipper import Zipper
@@ -221,8 +213,19 @@ class IncompatibleExpression(Exception):
 	pass
 
 
-
-
+class TransformByAddressMap(TransformByGlyphMap):
+	def __init__(self, input_expression, output_expression, *addressmap, **kwargs):
+		glyphmap = []
+		for entry in addressmap:
+			assert len(entry) in [2, 3], f"Invalid addressmap entry: {entry}"
+			glyphmap_entry = [
+				input_expression.get_glyphs(entry[0]) if isinstance(entry[0], (str, list)) else entry[0],
+				output_expression.get_glyphs(entry[1]) if isinstance(entry[1], (str, list)) else entry[1]
+			]
+			if len(entry) == 3:
+				glyphmap_entry.append(entry[2])
+			glyphmap.append(glyphmap_entry)
+		super().__init__(input_expression, output_expression, *glyphmap, **kwargs)
 
   
 
