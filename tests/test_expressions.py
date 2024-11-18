@@ -10,7 +10,7 @@ import pytest
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from manim import *
+from manimlib import *
 from manim_smart_algebra.expressions import *
 
 @pytest.fixture
@@ -260,6 +260,7 @@ def _disable_test_nest():
         Nl = Nl + i
         Nr = i + Nr
     D = SmartAdd(*list(range(1,9)))
+    d = SmartVariable("d")
     
     assert D.copy().nest("left").is_identical_to(Nl)
     assert D.copy().nest("right").is_identical_to(Nr)
