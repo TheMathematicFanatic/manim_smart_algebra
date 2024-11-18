@@ -11,27 +11,27 @@ algebra_config = {
 	}
 
 
-class SmartExpression(Tex):
-	def __init__(self, parentheses=False, initialize_Tex=False, **kwargs):
+class SmartExpression:
+	def __init__(self, parentheses=False, **kwargs):
+		self._mob = None
 		self.parentheses = parentheses
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
-		self.initialized_Tex = initialize_Tex
-		if initialize_Tex:
-			self.init_Tex(**kwargs)
 
-	def init_Tex(self, force=False, **kwargs):
-		if self.initialized_Tex or not force:
-			self.initialized_Tex = True
-			string = add_spaces_around_brackets(str(self))	
-			super().__init__(string, **kwargs)
-		return self
+	@property
+	def mob(self, **kwargs):
+		if self._mob is None:
+			self._mob = Tex(add_spaces_around_brackets(str(self)), **kwargs)
+		return self._mob
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
 			return VGroup(self[g] for g in self.get_glyphs(key))
 		else: # preserve behavior of Tex indexing
-			return super().__getitem__(key)
+			return self.mob.__getitem__(key)
+	
+	def __getattr__(self, name):
+		return getattr(self.mob, name)
 
 	def get_all_addresses(self):
 		# Returns the addresses of all subexpressions
@@ -163,9 +163,7 @@ class SmartExpression(Tex):
 			return sorted(set(results))
 
 	def __len__(self):
-		if not self.initialized_Tex:
-			self.init_Tex()
-		return len(self.submobjects)
+		return len(self.mob)
 
 	def __neg__(self):
 		from .operations import SmartNegative
@@ -258,8 +256,7 @@ class SmartExpression(Tex):
 		return False # catchall if not defined in subclasses
 
 	def give_parentheses(self, parentheses=True):
-		SmartExpression.__init__(self, parentheses=parentheses)
-		return self
+		self.parentheses = parentheses
 
 	def clear_all_parentheses(self):
 		for c in self.children:
@@ -347,6 +344,9 @@ class SmartExpression(Tex):
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self) + ")"
 
+	def copy(self):
+		from copy import copy
+		return copy(self)
 
 
 class SmartCombiner(SmartExpression):
@@ -368,13 +368,4 @@ class SmartCombiner(SmartExpression):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
-
-from manimlib import Scene
-old_add = Scene.add
-def new_add(self, *args, **kwargs):
-	for mob in args:
-		if isinstance(mob, SmartExpression):
-			mob.init_Tex()
-	old_add(self, *args, **kwargs)
-Scene.add = new_add
 

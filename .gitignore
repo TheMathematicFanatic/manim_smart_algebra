@@ -28,3 +28,6 @@ prof/
 
 # Ignore DS Store files
 .DS_Store
+
+# Ignore .coverage
+.coverage

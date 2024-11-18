@@ -79,7 +79,7 @@ class SmartAction:
 	@staticmethod
 	def preaddressfunc(func):
 		def wrapper(action, expr, *args, **kwargs):
-			print(f"Calling preaddressfunc wrapper with action: {action}, expr: {expr}, args: {args}, kwargs: {kwargs}")
+			#print(f"Calling preaddressfunc wrapper with action: {action}, expr: {expr}, args: {args}, kwargs: {kwargs}")
 			if 'preaddress' in kwargs:
 				address = kwargs['preaddress']
 			elif action.preaddress is not None:
@@ -132,18 +132,18 @@ class SmartAction:
 			glyphmap.append(glyphmap_entry)
 			# Good idea but turning off for now, need to rethink
 			# if isinstance(entry[0], (str, list)) and isinstance(entry[1], (str, list)):
-			#     if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
-			#         glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
-			#     elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
-			#         glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
+			# 	if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
+			# 		glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rush_from}])
+			# 	elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
+			# 		glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rush_from}])
 		return glyphmap
 	
 	def get_animation(self, input_exp, output_exp=None, **kwargs):
 		if output_exp is None:
-			output_exp = self.get_output_expression(input_exp).init_Tex()
+			output_exp = self.get_output_expression(input_exp)
 		return TransformByGlyphMap(
-			input_exp,
-			output_exp,
+			input_exp.mob,
+			output_exp.mob,
 			*self.get_glyphmap(input_exp, **kwargs),
 			default_introducer=self.introducer,
 			default_remover=self.remover,
@@ -225,7 +225,11 @@ class TransformByAddressMap(TransformByGlyphMap):
 			if len(entry) == 3:
 				glyphmap_entry.append(entry[2])
 			glyphmap.append(glyphmap_entry)
-		super().__init__(input_expression, output_expression, *glyphmap, **kwargs)
+			if input_expression.get_subex(entry[0]).parentheses and not output_expression.get_subex(entry[1]).parentheses:
+				glyphmap.append([input_expression.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rush_from}])
+			elif not input_expression.get_subex(entry[0]).parentheses and output_expression.get_subex(entry[1]).parentheses:
+				glyphmap.append([self.introducer, output_expression.get_glyphs(entry[1]+"()"), {"rate_func":rush_into}])
+		super().__init__(input_expression.mob, output_expression.mob, *glyphmap, **kwargs)
 
   
 

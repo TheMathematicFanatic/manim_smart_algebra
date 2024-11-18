@@ -54,13 +54,13 @@ def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show
 	print("Number of children: ", len(smarttex.children))
 	if show_indices:
 		for index in range(len(smarttex)):
-			index_text = Text(str(index), color=GREEN).next_to(smarttex, DOWN)
+			index_text = Text(str(index), color=GREEN).next_to(smarttex.mob, DOWN)
 			scene.add(index_text)
 			scene.play(Indicate(smarttex[index], color=GREEN))
 			scene.remove(index_text)
 	if show_addresses:
 		for ad in smarttex.get_all_addresses():
-			ad_text = Text(ad, color=ORANGE).next_to(smarttex, DOWN)
+			ad_text = Text(ad, color=ORANGE).next_to(smarttex.mob, DOWN)
 			subex_type = Text(type(smarttex.get_subex(ad)).__name__, color=ORANGE).next_to(ad_text, DOWN)
 			scene.add(ad_text, subex_type)
 			scene.play(Indicate(smarttex[ad], color=ORANGE))

@@ -46,9 +46,11 @@ class TransformByGlyphMap(AnimationGroup):
         A = mobA.copy() if from_copy else mobA
         for i in mobA_submobject_index:
             A = A[i]
+        self.mobject = A
         B = mobB
         for i in mobB_submobject_index:
             B = B[i]
+        self.target_mobject = B
         animations = []
         mentioned_from_indices = []
         mentioned_to_indices = []
@@ -150,6 +152,10 @@ class TransformByGlyphMap(AnimationGroup):
         super().clean_up_from_scene(scene)
         scene.remove(self.mobject)
         scene.add(self.target_mobject)
+    
+    # def create_target(self):
+    #     self.target_mobject = self.B
+    #     return self.target_mobject
 
 
 class TransformByAddressMap(TransformByGlyphMap):
