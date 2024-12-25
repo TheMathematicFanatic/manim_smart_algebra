@@ -1,5 +1,5 @@
 # expressions.py
-from manim import MathTex, VGroup, VDict, Mobject, Scene
+from manim import MathTex, VGroup, VDict, Mobject, Scene, config
 from ..utils import Smarten, tex, add_spaces_around_brackets
 
 
@@ -14,12 +14,13 @@ algebra_config = {
 class SmartExpression(MathTex):
 	def __init__(self, parentheses=False, initialize_MathTex=False, **kwargs):
 		self.parentheses = parentheses
-		if algebra_config.auto_parentheses:
+		if config.auto_parentheses:
 			self.auto_parentheses()
-		self._mob = None
+		self.initialized_MathTex = initialize_MathTex
+		if initialize_MathTex:
+			self.init_MathTex(**kwargs)
 
-
-	def init_mob(self, **kwargs):
+	def init_MathTex(self, force=False, **kwargs):
 		if not self.initialized_MathTex or force:
 			self.initialized_MathTex = True
 			string = add_spaces_around_brackets(str(self))
