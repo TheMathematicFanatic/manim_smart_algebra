@@ -1,6 +1,7 @@
 # expressions.py
-from manim import MathTex, VGroup, VDict, Mobject, Scene, config
+from manim import MathTex, VGroup, VDict, Mobject, Scene
 from ..utils import Smarten, tex, add_spaces_around_brackets
+from copy import deepcopy
 
 
 algebra_config = {
@@ -11,28 +12,32 @@ algebra_config = {
 		"always_color": {}
 	}
 
-class SmartExpression(MathTex):
-	def __init__(self, parentheses=False, initialize_MathTex=False, **kwargs):
+class SmartExpression:
+	def __init__(self, parentheses=False, **kwargs):
 		self.parentheses = parentheses
-		if config.auto_parentheses:
+		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
-		self.initialized_MathTex = initialize_MathTex
-		if initialize_MathTex:
-			self.init_MathTex(**kwargs)
+		self._mob = None
 
-	def init_MathTex(self, force=False, **kwargs):
-		if not self.initialized_MathTex or force:
-			self.initialized_MathTex = True
-			string = add_spaces_around_brackets(str(self))
-			super().__init__(string, **kwargs)
-			self.set_color_by_subex(algebra_config.always_color)
-		return self
+	@property
+	def mob(self):
+		if self._mob is None:
+			self.init_mob()
+		return self._mob
+
+	def init_mob(self, **kwargs):
+		string = add_spaces_around_brackets(str(self))
+		self._mob = MathTex(string, **kwargs)
+		self.set_color_by_subex(algebra_config["always_color"])
+	
+	def copy(self):
+		return deepcopy(self)
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			return VGroup(*[self[0][g] for g in self.get_glyphs(key)])
+			return VGroup(*[self.mob[0][g] for g in self.get_glyphs(key)])
 		else: # preserve behavior of MathTex indexing
-			return super().__getitem__(key)
+			return self.mob.__getitem__(key)
 
 	def get_all_addresses(self):
 		# Returns the addresses of all subexpressions
@@ -164,9 +169,7 @@ class SmartExpression(MathTex):
 			return sorted(set(results))
 
 	def __len__(self):
-		if not self.initialized_MathTex:
-			self.init_MathTex()
-		return len(self.submobjects[0].submobjects)
+		return len(self.mob[0])
 
 	def __neg__(self):
 		from .operations import SmartNegative
