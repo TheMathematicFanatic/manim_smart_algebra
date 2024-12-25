@@ -10,9 +10,6 @@ algebra_config = {
 		"decimal_precision": 4,
 		"always_color": {}
 	}
-for key,value in algebra_config.items():
-	setattr(config, key, value)
-
 
 class SmartExpression(MathTex):
 	def __init__(self, parentheses=False, initialize_MathTex=False, **kwargs):
@@ -28,7 +25,7 @@ class SmartExpression(MathTex):
 			self.initialized_MathTex = True
 			string = add_spaces_around_brackets(str(self))
 			super().__init__(string, **kwargs)
-			self.set_color_by_subex(config.always_color)
+			self.set_color_by_subex(algebra_config.always_color)
 		return self
 
 	def __getitem__(self, key):

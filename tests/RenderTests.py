@@ -145,8 +145,8 @@ class MultiChildren(Scene):
 
 class TestCombiners(Scene):
     def construct(self):
-        config.division_mode = "inline"
-        config.multiplication_mode = "x" # Does this work? Yes!
+        algebra_config["division_mode"] = "inline"
+        algebra_config["multiplication_mode"] = "x" # Does this work? Yes!
         self.add(VGroup(
             SmartAdd(1,2,3,4,5),
             SmartSub(1,2,3,4,5),
@@ -383,7 +383,7 @@ class TestAlwaysColor(Scene):
         super().__init__(*args, **kwargs)
     
     def construct(self):
-        config.always_color = {x:RED, y:BLUE, r:YELLOW_D, theta:GREEN_E}
+        algebra_config["always_color"] = {x:RED, y:BLUE, r:YELLOW_D, theta:GREEN_E}
         V = VGroup(
             x & r*cos(theta),
             y & r*sin(theta),
@@ -403,16 +403,16 @@ class TestAlwaysColor(Scene):
         from MF_Tools import VT
         th = VT(0.01)
         r_line = always_redraw(lambda:
-            Line(NP.coords_to_point(0,0,0), NP.c2p(np.cos(~th), np.sin(~th), 0)).set_color(config.always_color[r])
+            Line(NP.coords_to_point(0,0,0), NP.c2p(np.cos(~th), np.sin(~th), 0)).set_color(algebra_config["always_color"][r])
         )
         x_line = always_redraw(lambda:
-            Line(NP.c2p(0,0,0), NP.c2p(np.cos(~th),0,0)).set_color(config.always_color[x])
+            Line(NP.c2p(0,0,0), NP.c2p(np.cos(~th),0,0)).set_color(algebra_config["always_color"][x])
         )
         y_line = always_redraw(lambda:
-            Line(NP.c2p(np.cos(~th),0,0), NP.c2p(np.cos(~th), np.sin(~th), 0)).set_color(config.always_color[y])
+            Line(NP.c2p(np.cos(~th),0,0), NP.c2p(np.cos(~th), np.sin(~th), 0)).set_color(algebra_config["always_color"][y])
         )
         theta_arc = always_redraw(lambda:
-            Arc(angle=~th, radius=0.3, arc_center=NP.c2p(0,0,0)).set_color(config.always_color[theta])
+            Arc(angle=~th, radius=0.3, arc_center=NP.c2p(0,0,0)).set_color(algebra_config["always_color"][theta])
         )
         self.add(NP, circle, r_line, x_line, y_line, theta_arc)
         self.play(th@TAU, run_time=10, rate_func=linear)

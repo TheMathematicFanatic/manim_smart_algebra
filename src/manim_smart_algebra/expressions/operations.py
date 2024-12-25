@@ -42,7 +42,7 @@ class SmartSub(SmartOperation):
 class SmartMul(SmartOperation):
 	def __init__(self, *children, mode=None, **kwargs):
 		self.eval_op = lambda x,y: x*y
-		self.mode = config.multiplication_mode if mode is None else mode
+		self.mode = algebra_config["multiplication_mode"] if mode is None else mode
 		if self.mode == "dot":
 			super().__init__("\\cdot", 1, *children, **kwargs)
 		elif self.mode == "x":
@@ -64,7 +64,7 @@ class SmartMul(SmartOperation):
 class SmartDiv(SmartOperation):
 	def __init__(self, *children, mode=None, **kwargs):
 		self.eval_op = lambda x,y: x/y
-		self.mode = config.division_mode if mode is None else mode
+		self.mode = algebra_config["division_mode"] if mode is None else mode
 		if self.mode == "fraction":
 			super().__init__("\\over", 1, *children, **kwargs)
 		elif self.mode == "inline":
@@ -74,7 +74,7 @@ class SmartDiv(SmartOperation):
 
 	def auto_parentheses(self):
 		for child in self.children:
-			if (isinstance(child, (SmartAdd, SmartSub, SmartMul, SmartDiv)) or child.is_negative()) and config.division_mode == "inline":
+			if (isinstance(child, (SmartAdd, SmartSub, SmartMul, SmartDiv)) or child.is_negative()) and algebra_config["division_mode"] == "inline":
 				child.give_parentheses()
 			child.auto_parentheses()
 
