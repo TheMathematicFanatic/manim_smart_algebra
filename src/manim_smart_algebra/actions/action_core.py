@@ -213,7 +213,7 @@ class SmartAction:
 		return Smarten(other).__rshift__(self)
 	
 	def __repr__(self):
-		return type(self).__name__ + "(" + self.kwargs.get('preaddress', '') + ")"
+		return type(self).__name__ + "(" + self.preaddress + ")"
 	
 
 
