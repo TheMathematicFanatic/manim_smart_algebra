@@ -444,3 +444,66 @@ class ViewPolar(Scene):
             self.play(Indicate(PP[i], color=c))
         for i in range(len(PP[1])):
             self.play(Indicate(PP[1][i], color=ORANGE))
+
+
+class FunctionIteration(Scene):
+    def construct(self):
+        A = SmZ(1)
+        f = 1/(1+x)
+        s = substitute_into_(f)
+
+        self.add(A.mob)
+
+        for i in range(6):
+            B = A >= s
+            self.play(s.get_animation()(A,B))
+            A = B
+            self.wait()
+
+        self.wait()
+
+#FunctionIteration().render()
+
+
+class SuccTest(Scene):
+    def construct(self):
+        A = Square()
+        B = MathTex("a^2 + b^2").scale(2)
+        C = MathTex("5^2 + (-8)^2").scale(2)
+
+        T1 = ReplacementTransform(A,B)
+        T2 = AnimationGroup(
+            ReplacementTransform(B[0][0:3], C[0][0:3]),
+            ReplacementTransform(B[0][3], C[0][3:7]),
+            ReplacementTransform(B[0][4], C[0][7])
+        )
+
+        self.add(A)
+        self.play(T1)
+        self.play(T2)
+        # self.play(Succession(T1,T2))
+        self.wait()
+        self.play(Indicate(C))
+
+
+class EvaluateTest(Scene):
+    def construct(self):
+        P = a**2 + b**2
+        s = substitute_({a:1, b:2})
+        e1 = evaluate_(preaddress='0')
+        e2 = evaluate_(preaddress='1')
+        e3 = evaluate_()
+
+        self.add(P.mob)
+        self.wait()
+        self.play(s.get_animation()(P))
+        self.wait()
+        self.play(e1.get_animation()(P))
+        self.wait()
+        self.play(e2.get_animation()(P))
+        self.wait()
+        self.play(e3.get_animation()(P))
+        self.wait()
+
+
+

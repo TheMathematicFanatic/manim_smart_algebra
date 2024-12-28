@@ -71,40 +71,6 @@ class SmartAction:
 		self.remover = remover
 		self.kwargs = kwargs
 
-	def __init_subclass__(cls, **kwargs):
-		cls.get_output_expression = cls.preaddressfunc(cls.get_output_expression)
-		cls.get_addressmap = cls.preaddressmap(cls.get_addressmap)
-
-	@staticmethod
-	def preaddressfunc(func):
-		def wrapper(action, expr, *args, **kwargs):
-			if 'preaddress' in kwargs:
-				address = kwargs['preaddress']
-			elif 'preaddress' in action.kwargs:
-				address = action.kwargs['preaddress']
-			else:
-				address = ''
-			if len(address)==0:
-				output_expression = func(action, expr)
-			else:
-				active_part = expr.get_subex(address)
-				result = func(action, active_part)
-				output_expression = expr.substitute_at_address(result, address)
-			return output_expression
-		return wrapper
-
-	@staticmethod
-	def preaddressmap(getmap):
-		def wrapper(action, expr, *args, **kwargs):
-			addressmap = getmap(action, expr, *args, **kwargs)
-			if action.preaddress:
-				for entry in addressmap:
-					for i, ad in enumerate(entry):
-						if isinstance(ad, (str, list)):
-							entry[i] = action.preaddress + ad
-			return addressmap
-		return wrapper
-
 	def get_output_expression(self, input_expression):
 		# auto-decorated with preaddressfunc thanks to __init_subclass__
 		# define in subclasses
@@ -138,9 +104,9 @@ class SmartAction:
 	
 	def get_animation(self, **kwargs):
 		return lambda input_exp, output_exp: TransformByGlyphMap(
-			input_exp,
-			output_exp,
-			*self.get_glyphmap,
+			input_exp.mob,
+			output_exp.mob,
+			*self.get_glyphmap(input_exp),
 			default_introducer=self.introducer,
 			default_remover=self.remover,
 			**(self.kwargs|kwargs)
@@ -215,6 +181,36 @@ class SmartAction:
 	def __repr__(self):
 		return type(self).__name__ + "(" + self.preaddress + ")"
 	
+
+
+def preaddressfunc(func):
+	def wrapper(action, expr, *args, **kwargs):
+		if 'preaddress' in kwargs:
+			address = kwargs['preaddress']
+		elif 'preaddress' in action.kwargs:
+			address = action.kwargs['preaddress']
+		else:
+			address = ''
+		if len(address)==0:
+			output_expression = func(action, expr)
+		else:
+			active_part = expr.get_subex(address)
+			result = func(action, active_part)
+			output_expression = expr.substitute_at_address(result, address)
+		output_expression.reset_parentheses()
+		return output_expression
+	return wrapper
+
+def preaddressmap(getmap):
+	def wrapper(action, expr, *args, **kwargs):
+		addressmap = getmap(action, expr, *args, **kwargs)
+		if action.preaddress:
+			for entry in addressmap:
+				for i, ad in enumerate(entry):
+					if isinstance(ad, (str, list)):
+						entry[i] = action.preaddress + ad
+		return addressmap
+	return wrapper
 
 
 class IncompatibleExpression(Exception):

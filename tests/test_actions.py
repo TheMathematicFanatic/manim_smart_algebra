@@ -103,19 +103,21 @@ def test_add_A(a,A):
             [[0,1,2,3], [0,1,2,3]],
             [a.introducer, [4], {"delay":0.5}],
             [a.introducer, [5], {"delay":0.6}]
+            
     ]
     a.preaddress = "00"
     assert a.get_output_expression(A).is_identical_to((3+t)*x+5)
     assert a.get_addressmap(A) == [
-            ["", "0"],
-            [a.introducer, "+", {"delay":0.5}],
-            [a.introducer, "1", {"delay":0.6}]
+            ["00", "000"],
+            [a.introducer, "00+", {"delay":0.5}],
+            [a.introducer, "001", {"delay":0.6}]
         ]
     # assert a.get_glyphmap() == [   # Doesn't work due to parentheses
     #         [[0,1,2,3], [0,1,2,3]]
     #         [a.introducer, [4], {"delay":0.5}],
     #         [a.introducer, [5], {"delay":0.6}]
     # ]    
+
 
 def test_add_Q(a,Q):
     assert a.get_output_expression(Q).is_identical_to((x/y)**2 + t)

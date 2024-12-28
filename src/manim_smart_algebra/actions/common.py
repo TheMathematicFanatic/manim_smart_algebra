@@ -2,6 +2,7 @@ from .action_core import *
 from .variants import *
 from .combinations import *
 from ..expressions.operations import *
+from ..expressions.variables import *
 
 
 class swap_children_(SmartAction):
@@ -10,10 +11,12 @@ class swap_children_(SmartAction):
         self.arc_size = arc_size
         super().__init__(**kwargs)
     
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         assert len(input_expression.children) == 2, f"Cannot swap children of {input_expression}, must have two children."
         return type(input_expression)(input_expression.children[1], input_expression.children[0])
 
+    @preaddressmap
     def get_addressmap(self, input_expression=None):
         return [
             ["0", "1", {"path_arc": self.arc_size}],
@@ -29,6 +32,7 @@ class apply_operation_(SmartAction):
         self.side = side
         super().__init__(**kwargs)
     
+    @preaddressfunc
     def get_output_expression(self, input_expression):
         if self.side == "right":
             output_expression = self.OpClass(input_expression, self.other)
@@ -38,6 +42,7 @@ class apply_operation_(SmartAction):
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
         return output_expression
 
+    @preaddressmap
     def get_addressmap(self, input_expression):
         if self.side == "right":
             return [
@@ -83,9 +88,11 @@ class substitute_(SmartAction):
         self.lag = lag #usually looks like shit but can be cool sometimes
         super().__init__(**kwargs)
     
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         return input_expression.substitute(self.sub_dict)
 
+    @preaddressmap
     def get_addressmap(self):
         target_addresses = []
         for var in self.sub_dict:
@@ -102,6 +109,32 @@ class substitute_(SmartAction):
             return addressmap
 
 
+class substitute_into_(SmartAction):
+    def __init__(self, outer_expression, substitution_variable=SmartVariable('x'), **kwargs):
+        self.outer_expression = outer_expression
+        self.substitution_variable = substitution_variable
+        super().__init__(**kwargs)
+        self.kwargs['auto_resolve'] = True
+        self.kwargs['auto_resolve_delay'] = 0.75
+    
+    @preaddressfunc
+    def get_output_expression(self, input_expression=None):
+        return self.outer_expression.substitute({self.substitution_variable: input_expression})
+    
+    @preaddressmap
+    def get_addressmap(self, input_expression=None):
+        addressmap = []
+        sub_into_addresses = self.outer_expression.get_addresses_of_subex(self.substitution_variable)
+        for ad in sub_into_addresses:
+            if not input_expression.parentheses:
+                ad = ad + "_"
+            addressmap.append(['', ad])
+        return addressmap
+    
+    # def get_animation(self, **kwargs):
+    #     return super().get_animation(auto_resolve=True, **kwargs)
+
+
 class evaluate_(SmartAction):
     def __init__(self, mode="random leaf", **kwargs):
         super().__init__(**kwargs)
@@ -110,14 +143,16 @@ class evaluate_(SmartAction):
         #     leaf_address = np.random.choice(leaves)
         #     self.preaddress = leaf_address
 
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         return input_expression.evaluate()
     
+    @preaddressmap
     def get_addressmap(self):
         return [
             ["", ""] #extension by preaddress is done by decorator!
         ]
-
+    
 
 class distribute_(SmartAction):
        # Not done yet, multilayer does not work... this is so necessary but rather nontrivial... hm...
@@ -125,6 +160,7 @@ class distribute_(SmartAction):
         self.mode = mode #"auto", "left", "right"
         super().__init__(**kwargs)
     
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         if self.mode == "auto":
             self.determine_direction(input_expression)
@@ -141,6 +177,7 @@ class distribute_(SmartAction):
                 ]
             return type(input_expression.children[0])(*new_children)
 
+    @preaddressmap
     def determine_direction(self, input_expression):
         if self.mode == "auto":
             if isinstance(input_expression, SmartMul):
