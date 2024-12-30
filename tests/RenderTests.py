@@ -67,15 +67,15 @@ class PolarRectConversions(Scene):
 
 class NewSwapChildren(Scene):
     def construct(self):
+        d = SmVar('d')
         E = a/b+(c-4)/d**2
         tree_addresses = E.get_all_nonleaf_addresses()
         for ad in tree_addresses:
             E_ = E.copy()
             SC = swap_children_(preaddress=ad)
-            SC.input_expression = E_
-            self.add(E_)
+            self.add(E_.mob)
             self.wait()
-            self.play(SC.get_animations())
+            self.play(SC.get_animation()(E_))
             self.wait()
             self.clear()
 

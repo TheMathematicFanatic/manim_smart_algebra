@@ -103,7 +103,10 @@ class SmartAction:
 		return glyphmap
 	
 	def get_animation(self, **kwargs):
-		return lambda input_exp, output_exp: TransformByGlyphMap(
+		def animation(input_exp, output_exp=None):
+			if output_exp is None:
+				output_exp = self.get_output_expression(input_exp)
+			return TransformByGlyphMap(
 			input_exp.mob,
 			output_exp.mob,
 			*self.get_glyphmap(input_exp),
@@ -111,6 +114,7 @@ class SmartAction:
 			default_remover=self.remover,
 			**(self.kwargs|kwargs)
 			)
+		return animation
 	
 	@property
 	def preaddress(self):
@@ -123,6 +127,11 @@ class SmartAction:
 	@preaddress.deleter
 	def preaddress(self):
 		del self.kwargs['preaddress']
+	
+	def __call__(self, expr1, expr2=None, **kwargs):
+		if expr2 is None:
+			expr2 = self.get_output_expression(expr1)
+		return self.get_animation(**kwargs)(expr1, expr2)
 
 	def __or__(self, other):
 		from .combinations import ParallelAction

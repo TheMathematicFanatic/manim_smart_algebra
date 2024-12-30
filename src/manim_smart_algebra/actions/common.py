@@ -93,10 +93,10 @@ class substitute_(SmartAction):
         return input_expression.substitute(self.sub_dict)
 
     @preaddressmap
-    def get_addressmap(self):
+    def get_addressmap(self, input_expression=None):
         target_addresses = []
         for var in self.sub_dict:
-            target_addresses += self.input_expression.get_subex(self.preaddress).get_addresses_of_subex(var)
+            target_addresses += input_expression.get_subex(self.preaddress).get_addresses_of_subex(var)
         addressmap = []
         if self.mode == "transform":
             for i,ad in enumerate(target_addresses):
@@ -148,7 +148,7 @@ class evaluate_(SmartAction):
         return input_expression.evaluate()
     
     @preaddressmap
-    def get_addressmap(self):
+    def get_addressmap(self, input_expression=None):
         return [
             ["", ""] #extension by preaddress is done by decorator!
         ]
@@ -177,8 +177,7 @@ class distribute_(SmartAction):
                 ]
             return type(input_expression.children[0])(*new_children)
 
-    @preaddressmap
-    def determine_direction(self, input_expression):
+    def determine_direction(self, input_expression=None):
         if self.mode == "auto":
             if isinstance(input_expression, SmartMul):
                 left_distributable = isinstance(input_expression.children[-1], (SmartAdd, SmartSub))
@@ -206,7 +205,8 @@ class distribute_(SmartAction):
             else:
                 raise ValueError("Cannot auto-distribute, must be a multiplication or division.")
 
-    def get_addressmap(self):
+    @preaddressmap
+    def get_addressmap(self, input_expression=None):
         return [
             ["", ""] #standin idk what the fuck im doing here
         ]
