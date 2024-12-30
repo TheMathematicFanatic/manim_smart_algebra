@@ -77,7 +77,7 @@ class SmartAction:
 
 	def get_addressmap(self, input_expression, **kwargs):
 		# define in subclasses and decorate with @preaddressmap
-		raise NotImplemented
+		raise NotImplementedError
 
 	def get_glyphmap(self, input_expression, **kwargs):
 		A = input_expression
