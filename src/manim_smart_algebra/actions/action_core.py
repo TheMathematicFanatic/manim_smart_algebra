@@ -72,14 +72,12 @@ class SmartAction:
 		self.kwargs = kwargs
 
 	def get_output_expression(self, input_expression):
-		# auto-decorated with preaddressfunc thanks to __init_subclass__
-		# define in subclasses
-		return input_expression
+  # define in subclasses and decorate with @preaddressmap
+		raise NotImplementedError
 
 	def get_addressmap(self, input_expression, **kwargs):
-		# auto-decorated with preaddressmap thanks to __init_subclass__
-		# define in subclasses
-		return []
+		# define in subclasses and decorate with @preaddressmap
+		raise NotImplemented
 
 	def get_glyphmap(self, input_expression, **kwargs):
 		A = input_expression
