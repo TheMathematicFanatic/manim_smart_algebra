@@ -36,19 +36,21 @@ class Zipper:
 
 	def get_anim(self, i, **kwargs):
 		if i == -1:
-			return self.kwargs.get('introducer', Write)(self.expressions[0])
+			return self.kwargs.get('introducer', Write)(self.expressions[0].mob)
 		if i == len(self.expressions) - 1 and self.actions[-1] is None:
-			return self.kwargs.get('remover', FadeOut)(self.expressions[-1])
+			return self.kwargs.get('remover', FadeOut)(self.expressions[-1].mob)
 		from_expression = self.get_expression(i)
 		to_expression = self.get_expression(i+1)
 		action = self.get_action(i)
 		return action.get_animation(**kwargs)(from_expression, to_expression)
 
-	def play_animations(self, scene, i_range, wait_time=1, **kwargs):
+	def play_animations(self, scene, i_range=None, wait_time=1, **kwargs):
+		if i_range is None:
+			i_range = range(len(self.actions))
 		for i in i_range:
 			scene.play(self.get_anim(i, **kwargs))
 			scene.clear()
-			scene.add(self.get_expression(i+1))
+			scene.add(self.get_expression(i+1).mob)
 			scene.wait(wait_time)
 
 	def add_pair(self, expression, action):
