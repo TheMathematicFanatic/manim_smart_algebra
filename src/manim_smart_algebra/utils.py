@@ -1,4 +1,3 @@
-from manim import *
 
 
 def Smarten(input):
@@ -192,7 +191,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 	max_layer = layered_addresses[max_index]
 	max_width = len(max_layer)
 	if printing: print(max_index, max_width, max_layer)
-	Nodes = VDict({ad: create_node(ad) for ad in addresses})
+	Nodes = VDict({ad: create_node(ad) for ad in addresses}) #VDict is not available in ManimGL, so this needs a refactor
 	#Max_layer = VGroup(*[Nodes[ad] for ad in max_layer]).arrange(RIGHT,buff=horizontal_buff)
 	def position_children(parent_address):
 		parent = Nodes[parent_address]

@@ -1,8 +1,8 @@
 # actions.py
-from manim import *
+from manimlib import *
 from ..expressions.expression_core import *
 from ..utils import *
-from MF_Tools import TransformByGlyphMap
+from .animations import TransformByGlyphMap, TransformByAddressMap
 
 
 class SmartAction:

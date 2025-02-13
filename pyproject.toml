@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "manim-smart-algebra"
-version = "0.3.6"
-description = "Manim plugin which simplifies the process of animating algebra"
+version = "0.4.0"
+description = "ManimGL plugin which simplifies the process of animating algebra"
 authors = ["John Connell <johnconnelltutor@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/TheMathematicFanatic/manim_smart_algebra"
@@ -9,8 +9,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
-manim = ">=0.17"
-MF-Tools = ">=1.1.2"
+manimgl = ">=1.7"
 
 [build-system]
 requires = ["poetry-core"]

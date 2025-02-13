@@ -9,6 +9,9 @@ venv/
 # Ignore manim media folder
 media/
 
+# Ignore ManimGL's equivalent as well
+videos/
+
 # Ignore demo for now
 demo/
 

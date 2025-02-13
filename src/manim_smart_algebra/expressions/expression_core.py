@@ -1,5 +1,5 @@
 # expressions.py
-from manim import MathTex, VGroup, VDict, Mobject, Scene
+from manimlib import Tex, VGroup
 from ..utils import Smarten, tex, add_spaces_around_brackets
 from copy import deepcopy
 
@@ -27,7 +27,7 @@ class SmartExpression:
 
 	def init_mob(self, **kwargs):
 		string = add_spaces_around_brackets(str(self))
-		self._mob = MathTex(string, **kwargs)
+		self._mob = Tex(string, **kwargs)
 		self.set_color_by_subex(algebra_config["always_color"])
 	
 	def copy(self):
@@ -35,8 +35,8 @@ class SmartExpression:
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			return VGroup(*[self.mob[0][g] for g in self.get_glyphs(key)])
-		else: # preserve behavior of MathTex indexing
+			return VGroup(*[self.mob[g] for g in self.get_glyphs(key)])
+		else: # preserve behavior of Tex indexing
 			return self.mob.__getitem__(key)
 
 	def get_all_addresses(self):
@@ -169,7 +169,7 @@ class SmartExpression:
 			return sorted(set(results))
 
 	def __len__(self):
-		return len(self.mob[0])
+		return len(self.mob.submobjects)
 
 	def __neg__(self):
 		from .operations import SmartNegative

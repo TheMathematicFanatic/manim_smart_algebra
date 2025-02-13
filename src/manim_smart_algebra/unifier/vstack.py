@@ -1,0 +1,1 @@
+from manim_smart_algebra import *
