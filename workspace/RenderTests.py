@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 
-from manim import *
+from manimlib import *
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.actions import *
 from manim_smart_algebra.unifier.zipper import *
@@ -375,7 +375,7 @@ class TestAddOverride2(Scene):
         V = VGroup(A, Square())
         self.add(V)
 
-from manim_smart_algebra.trigonometry.common import *
+from manim_smart_algebra.extra.trigonometry.common import *
 class TestAlwaysColor(Scene):
     def __init__(self, *args, **kwargs):
         # config.background_color = WHITE
@@ -507,3 +507,42 @@ class EvaluateTest(Scene):
 
 
 
+class BlankEmbed(Scene):
+    def construct(self):
+        self.embed()
+
+
+class TBGM_Testing(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        B = A @ {x:3, y:-4}
+        C = B >= evaluate_(preaddress='0')
+        D = C >= evaluate_(preaddress='1')
+        E = D >= evaluate_()
+        self.add(A.mob)
+        self.wait()
+        self.play(
+            TransformByGlyphMap(A.mob, B.mob,
+                ([0], [0]),
+                ([3], [3,4,5,6])
+            ),
+        )
+        self.wait()
+        self.play(
+            TransformByGlyphMap(B.mob, C.mob,
+                ([0,1], [0]),
+            ),
+        )
+        self.wait()
+        self.play(
+            TransformByGlyphMap(C.mob, D.mob,
+                ([2,3,4,5,6], [2,3]),
+            ),
+        )
+        self.wait()
+        self.play(
+            TransformByGlyphMap(D.mob, E.mob,
+                ([0,1,2,3], [0,1]),
+            ),
+        )
+        self.embed()
