@@ -18,10 +18,18 @@ class swap_children_(SmartAction):
 
     @preaddressmap
     def get_addressmap(self, input_expression=None):
-        return [
-            ["0", "1", {"path_arc": self.arc_size}],
-            ["1", "0", {"path_arc": self.arc_size}]
-        ]
+        if self.mode == "arc":
+            return [
+                ["0", "1", {"path_arc": self.arc_size}],
+                ["1", "0", {"path_arc": self.arc_size}]
+            ]
+        elif self.mode == "straight":
+            return [
+                ["0", "1"],
+                ["1", "0"]
+            ]
+        else:
+            raise ValueError(f"Invalid mode: {self.mode}. Must be 'arc' or 'straight'.")
 
 
 class apply_operation_(SmartAction):
