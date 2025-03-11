@@ -19,4 +19,29 @@ class Interactive(Scene):
         self.add(A.mob)
         self.wait()
         self.embed()
-        self.wait()
+
+
+
+
+class Theorem(Scene):
+    def construct(self):
+        A = Tex("x^2-4")
+        B = Tex("(x-2)(x+2)")
+        self.embed()
+
+
+
+class CombineAnimations(Scene):
+    def construct(self):
+        A = Square()
+        B = Circle()
+        C = Text("Hello")
+
+        AtoB = ReplacementTransform(A,B)
+        BtoC = ReplacementTransform(B,C)
+        AtoC = Succession(AtoB, BtoC)
+        self.add(A)
+        #self.play(AtoB)
+        #self.play(BtoC)
+        self.play(AtoC)
+        self.embed()

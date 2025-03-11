@@ -71,7 +71,7 @@ class TransformByGlyphMap(AnimationGroup):
                         **{
                             **kwargs,
                             **({"shift":B.get_center() - A.get_center()} if shift_fades else {}),
-                            **entry_kwargs
+                            **{k:v for k,v in entry_kwargs.items() if k != 'delay'}
                         }
                         ))
                     if "delay" in entry_kwargs:
@@ -85,8 +85,8 @@ class TransformByGlyphMap(AnimationGroup):
                         mob,
                         **{
                             **kwargs,
-                            **{"shift":B.get_center() - A.get_center() if shift_fades else ORIGIN},
-                            **entry_kwargs
+                            **({"shift":B.get_center() - A.get_center()} if shift_fades else {}),
+                            **{k:v for k,v in entry_kwargs.items() if k != 'delay'}
                         }
                         ))
                     if "delay" in entry_kwargs and entry_kwargs["delay"] != 0:
@@ -141,8 +141,18 @@ class TransformByGlyphMap(AnimationGroup):
                     animations.append(ReplacementTransform(A[i], B[j], **kwargs))
             super().__init__(*animations, **kwargs)
 
+    def begin(self):
+        # Save and later restore mobA so that it is unharmed by the transform
+        self.mobA.save_state()
+        super().begin()
+
     def clean_up_from_scene(self, scene):
+        # Restore mobA so that it emerges unharmed by the transform
+        self.mobA.restore()
         super().clean_up_from_scene(scene)
+
+        # Currently in scene.mobjects are a bunch of orphaned submobjects of mobB.
+        # These lines make it so that scene.mobjects actually contains mobB as their parent.
         scene.remove(self.mobB)
         scene.add(self.mobB)
 
