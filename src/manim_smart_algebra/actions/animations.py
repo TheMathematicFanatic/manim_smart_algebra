@@ -164,13 +164,13 @@ class TransformByGlyphMap(AnimationGroup):
 
     def process_auto_resolve(self, A, B, auto_resolve_delay):
         for i in self.remaining_from_indices:
-            self.process_remover_entry(A, B, ([], [i], {"delay":auto_resolve_delay}))
+            self.process_entry(A, B, ([i], [], {"delay":auto_resolve_delay}))
         for j in self.remaining_to_indices:
-            self.process_remover_entry(A, B, ([j], [], {"delay":auto_resolve_delay}))
+            self.process_entry(A, B, ([], [j], {"delay":auto_resolve_delay}))
 
     def process_remaining(self, A, B):
         for i,j in zip(self.remaining_from_indices, self.remaining_to_indices):
-            self.animations.append(ReplacementTransform(A[i], B[j]))
+            self.process_entry(A, B, ([i], [j]))
 
     def begin(self):
         # Save and later restore mobA so that it is unharmed by the transform
