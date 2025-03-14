@@ -45,7 +45,7 @@ class Demo_TransformByGlyphMap2(Scene):
         self.play(TransformByGlyphMap(exp1, exp2,
             ([0], [5], {"path_arc":2/3*PI}),
             ([0], [10], {"path_arc":1/2*PI}),
-            ([], [4,9]),
+            ([], [4,9], {"delay":0.25}),
             run_time=2
         ))
         self.wait()
@@ -60,7 +60,7 @@ class Demo_TransformByGlyphMap3(Scene):
         self.wait()
         self.play(TransformByGlyphMap(exp1, exp2,
             ([7,9], [4,5]),
-            ([8], [], {"shift":UP}),
+            ([8], [], {"shift":exp2[5].get_center() - exp1[9].get_center()}),
         ))
         self.wait()
         self.embed()
@@ -128,7 +128,7 @@ class Demo_TransformByGlyphMap7(Scene):
             ([0,1,2], [0,1,2]),
             ([0,1,2], [4,5,6]),
             default_introducer=Write,
-            auto_resolve=True
+            auto_fade=True
         ))
         self.wait()
         self.embed()
