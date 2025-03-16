@@ -198,9 +198,17 @@ class TransformByGlyphMap(AnimationGroup):
 
 
 class TransformByAddressMap(TransformByGlyphMap):
-    def __init__(self, expA, expB, addressmap, **kwargs):
-        glyphmap = self.process_addressmap(mobA, mobB, addressmap)
-        super().__init__(expA, expB, *glyphmap, **kwargs)
+    def __init__(self, expA, expB, *addressmap, **kwargs):
+        glyphmap = self.addressmap_to_glyphmap(expA, expB, addressmap)
+        super().__init__(expA.mob, expB.mob, *glyphmap, **kwargs)
     
-    def process_addressmap(self, mobA, mobB, addressmap):
-        pass
+    def addressmap_to_glyphmap(self, expA, expB, addressmap):
+        glyphmap = [
+            (expA.get_glyphs(entry[0]), expB.get_glyphs(entry[1]), entry[2] if len(entry) > 2 else {})
+            for entry in addressmap
+        ]
+        return glyphmap
+
+
+
+
