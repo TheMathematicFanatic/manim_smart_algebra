@@ -45,3 +45,25 @@ class CombineAnimations(Scene):
         #self.play(BtoC)
         self.play(AtoC)
         self.embed()
+
+
+class KeepGoin(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        self.add(A.mob)
+        self.exp = A
+        self.embed()
+
+
+    def action_sequence(self):
+        while True:
+            action_name = input("Perform action: (or quit) \n")
+            if action_name == 'quit': break
+            temp_locals = {}
+            exec('action = ' + action_name, globals(), temp_locals)
+            action = temp_locals['action']
+            B = self.exp >= action
+            self.play(action(self.exp, B))
+            self.exp = B
+
+            
