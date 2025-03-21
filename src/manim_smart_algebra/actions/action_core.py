@@ -65,14 +65,14 @@ class SmartAction:
 	def __init__(self,
 		introducer=Write,
 		remover=FadeOut,
-		**kwargs
+		preaddress=''
 	):
 		self.introducer = introducer
 		self.remover = remover
-		self.kwargs = kwargs
+		self.preaddress = preaddress
 
 	def get_output_expression(self, input_expression):
-  		# define in subclasses and decorate with @preaddressmap
+  		# define in subclasses and decorate with @preaddressfunc
 		raise NotImplementedError
 
 	def get_addressmap(self, input_expression, **kwargs):
@@ -110,21 +110,9 @@ class SmartAction:
 			*self.get_glyphmap(input_exp),
 			default_introducer=self.introducer,
 			default_remover=self.remover,
-			**(self.kwargs|kwargs)
+			**kwargs
 			)
 		return animation
-	
-	@property
-	def preaddress(self):
-		return self.kwargs.get('preaddress', '')
-	
-	@preaddress.setter
-	def preaddress(self, value):
-		self.kwargs['preaddress'] = value
-	
-	@preaddress.deleter
-	def preaddress(self):
-		del self.kwargs['preaddress']
 	
 	def __call__(self, expr1, expr2=None, **kwargs):
 		if expr2 is None:
@@ -192,30 +180,28 @@ class SmartAction:
 
 def preaddressfunc(func):
 	def wrapper(action, expr, *args, **kwargs):
-		if 'preaddress' in kwargs:
-			address = kwargs['preaddress']
-		elif 'preaddress' in action.kwargs:
-			address = action.kwargs['preaddress']
-		else:
-			address = ''
-		if len(address)==0:
+		expr = expr.copy()
+		preaddress = kwargs.get('preaddress', '') or action.preaddress
+		if len(preaddress)==0:
 			output_expression = func(action, expr)
 		else:
-			active_part = expr.get_subex(address)
+			active_part = expr.get_subex(preaddress)
 			result = func(action, active_part)
-			output_expression = expr.substitute_at_address(result, address)
+			output_expression = expr.substitute_at_address(result, preaddress)
 		output_expression.reset_parentheses()
 		return output_expression
 	return wrapper
 
 def preaddressmap(getmap):
 	def wrapper(action, expr, *args, **kwargs):
+		expr = expr.copy()
+		preaddress = kwargs.get('preaddress', '') or action.preaddress
 		addressmap = getmap(action, expr, *args, **kwargs)
-		if action.preaddress:
+		if preaddress:
 			for entry in addressmap:
 				for i, ad in enumerate(entry):
-					if isinstance(ad, (str, list)):
-						entry[i] = action.preaddress + ad
+					if isinstance(ad, str):
+						entry[i] = preaddress + ad
 		return addressmap
 	return wrapper
 

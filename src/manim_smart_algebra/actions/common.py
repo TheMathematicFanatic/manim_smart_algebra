@@ -43,7 +43,7 @@ class apply_operation_(SmartAction):
     @preaddressfunc
     def get_output_expression(self, input_expression):
         if self.side == "right":
-            output_expression = self.OpClass(input_expression, self.other)
+            output_expression = self.OpClass(input_expression, self.other) # Putting a .copy() on the input expression fixes the problem. Try to understand this and then probably fold this into the decorator
         elif self.side == "left":
             output_expression = self.OpClass(self.other, input_expression)
         else:
@@ -108,12 +108,12 @@ class substitute_(SmartAction):
         addressmap = []
         if self.mode == "transform":
             for i,ad in enumerate(target_addresses):
-                addressmap.append([ad, ad, {"delay": self.lag*i} | self.kwargs])
+                addressmap.append([ad, ad, {"delay": self.lag*i}])
             return addressmap
         elif self.mode == "fade":
             for i,ad in enumerate(target_addresses):
-                addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i} | self.kwargs])
-                addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i} | self.kwargs])
+                addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i}])
+                addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i}])
             return addressmap
 
 
@@ -122,8 +122,6 @@ class substitute_into_(SmartAction):
         self.outer_expression = outer_expression
         self.substitution_variable = substitution_variable
         super().__init__(**kwargs)
-        self.kwargs['auto_resolve'] = True
-        self.kwargs['auto_resolve_delay'] = 0.75
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
@@ -139,8 +137,8 @@ class substitute_into_(SmartAction):
             addressmap.append(['', ad])
         return addressmap
     
-    # def get_animation(self, **kwargs):
-    #     return super().get_animation(auto_resolve=True, **kwargs)
+    def get_animation(self, *args, **kwargs):
+        return super().get_animation(*args, auto_fade=True, auto_resolve_delay=0.75, **kwargs)
 
 
 class evaluate_(SmartAction):
