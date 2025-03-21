@@ -79,35 +79,14 @@ class SmartAction:
 		# define in subclasses and decorate with @preaddressmap
 		raise NotImplementedError
 
-	def get_glyphmap(self, input_expression, **kwargs):
-		A = input_expression
-		B = self.get_output_expression(A)
-		glyphmap = []
-		for entry in self.get_addressmap(input_expression):
-			assert len(entry) in [2, 3], f"Invalid addressmap entry: {entry}"
-			glyphmap_entry = [
-				A.get_glyphs(entry[0]) if isinstance(entry[0], (str, list)) else entry[0],
-				B.get_glyphs(entry[1]) if isinstance(entry[1], (str, list)) else entry[1]
-			]
-			if len(entry) == 3:
-				glyphmap_entry.append(entry[2])
-			glyphmap.append(glyphmap_entry)
-			# Good idea but turning off for now, need to rethink
-			# if isinstance(entry[0], (str, list)) and isinstance(entry[1], (str, list)):
-			#     if A.get_subex(entry[0]).parentheses and not B.get_subex(entry[1]).parentheses:
-			#         glyphmap.append([A.get_glyphs(entry[0]+"()"), self.remover, {"rate_func":rate_functions.rush_from}])
-			#     elif not A.get_subex(entry[0]).parentheses and B.get_subex(entry[1]).parentheses:
-			#         glyphmap.append([self.introducer, B.get_glyphs(entry[1]+"()"), {"rate_func":rate_functions.rush_from}])
-		return glyphmap
-	
 	def get_animation(self, **kwargs):
 		def animation(input_exp, output_exp=None):
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
-			return TransformByGlyphMap(
-			input_exp.mob,
-			output_exp.mob,
-			*self.get_glyphmap(input_exp),
+			return TransformByAddressMap(
+			input_exp,
+			output_exp,
+			*self.get_addressmap(input_exp),
 			default_introducer=self.introducer,
 			default_remover=self.remover,
 			**kwargs
