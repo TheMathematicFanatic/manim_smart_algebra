@@ -1,5 +1,7 @@
 from manim_smart_algebra import *
 
+
+
 class VStack(VGroup):
     def __init__(self, *exp_act_pairs, **kwargs):
         self.expressions = [pair[0] for pair in exp_act_pairs]

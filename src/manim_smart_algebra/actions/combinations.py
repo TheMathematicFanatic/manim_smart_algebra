@@ -12,8 +12,8 @@ class ParallelAction(SmartAction):
             expr = action.get_output_expression(expr)
         return expr
     
-    def get_addressmap(self):
-        return sum([action.get_addressmap() for action in self.actions], [])
+    def get_addressmap(self, input_expression=None):
+        return sum([action.get_addressmap(input_expression) for action in self.actions], [])
     
     def __or__(self, other):
         if isinstance(other, ParallelAction):

@@ -147,14 +147,15 @@ class TransformByGlyphMap(AnimationGroup):
     def check_indices(self, A, B, auto_fade):
         self.remaining_from_indices = [i for i in range(len(A)) if i not in self.mentioned_from_indices]
         self.remaining_to_indices = [i for i in range(len(B)) if i not in self.mentioned_to_indices]
+        if not len(self.remaining_from_indices) == len(self.remaining_to_indices) and not auto_fade:
+            print("Error: lengths of unmentioned indices do not match.")
+            self.show_indices = True
+            self.printing = True
         if self.printing:
             print("All mentioned from indices: ", self.mentioned_from_indices)
             print("All mentioned to indices: ", self.mentioned_to_indices)
             print(f"All remaining from indices (length {len(self.remaining_from_indices)}): ", self.remaining_from_indices)
             print(f"All remaining to indices (length {len(self.remaining_to_indices)}):", self.remaining_to_indices)
-        if not len(self.remaining_from_indices) == len(self.remaining_to_indices) and not auto_fade:
-            print("Error: lengths of unmentioned indices do not match.")
-            self.show_indices = True
 
     def show_indices_animations(self, A, B, index_label_height, A_index_labels_color, B_index_labels_color):
         print("Showing indices...")
