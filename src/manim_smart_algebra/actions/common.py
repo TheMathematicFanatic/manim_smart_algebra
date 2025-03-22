@@ -89,12 +89,14 @@ class pow_(apply_operation_):
 
 
 class substitute_(SmartAction):
-    def __init__(self, sub_dict, mode="transform", fade_shift=DOWN*0.2, lag=0, **kwargs):
+    def __init__(self, sub_dict, preaddress='', mode="transform", arc_size=PI, fade_shift=DOWN*0.2, lag=0, **kwargs):
         self.sub_dict = sub_dict
+        self.preaddress = preaddress
         self.mode = mode
+        self.arc_size = arc_size
         self.fade_shift = fade_shift
         self.lag = lag #usually looks like shit but can be cool sometimes
-        super().__init__(**kwargs)
+        super().__init__(preaddress=preaddress,**kwargs)
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
@@ -109,6 +111,10 @@ class substitute_(SmartAction):
         if self.mode == "transform":
             for i,ad in enumerate(target_addresses):
                 addressmap.append([ad, ad, {"delay": self.lag*i}])
+            return addressmap
+        elif self.mode == "swirl":
+            for i,ad in enumerate(target_addresses):
+                addressmap.append([ad, ad, {"path_arc": self.arc_size, "delay": self.lag*i}])
             return addressmap
         elif self.mode == "fade":
             for i,ad in enumerate(target_addresses):

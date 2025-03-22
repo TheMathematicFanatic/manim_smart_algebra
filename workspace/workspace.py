@@ -57,8 +57,8 @@ class KeepGoin(Scene):
 
     def action_sequence(self):
         while True:
-            action_name = input("Perform action: (or quit) \n")
-            if action_name == 'quit': break
+            action_name = input("Perform action: (or quit)\n>>> ")
+            if 'quit' in action_name: break
             temp_locals = {}
             exec('action = ' + action_name, globals(), temp_locals)
             action = temp_locals['action']
@@ -66,4 +66,3 @@ class KeepGoin(Scene):
             self.play(action(self.exp, B))
             self.exp = B
 
-            

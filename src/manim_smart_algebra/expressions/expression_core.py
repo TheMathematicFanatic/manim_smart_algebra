@@ -339,8 +339,12 @@ class SmartExpression:
 
 	def substitute(self, expression_dict):
 		result = self.copy()
-		for from_subex, to_subex in expression_dict.items():
-			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(from_subex))
+		dict_with_numbers = list(enumerate(expression_dict.items()))
+		from .variables import SmartVariable
+		for i, (from_subex, to_subex) in dict_with_numbers:
+			result = result.substitute_at_addresses(SmartVariable(f"T_{i}"), result.get_addresses_of_subex(from_subex))
+		for i, (from_subex, to_subex) in dict_with_numbers:
+			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(SmartVariable(f"T_{i}")))
 		return result
 
 	def set_color_by_subex(self, subex_color_dict):
