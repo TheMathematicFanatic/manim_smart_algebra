@@ -6,10 +6,10 @@ from ..expressions.variables import *
 
 
 class swap_children_(SmartAction):
-    def __init__(self, mode="arc", arc_size=0.75*PI, **kwargs):
+    def __init__(self, preaddress='', mode="arc", arc_size=0.75*PI, **kwargs):
         self.mode = mode
         self.arc_size = arc_size
-        super().__init__(**kwargs)
+        super().__init__(preaddress=preaddress,**kwargs)
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
@@ -33,12 +33,12 @@ class swap_children_(SmartAction):
 
 
 class apply_operation_(SmartAction):
-    def __init__(self, OpClass, other, side="right", introducer=Write, **kwargs):
+    def __init__(self, OpClass, other, preaddress='', side="right", introducer=Write, **kwargs):
         self.OpClass = OpClass
         self.other = Smarten(other)
-        self.introducer = introducer
         self.side = side
-        super().__init__(**kwargs)
+        self.introducer = introducer
+        super().__init__(preaddress=preaddress,**kwargs)
     
     @preaddressfunc
     def get_output_expression(self, input_expression):
@@ -68,24 +68,24 @@ class apply_operation_(SmartAction):
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
 
 class add_(apply_operation_):
-    def __init__(self, other, introducer=Write, **kwargs):
-        super().__init__(SmartAdd, other, introducer=introducer, **kwargs)
+    def __init__(self, other, *args, **kwargs):
+        super().__init__(SmartAdd, other, *args, **kwargs)
 
 class sub_(apply_operation_):
-    def __init__(self, other, introducer=Write, **kwargs):
-        super().__init__(SmartSub, other, introducer=introducer, **kwargs)
+    def __init__(self, other, *args, **kwargs):
+        super().__init__(SmartSub, other, *args, **kwargs)
 
 class mul_(apply_operation_):
-    def __init__(self, other, introducer=Write, **kwargs):
-        super().__init__(SmartMul, other, introducer=introducer, **kwargs)
+    def __init__(self, other, *args, **kwargs):
+        super().__init__(SmartMul, other, *args, **kwargs)
 
 class div_(apply_operation_):
-    def __init__(self, other, introducer=Write, **kwargs):
-        super().__init__(SmartDiv, other, introducer=introducer, **kwargs)
+    def __init__(self, other, *args, **kwargs):
+        super().__init__(SmartDiv, other, *args, **kwargs)
 
 class pow_(apply_operation_):
-    def __init__(self, other, introducer=Write, **kwargs):
-        super().__init__(SmartPow, other, introducer=introducer, **kwargs)
+    def __init__(self, other, *args, **kwargs):
+        super().__init__(SmartPow, other, *args, **kwargs)
 
 
 class substitute_(SmartAction):
@@ -148,8 +148,8 @@ class substitute_into_(SmartAction):
 
 
 class evaluate_(SmartAction):
-    def __init__(self, mode="random leaf", **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, preaddress='', mode="random leaf", **kwargs):
+        super().__init__(preaddress=preaddress,**kwargs)
         # if mode == "random leaf":
         #     leaf_addresses = input_expression.get_all_leaf_addresses()
         #     leaf_address = np.random.choice(leaves)
@@ -168,9 +168,9 @@ class evaluate_(SmartAction):
 
 class distribute_(SmartAction):
        # Not done yet, multilayer does not work... this is so necessary but rather nontrivial... hm...
-    def __init__(self, mode="auto", multilayer=False, **kwargs):
+    def __init__(self, preaddress='', mode="auto", multilayer=False, **kwargs):
         self.mode = mode #"auto", "left", "right"
-        super().__init__(**kwargs)
+        super().__init__(preaddress=preaddress,**kwargs)
     
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
