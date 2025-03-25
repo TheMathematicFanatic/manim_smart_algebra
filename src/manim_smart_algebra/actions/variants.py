@@ -12,13 +12,14 @@ class AlgebraicAction(SmartAction):
         var_dict = match_expressions(self.template1, input_expression)
         return self.template2.substitute(var_dict)
     
-    def get_addressmap(self):
+    def get_addressmap(self, input_expression=None):
         addressmap = []
         def get_var_ad_dict(template):
             template_leaves = {
                 template.get_subex(ad)
-                for ad in self.input_expression.get_all_leaf_addresses()
+                for ad in input_expression.get_all_leaf_addresses()
                 }
+            from ..expressions.variables import SmartVariable
             variables = [var for var in template_leaves if isinstance(var, SmartVariable)]
             return {var: template.get_addresses_of_subex(var) for var in variables}
         self.template1_address_dict = get_var_ad_dict(self.template1)

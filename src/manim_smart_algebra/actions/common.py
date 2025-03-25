@@ -231,3 +231,12 @@ class distribute_(SmartAction):
 
 
 
+
+
+from .variants import AlgebraicAction
+a = SmartVariable('a')
+b = SmartVariable('b')
+c = SmartVariable('c')
+
+square_binomial_ = AlgebraicAction((a+b)**2, a**2 + 2*a*b + b**2)
+
