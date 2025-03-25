@@ -3,6 +3,7 @@ from .variants import *
 from .combinations import *
 from ..expressions.operations import *
 from ..expressions.variables import *
+from ..expressions.relations import *
 
 
 class swap_children_(SmartAction):
@@ -86,6 +87,10 @@ class div_(apply_operation_):
 class pow_(apply_operation_):
     def __init__(self, other, *args, **kwargs):
         super().__init__(SmartPow, other, *args, **kwargs)
+
+class equals_(apply_operation_):
+    def __init__(self, other, *args, **kwargs):
+        super().__init__(SmartEquation, other, *args, **kwargs)
 
 
 class substitute_(SmartAction):
