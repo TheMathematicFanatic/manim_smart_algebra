@@ -1,7 +1,7 @@
-from ..expressions.expression_core import *
-from ..expressions.numbers import SmartReal
-from ..expressions.functions import SmartFunction
-from ..utils import *
+from ...expressions.expression_core import *
+from ...expressions.numbers import SmartReal
+from ...expressions.functions import SmartFunction
+from ...utils import *
 
 
 class Infinity(SmartReal):

@@ -1,5 +1,5 @@
 # expressions.py
-from manimlib import Tex, VGroup
+from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
 from ..utils import Smarten, tex, add_spaces_around_brackets
 from copy import deepcopy
 
@@ -35,7 +35,12 @@ class SmartExpression:
 
 	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			return VGroup(*[self.mob[g] for g in self.get_glyphs(key)])
+			if MANIM_TYPE == 'GL':
+				return VGroup(*[self.mob[g] for g in self.get_glyphs(key)])
+			elif MANIM_TYPE == 'CE':
+				return VGroup(*[self.mob[0][g] for g in self.get_glyphs(key)])
+			else:
+				raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 		else: # preserve behavior of Tex indexing
 			return self.mob.__getitem__(key)
 
@@ -66,8 +71,6 @@ class SmartExpression:
 
 	def is_identical_to(self, other):
 		# Checks if they are equal as expressions. Implemented separately in leaves.
-		# NOT the same as __eq__ which is used by Manim to check if two mobjects are identical
-		# Different instances of the same expression are different mobjects
 		return type(self) == type(other) and len(self.children) == len(other.children) \
 			and all(self.children[i].is_identical_to(other.children[i]) for i in range(len(self.children)))
 

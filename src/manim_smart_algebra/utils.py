@@ -1,3 +1,12 @@
+from MF_Tools.dual_compatibility import (
+	Text, dc_Tex as Tex,
+	UP, DOWN, LEFT, RIGHT,
+	GREEN, BLUE, ORANGE,
+	Indicate,
+	VGroup, VDict,
+	Line
+)
+import numpy as np
 
 
 def Smarten(input):
@@ -148,7 +157,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		#from .expressions import numbers, variables, operations, functions, sequences, relations
 		from .expressions.numbers import SmartInteger, SmartReal, SmartRational
 		from .expressions.variables import SmartVariable
-		from expressions.operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
+		from .expressions.operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
 		from .expressions.functions import SmartFunction
 		from .expressions.sequences import SmartSequence
 		from .expressions.relations import SmartEquation, SmartLessThan, SmartLessThanOrEqualTo, SmartGreaterThan, SmartGreaterThanOrEqualTo
@@ -173,7 +182,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)
-		tex = MathTex(symbol)
+		tex = Tex(symbol)
 		# if tex.width > tex.height:
 		# 	tex.scale_to_fit_width(node_size)
 		# else:
@@ -191,7 +200,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 	max_layer = layered_addresses[max_index]
 	max_width = len(max_layer)
 	if printing: print(max_index, max_width, max_layer)
-	Nodes = VDict({ad: create_node(ad) for ad in addresses}) #VDict is not available in ManimGL, so this needs a refactor
+	Nodes = VDict({ad: create_node(ad) for ad in addresses})
 	#Max_layer = VGroup(*[Nodes[ad] for ad in max_layer]).arrange(RIGHT,buff=horizontal_buff)
 	def position_children(parent_address):
 		parent = Nodes[parent_address]

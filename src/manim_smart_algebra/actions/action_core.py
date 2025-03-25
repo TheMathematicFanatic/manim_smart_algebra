@@ -1,8 +1,8 @@
 # actions.py
-from manimlib import *
+from MF_Tools.dual_compatibility import Write, FadeOut
 from ..expressions.expression_core import *
 from ..utils import *
-from .animations import TransformByGlyphMap, TransformByAddressMap
+from .animations import TransformByAddressMap
 
 
 class SmartAction:

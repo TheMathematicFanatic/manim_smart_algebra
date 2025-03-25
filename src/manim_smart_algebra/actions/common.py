@@ -4,6 +4,7 @@ from .combinations import *
 from ..expressions.operations import *
 from ..expressions.variables import *
 from ..expressions.relations import *
+from MF_Tools.dual_compatibility import PI, FadeIn
 
 
 class swap_children_(SmartAction):

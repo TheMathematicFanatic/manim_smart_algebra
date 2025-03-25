@@ -1,4 +1,4 @@
-from manim_smart_algebra import *
+from MF_Tools.dual_compatibility import VGroup
 
 
 
