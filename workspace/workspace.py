@@ -66,3 +66,13 @@ class KeepGoin(Scene):
             self.play(action(self.exp, B))
             self.exp = B
 
+
+class TreeTest(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        G = create_graph(A)
+        A.mob.to_edge(LEFT)
+        G.to_edge(RIGHT)
+        self.add(A.mob,G)
+        self.embed()
+

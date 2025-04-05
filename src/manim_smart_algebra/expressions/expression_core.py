@@ -172,7 +172,12 @@ class SmartExpression:
 			return sorted(set(results))
 
 	def __len__(self):
-		return len(self.mob.submobjects)
+		if MANIM_TYPE == 'GL':
+			return len(self.mob)
+		elif MANIM_TYPE == 'CE':
+			return len(self.mob[0])
+		else:
+			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
 	def __neg__(self):
 		from .operations import SmartNegative

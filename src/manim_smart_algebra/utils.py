@@ -154,7 +154,6 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
 	def create_node(address):
-		#from .expressions import numbers, variables, operations, functions, sequences, relations
 		from .expressions.numbers import SmartInteger, SmartReal, SmartRational
 		from .expressions.variables import SmartVariable
 		from .expressions.operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
@@ -170,7 +169,7 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 			SmartSub: lambda expr: "-",
 			SmartMul: lambda expr: "\\times",
 			SmartDiv: lambda expr: "\\div",
-			SmartPow: lambda expr: "\\hat{} }",
+			SmartPow: lambda expr: "\\hat{}",
 			SmartNegative: lambda expr: "-",
 			SmartFunction: lambda expr: expr.symbol,
 			SmartSequence: lambda expr: ",",
@@ -220,8 +219,8 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 			position_parent(ad)
 	Edges = VGroup(*[
 		Line(
-			Nodes[ad[:-1]].get_critical_point(DOWN),
-			Nodes[ad].get_critical_point(UP),
+			Nodes[ad[:-1]].get_bounding_box_point(DOWN),
+			Nodes[ad].get_bounding_box_point(UP),
 			buff=0.2, stroke_opacity=0.4
 			)
 		for ad in addresses if len(ad) > 0
