@@ -237,29 +237,15 @@ class SmartExpression:
 	def __rshift__(self, other):
 		other = Smarten(other)
 		from ..actions.action_core import SmartAction
-		from ..unifier.zipper import Zipper
+		from ..timelines.timeline_core import SmartTimeline
 		if isinstance(other, SmartExpression):
-			return Zipper(
-				(self, None),
-				(other, None)
-			)
+			timeline = SmartTimeline()
+			timeline.add_expression(self).add_expression(other)
+			return timeline
 		elif isinstance(other, SmartAction):
-			return Zipper(
-				(self, other)
-			)
-		elif isinstance(other, Zipper):
-			if other.expressions[0]:
-				return Zipper(
-					(self, None),
-					*other.exp_act_pairs,
-					**other.kwargs
-				)
-			else:
-				return Zipper(
-					(self, other.actions[0]),
-					*other.exp_act_pairs[1:],
-					**other.kwargs
-				)
+			timeline = SmartTimeline()
+			timeline.add_expression(self).add_action(other)
+			return timeline
 		else:
 			return NotImplemented
 

@@ -12,9 +12,9 @@ import numpy as np
 def Smarten(input):
 	from .expressions.expression_core import SmartExpression
 	from .actions.action_core import SmartAction
-	from .unifier.zipper import Zipper
+	from .timelines.timeline_core import SmartTimeline
 	from .expressions.numbers import SmartInteger, SmartReal
-	if isinstance(input, (SmartExpression, SmartAction, Zipper)):
+	if isinstance(input, (SmartExpression, SmartAction, SmartTimeline)):
 		return input
 	elif isinstance(input, int):
 		return SmartInteger(input)

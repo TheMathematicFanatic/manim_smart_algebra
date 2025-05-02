@@ -4,4 +4,4 @@ __description__ = 'Manim plugin which aims to make it much easier to meaningfull
 
 from .expressions import *
 from .actions import *
-from .unifier.zipper import *
+from .timelines import *

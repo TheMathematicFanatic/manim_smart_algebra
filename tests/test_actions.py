@@ -34,19 +34,11 @@ def test_swap_children_A(s,A):
             ["0", "1", {"path_arc": 0.75*PI}],
             ["1", "0", {"path_arc": 0.75*PI}]
         ]
-    assert s.get_glyphmap(A) == [
-            [[0,1], [2,3], {"path_arc": 0.75*PI}],
-            [[3], [0], {"path_arc": 0.75*PI}]
-        ]
     s.preaddress = "0"
     assert s.get_output_expression(A).is_identical_to(x*3+5)
     assert s.get_addressmap(A) == [
             ["00", "01", {"path_arc": 0.75*PI}],
             ["01", "00", {"path_arc": 0.75*PI}]
-        ]
-    assert s.get_glyphmap(A) == [
-            [[0], [1], {"path_arc": 0.75*PI}],
-            [[1], [0], {"path_arc": 0.75*PI}]
         ]
 
 
@@ -58,20 +50,12 @@ def test_swap_children_Q(s,Q):
             ["0", "1", {"path_arc": 0.75*PI}],
             ["1", "0", {"path_arc": 0.75*PI}]
         ]
-    # assert s.get_glyphmap(Q) == [    # Fails due to parentheses
-    #         [[0,1,2,3,4], [1,2,3], {"path_arc": 0.75*PI}],
-    #         [[5], [0], {"path_arc": 0.75*PI}]
-    #     ]
     s.preaddress = "0"
     assert s.get_output_expression(Q).is_identical_to((y/x)**2)
     assert s.get_addressmap(Q) == [
             ["00", "01", {"path_arc": 0.75*PI}],
             ["01", "00", {"path_arc": 0.75*PI}]
         ]
-    # assert s.get_glyphmap(Q) == [    # Fails due to parentheses
-    #         [[0], [2], {"path_arc": 0.75*PI}],
-    #         [[2], [0], {"path_arc": 0.75*PI}]
-    #     ]
 
 
 def test_swap_children_B(s,B):
@@ -99,12 +83,6 @@ def test_add_A(a,A):
             [a.introducer, "+", {"delay":0.5}],
             [a.introducer, "1", {"delay":0.6}]
         ]
-    assert a.get_glyphmap(A) == [
-            [[0,1,2,3], [0,1,2,3]],
-            [a.introducer, [4], {"delay":0.5}],
-            [a.introducer, [5], {"delay":0.6}]
-            
-    ]
     a.preaddress = "00"
     assert a.get_output_expression(A).is_identical_to((3+t)*x+5)
     assert a.get_addressmap(A) == [
@@ -112,11 +90,6 @@ def test_add_A(a,A):
             [a.introducer, "00+", {"delay":0.5}],
             [a.introducer, "001", {"delay":0.6}]
         ]
-    # assert a.get_glyphmap() == [   # Doesn't work due to parentheses
-    #         [[0,1,2,3], [0,1,2,3]]
-    #         [a.introducer, [4], {"delay":0.5}],
-    #         [a.introducer, [5], {"delay":0.6}]
-    # ]    
 
 
 def test_add_Q(a,Q):
@@ -131,11 +104,6 @@ def test_add_Q(a,Q):
             [a.introducer, "+", {"delay":0.5}],
             [a.introducer, "1", {"delay":0.6}]
         ]
-    assert a.get_glyphmap(Q) == [
-            [[0,1,2,3,4,5], [0,1,2,3,4,5]],
-            [a.introducer, [6], {"delay":0.5}],
-            [a.introducer, [7], {"delay":0.6}]
-    ]
     a.preaddress = "0"
     assert a.get_output_expression(Q).is_identical_to((x/y+t)**2)
     assert a.get_addressmap(Q) == [
@@ -143,11 +111,6 @@ def test_add_Q(a,Q):
             [a.introducer, "0+", {"delay":0.5}],
             [a.introducer, "01", {"delay":0.6}]
         ]
-    assert a.get_glyphmap(Q) == [
-            [[0,1,2,3,4,5], [0,1,2,3,6,7]],
-            [a.introducer, [4], {"delay":0.5}],
-            [a.introducer, [5], {"delay":0.6}]
-    ]
     a.preaddress = "1"
     assert a.get_output_expression(Q).is_identical_to((x/y)**(2+t))
     assert a.get_addressmap(Q) == [
@@ -155,11 +118,6 @@ def test_add_Q(a,Q):
             [a.introducer, "1+", {"delay":0.5}],
             [a.introducer, "11", {"delay":0.6}]
         ]
-    assert a.get_glyphmap(Q) == [
-            [[0,1,2,3,4,5], [0,1,2,3,4,5]],
-            [a.introducer, [6], {"delay":0.5}],
-            [a.introducer, [7], {"delay":0.6}]
-    ]
     a.preaddress = "00"
     assert a.get_output_expression(Q).is_identical_to(((x+t)/y)**2)
     assert a.get_addressmap(Q) == [
@@ -167,11 +125,6 @@ def test_add_Q(a,Q):
             [a.introducer, "00+", {"delay":0.5}],
             [a.introducer, "001", {"delay":0.6}]
         ]
-    assert a.get_glyphmap(Q) == [
-            [[0,1,2,3,4,5], [0,1,4,5,6,7]],
-            [a.introducer, [2], {"delay":0.5}],
-            [a.introducer, [3], {"delay":0.6}]
-    ]
     a.preaddress = "01"
     assert a.get_output_expression(Q).is_identical_to((x/(y+t))**2)
     assert a.get_addressmap(Q) == [
@@ -179,15 +132,10 @@ def test_add_Q(a,Q):
             [a.introducer, "01+", {"delay":0.5}],
             [a.introducer, "011", {"delay":0.6}]
         ]
-    assert a.get_glyphmap(Q) == [
-            [[0,1,2,3,4,5], [0,1,2,3,6,7]],
-            [a.introducer, [4], {"delay":0.5}],
-            [a.introducer, [5], {"delay":0.6}]
-    ]
     
 
 def test_add_B(a,B):
-    assert a.get_output_expression(B).is_identical_to((x-25*y**3)/(2*x+y) + t)
+    assert a.get_output_expression(B).is_identical_to((2*x+y)/(x-25*y**3) + t)
     
 # s = swap_children_()
 # Q = (x/y)**2

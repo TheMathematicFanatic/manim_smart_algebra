@@ -116,36 +116,18 @@ class SmartAction:
 		else:
 			return ValueError("Can only use | with other ParallelAction or SmartAction")
 	
-	def __le__(self, other):
-		from ..expressions.expression_core import SmartExpression
-		from ..unifier.zipper import Zipper
-		if isinstance(other, SmartExpression):
-			return self.get_output_expression(other)
-		elif isinstance(other, Zipper):
-			return self.get_output_expression(other.expressions[-1])
-		else:
-			return NotImplemented
-	
 	def __rshift__(self, other):
 		other = Smarten(other)
 		from ..expressions.expression_core import SmartExpression
-		from ..unifier.zipper import Zipper
+		from ..timelines.timeline_core import SmartTimeline
 		if isinstance(other, SmartExpression):
-			return Zipper(
-				(None, self),
-				(other, None)
-			)
+			timeline = SmartTimeline()
+			timeline.add_action(self).add_expression(other)
+			return timeline
 		elif isinstance(other, SmartAction):
-			return Zipper(
-				(None, self),
-				(None, other)
-			)
-		elif isinstance(other, Zipper):
-			return Zipper(
-				(None, self),
-				*other.exp_act_pairs,
-				**other.kwargs
-			)
+			timeline = SmartTimeline()
+			timeline.add_action(self).add_action(other)
+			return timeline
 		else:
 			return NotImplemented
 
@@ -154,7 +136,7 @@ class SmartAction:
 	
 	def __repr__(self):
 		return type(self).__name__ + "(" + self.preaddress + ")"
-	
+
 
 
 def preaddressfunc(func):

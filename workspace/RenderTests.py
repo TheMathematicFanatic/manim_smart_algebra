@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 from manimlib import *
 from manim_smart_algebra.expressions import *
 from manim_smart_algebra.actions import *
-from manim_smart_algebra.unifier.zipper import *
+from manim_smart_algebra.timelines import *
 
 
 
