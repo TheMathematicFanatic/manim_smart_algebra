@@ -105,16 +105,7 @@ class SmartAction:
 		elif isinstance(other, SmartAction):
 			return ParallelAction(self, other)
 		else:
-			return ValueError("Can only use | with other ParallelAction or SmartAction")
-	
-	def __ror__(self, other):
-		from .combinations import ParallelAction
-		if isinstance(other, ParallelAction):
-			return ParallelAction(*other.actions, self)
-		elif isinstance(other, SmartAction):
-			return ParallelAction(other, self)
-		else:
-			return ValueError("Can only use | with other ParallelAction or SmartAction")
+			raise ValueError("Can only use | with other ParallelAction or SmartAction")
 	
 	def __rshift__(self, other):
 		other = Smarten(other)

@@ -21,15 +21,13 @@ class ParallelAction(SmartAction):
         elif isinstance(other, SmartAction):
             return ParallelAction(*self.actions, other)
         else:
-            return ValueError("Can only use | with other ParallelAction or SmartAction")
+            raise ValueError("Can only use | with other ParallelAction or SmartAction")
     
     def __ror__(self, other):
-        if isinstance(other, ParallelAction):
-            return ParallelAction(*other.actions, *self.actions)
-        elif isinstance(other, SmartAction):
+        if isinstance(other, SmartAction):
             return ParallelAction(other, *self.actions)
         else:
-            return ValueError("Can only use | with other ParallelAction or SmartAction")
+            return NotImplemented
 
 
 

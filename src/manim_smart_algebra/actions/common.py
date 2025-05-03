@@ -68,6 +68,9 @@ class apply_operation_(SmartAction):
             ]
         else:
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
+    
+    def __repr__(self):
+        return type(self).__name__ + "(" + str(self.other) + ',' + self.preaddress + ")"
 
 class add_(apply_operation_):
     def __init__(self, other, *args, **kwargs):
@@ -127,6 +130,9 @@ class substitute_(SmartAction):
                 addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i}])
                 addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i}])
             return addressmap
+        
+    def __repr__(self):
+        return type(self).__name__ + "(" + str(self.sub_dict) + (',' + self.preaddress if self.preaddress else '') + ")"
 
 
 class substitute_into_(SmartAction):

@@ -8,46 +8,63 @@ class SmartTimeline:
     A class that represents a timeline of expressions and actions.
     """
     def __init__(self, **kwargs):
-        self.exp_act_pairs = []
+        self.steps = [] # Elements of this list are of the form [expression, action]
         self.current_exp_index = 0
         self.auto_fill = False
     
     def get_expression(self, index: int) -> SmartExpression:
         try:
-            return self.exp_act_pairs[index][0]
+            return self.steps[index][0]
         except IndexError:
             return None
     
     def get_action(self, index: int) -> SmartAction:
         try:
-            return self.exp_act_pairs[index][1]
+            return self.steps[index][1]
         except IndexError:
             return None
     
     def add_expression(self, expression: SmartExpression):
-        self.exp_act_pairs.append([expression, None])
+        self.steps.append([expression, None])
         return self
     
     def add_action(self, action: SmartAction):
-        if len(self.exp_act_pairs) == 0:
-            self.exp_act_pairs.append([None, action])
+        if len(self.steps) == 0:
+            self.steps.append([None, action])
             return self
-        last_exp, last_act = self.exp_act_pairs[-1]
+        last_exp, last_act = self.steps[-1]
         if last_act is None:
-            self.exp_act_pairs[-1][1] = action
+            self.steps[-1][1] = action
         else:
-            self.exp_act_pairs.append([None, action])
+            self.steps.append([None, action])
         if self.auto_fill:
             self.propagate()
         return self
     
+    def add_expression_to_start(self, expression: SmartExpression):
+        if len(self.steps) == 0:
+            self.steps.append([expression, None])
+            return self
+        first_exp, first_act = self.steps[0]
+        if first_exp is None:
+            self.steps[0][0] = expression
+        else:
+            self.steps.insert(0, [expression, None])
+        if self.auto_fill:
+            self.propagate()
+        return self
+    
+    def add_action_to_start(self, action: SmartAction):
+        self.steps.insert(0, [None, action])
+        return self
+    
     def propagate(self, start_at=0):
-        for i in range(start_at, len(self.exp_act_pairs) - 1):
-            exp, act = self.exp_act_pairs[i]
-            next_exp = self.exp_act_pairs[i+1][0]
+        for i in range(start_at, len(self.steps) - 1):
+            exp, act = self.steps[i]
+            next_exp = self.steps[i+1][0]
             if exp != None and act != None and next_exp == None:
-                self.exp_act_pairs[i+1][0] = act.get_output_expression(exp)
-        exp, act = self.exp_act_pairs[-1]
+                self.steps[i+1][0] = act.get_output_expression(exp)
+        exp, act = self.steps[-1]
         if exp != None and act != None:
             self.add_expression(act.get_output_expression(exp))
     
@@ -72,7 +89,7 @@ class SmartTimeline:
     
     def play_all(self, scene):
         self.current_exp_index = 0
-        while self.current_exp_index < len(self.exp_act_pairs)-1:
+        while self.current_exp_index < len(self.steps)-1:
             self.play_next(scene=scene)
     
     def __rshift__(self, other):
@@ -89,26 +106,16 @@ class SmartTimeline:
     
     def __rrshift__(self, other):
         if isinstance(other, SmartExpression):
-            if self.get_expression(0) is None:
-                self.exp_act_pairs[0][0] = other
-            else:
-                self.exp_act_pairs.insert(0, [other, None])
-            return self
+            return self.add_expression_to_start(other)
         elif isinstance(other, SmartAction):
-            self.exp_act_pairs.insert(0, [None, other])
-            return self
+            return self.add_action_to_start(other)
         elif isinstance(other, SmartTimeline):
             raise NotImplementedError("TODO")
         else:
             raise ValueError('SmartTimeline can only be combined via >> with a SmartExpression, SmartAction, or another SmartTimeline')
         
     def __repr__(self):
-        return f"SmartTimeline({self.exp_act_pairs})"
-	
-    def __eq__(self, other):
-        if isinstance(other, SmartTimeline):
-            return self.exp_act_pairs == other.exp_act_pairs
-        else:
-            return NotImplemented
+        return f"SmartTimeline({self.steps})"
 
-
+    def get_vgroup(self, **kwargs):
+        return VGroup(*[self.steps[i][0].mob for i in range(len(self.steps))])

@@ -34,18 +34,18 @@ def T(Q, a):
 
 
 def test_create_with_rshift(A, B, Q, s, a):
-    assert (A >> s).exp_act_pairs == [[A, s]]
-    assert (s >> A).exp_act_pairs == [[None, s], [A, None]]
-    assert (A >> B).exp_act_pairs == [[A, None], [B, None]]
-    assert (s >> a).exp_act_pairs == [[None, s], [None, a]]
-    assert (A >> B >> Q).exp_act_pairs == [[A, None], [B, None], [Q, None]]
-    assert (Q >> a >> A).exp_act_pairs == [[Q, a], [A, None]]
-    assert (A >> Q >> a).exp_act_pairs == [[A, None], [Q, a]]
-    assert (s >> Q >> A).exp_act_pairs == [[None, s], [Q, None], [A, None]]
-    assert (Q >> a >> s).exp_act_pairs == [[Q, a], [None, s]]
-    assert (s >> Q >> a).exp_act_pairs == [[None, s], [Q, a]]
-    assert (a >> s >> Q).exp_act_pairs == [[None, a], [None, s], [Q, None]]
-    assert (a >> s >> a).exp_act_pairs == [[None, a], [None, s], [None, a]]
+    assert (A >> s).steps == [[A, s]]
+    assert (s >> A).steps == [[None, s], [A, None]]
+    assert (A >> B).steps == [[A, None], [B, None]]
+    assert (s >> a).steps == [[None, s], [None, a]]
+    assert (A >> B >> Q).steps == [[A, None], [B, None], [Q, None]]
+    assert (Q >> a >> A).steps == [[Q, a], [A, None]]
+    assert (A >> Q >> a).steps == [[A, None], [Q, a]]
+    assert (s >> Q >> A).steps == [[None, s], [Q, None], [A, None]]
+    assert (Q >> a >> s).steps == [[Q, a], [None, s]]
+    assert (s >> Q >> a).steps == [[None, s], [Q, a]]
+    assert (a >> s >> Q).steps == [[None, a], [None, s], [Q, None]]
+    assert (a >> s >> a).steps == [[None, a], [None, s], [None, a]]
 
 
 

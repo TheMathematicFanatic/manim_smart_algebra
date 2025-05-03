@@ -105,3 +105,25 @@ class EvaluateTest(Scene):
             self.wait()
         self.embed()
 
+
+class TimelineTest2(Scene):
+    def construct(self):
+        T = SmartTimeline()
+        A = a**2 + b**2
+        A >> T >> div_(c**2)
+        T >> add_(c**2, '1')
+        T >> substitute_({a:5, b:12, c:13})
+        T >> ( evaluate_('00') | evaluate_('01') | evaluate_('10') | evaluate_('11') )
+        T >> ( evaluate_('0') | evaluate_('1') )
+        T >> evaluate_()
+        B = (1+x)/(1-x)
+        T >> substitute_into_(B)
+        T >> ( evaluate_('0') | evaluate_('1') )
+        T >> evaluate_()
+
+        self.add(A.mob)
+        T.propagate()
+
+        self.embed()
+
+
