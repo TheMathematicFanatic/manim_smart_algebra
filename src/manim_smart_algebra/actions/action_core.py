@@ -113,11 +113,11 @@ class SmartAction:
 		from ..timelines.timeline_core import SmartTimeline
 		if isinstance(other, SmartExpression):
 			timeline = SmartTimeline()
-			timeline.add_action(self).add_expression(other)
+			timeline.add_action_to_end(self).add_expression_to_end(other)
 			return timeline
 		elif isinstance(other, SmartAction):
 			timeline = SmartTimeline()
-			timeline.add_action(self).add_action(other)
+			timeline.add_action_to_end(self).add_action_to_end(other)
 			return timeline
 		else:
 			return NotImplemented

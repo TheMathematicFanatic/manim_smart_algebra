@@ -18,44 +18,41 @@ class SmartTimeline:
         except IndexError:
             return None
     
+    def set_expression(self, index: int, expression: SmartExpression):
+        self.steps[index][0] = expression
+
+    def add_expression_to_start(self, expression: SmartExpression):
+        if len(self.steps) == 0 or self.steps[0][0] is not None:
+            self.insert(0, [None, None])
+        self.set_expression(0, expression)
+        if self.auto_fill:
+            self.propagate()
+        return self
+
+    def add_expression_to_end(self, expression: SmartExpression):
+        self.steps.append([None, None])
+        self.set_expression(-1, expression)
+        return self
+    
     def get_action(self, index: int) -> SmartAction:
         try:
             return self.steps[index][1]
         except IndexError:
             return None
-    
-    def add_expression(self, expression: SmartExpression):
-        self.steps.append([expression, None])
-        return self
-    
-    def add_action(self, action: SmartAction):
-        if len(self.steps) == 0:
-            self.steps.append([None, action])
-            return self
-        last_exp, last_act = self.steps[-1]
-        if last_act is None:
-            self.steps[-1][1] = action
-        else:
-            self.steps.append([None, action])
-        if self.auto_fill:
-            self.propagate()
-        return self
-    
-    def add_expression_to_start(self, expression: SmartExpression):
-        if len(self.steps) == 0:
-            self.steps.append([expression, None])
-            return self
-        first_exp, first_act = self.steps[0]
-        if first_exp is None:
-            self.steps[0][0] = expression
-        else:
-            self.steps.insert(0, [expression, None])
-        if self.auto_fill:
-            self.propagate()
-        return self
+
+    def set_action(self, index: int, action: SmartAction):
+        self.steps[index][1] = action
     
     def add_action_to_start(self, action: SmartAction):
-        self.steps.insert(0, [None, action])
+        self.set_action(0, action)
+        return self
+    
+    def add_action_to_end(self, action: SmartAction):
+        if len(self.steps) == 0 or self.steps[-1][1] is not None:
+            self.steps.append([None, None])
+        self.set_action(-1,action)
+        if self.auto_fill:
+            self.propagate()
         return self
     
     def propagate(self, start_at=0):
@@ -63,19 +60,19 @@ class SmartTimeline:
             exp, act = self.steps[i]
             next_exp = self.steps[i+1][0]
             if exp != None and act != None and next_exp == None:
-                self.steps[i+1][0] = act.get_output_expression(exp)
+                self.set_expression(i+1, act.get_output_expression(exp))
         exp, act = self.steps[-1]
         if exp != None and act != None:
-            self.add_expression(act.get_output_expression(exp))
+            self.add_expression_to_end(act.get_output_expression(exp))
     
     def play_animation(self, scene, index, **kwargs):
         action = self.get_action(index)
-        mobA = self.get_expression(index)
-        mobB = self.get_expression(index+1)
+        expA = self.get_expression(index)
+        expB = self.get_expression(index+1)
         if action:
-            animation = action.get_animation()(mobA, mobB, **kwargs)
+            animation = action.get_animation()(expA, expB, **kwargs)
         else:
-            animation = TransformMatchingShapes(mobA, mobB, **kwargs)
+            animation = TransformMatchingShapes(expA.mob, expB.mob, **kwargs)
         scene.play(animation)
         self.current_exp_index = index+1
     
@@ -94,10 +91,10 @@ class SmartTimeline:
     
     def __rshift__(self, other):
         if isinstance(other, SmartExpression):
-            self.add_expression(other)
+            self.add_expression_to_end(other)
             return self
         elif isinstance(other, SmartAction):
-            self.add_action(other)
+            self.add_action_to_end(other)
             return self
         elif isinstance(other, SmartTimeline):
             raise NotImplementedError("TODO")
@@ -119,3 +116,32 @@ class SmartTimeline:
 
     def get_vgroup(self, **kwargs):
         return VGroup(*[self.steps[i][0].mob for i in range(len(self.steps))])
+    
+    @property
+    def mob(self):
+        return self.steps[self.current_exp_index][0].mob
+    
+
+
+class AutoTimeline(SmartTimeline):
+    def __init__(self, auto_fill=True, auto_color={}, **kwargs):
+        super().__init__(**kwargs)
+        self.auto_fill = auto_fill
+        self.auto_color = auto_color
+    
+    def set_expression(self, index: int, expression: SmartExpression):
+        super().set_expression(index, expression)
+        expression.set_color_by_subex(self.auto_color)
+        if self.auto_fill and self.get_action(index) is None:
+            self.set_action(index, self.decide_next_action(index))
+        return self
+    
+    def decide_next_action(index: int) -> SmartAction:
+        # Implement in subclasses. Return None if finished.
+        return None
+    
+    
+    
+    
+
+

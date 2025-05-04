@@ -32,8 +32,8 @@ class TimelineTest(Scene):
         d1 = div_(z, preaddress="1")
         self.add(A.mob)
         T = SmartTimeline()
-        T.add_expression(A)
-        T.add_action(s).add_action(s0).add_action(s1).add_action(s).add_action(d).add_action(s).add_action(d0).add_action(s0)
+        T.add_expression_to_end(A)
+        T.add_action_to_end(s).add_action_to_end(s0).add_action_to_end(s1).add_action_to_end(s).add_action_to_end(d).add_action_to_end(s).add_action_to_end(d0).add_action_to_end(s0)
         T.propagate()
         self.embed()
 
@@ -126,4 +126,29 @@ class TimelineTest2(Scene):
 
         self.embed()
 
+class TimelineTest3(Scene):
+    def construct(self):
+        T = SmartTimeline()
+        A = a**2 + b**2
+        T >> substitute_({a:SmZ(4)-3, b:SmZ(5)-8})
+        T >> evaluate_('00') >> evaluate_('10')
+        T >> evaluate_('0') >> evaluate_('1')
+        T >> evaluate_()
 
+        self.add(A.mob)
+        A >> T
+        T.propagate()
+
+        self.embed()
+        
+
+
+class TimelineTest4(Scene):
+    def construct(self):
+        T = AutoTimeline(auto_color={a:RED, b:GREEN, c:BLUE})
+        A = a**2 + b**2
+        A >> T
+        T >> div_(c**2) >> add_((a/b)**2)
+        T.propagate()
+        self.add(A.mob)
+        self.embed()
