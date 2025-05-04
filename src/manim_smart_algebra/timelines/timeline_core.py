@@ -23,7 +23,7 @@ class SmartTimeline:
 
     def add_expression_to_start(self, expression: SmartExpression):
         if len(self.steps) == 0 or self.steps[0][0] is not None:
-            self.insert(0, [None, None])
+            self.steps.insert(0, [None, None])
         self.set_expression(0, expression)
         if self.auto_fill:
             self.propagate()
