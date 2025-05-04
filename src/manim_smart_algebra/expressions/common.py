@@ -61,6 +61,3 @@ def log(base):
     rule=lambda x: np.log(x)/np.log(base),
     parentheses_mode="weak")
 
-
-for i in range(21):
-    exec(f"_{i} = SmZ({i})", globals())

@@ -1,4 +1,5 @@
 from .action_core import *
+from MF_Tools.dual_compatibility import AnimationGroup
 
 
 class AlgebraicAction(SmartAction):
