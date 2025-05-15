@@ -1,5 +1,5 @@
 from .calculus_core import *
-from ...expressions.common import *
+from ...expressions.expression_common import *
 
 
 inf = Infinity()

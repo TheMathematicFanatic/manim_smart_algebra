@@ -1,6 +1,6 @@
 from .timeline_core import *
-from .variants import *
-from ..actions.common import evaluate_
+from .timeline_variants import *
+from ..actions.action_common import evaluate_
 
 class Evaluate(AutoTimeline):
     def __init__(self, first_expression=None, mode="one at a time", number_mode="float", **kwargs):

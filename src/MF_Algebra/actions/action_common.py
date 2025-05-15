@@ -1,5 +1,5 @@
 from .action_core import *
-from .variants import *
+from .action_variants import *
 from .combinations import *
 from ..expressions.operations import *
 from ..expressions.variables import *
@@ -240,7 +240,7 @@ class distribute_(Action):
 
 
 
-from .variants import AlgebraicAction
+from .action_variants import AlgebraicAction
 a = Variable('a')
 b = Variable('b')
 c = Variable('c')

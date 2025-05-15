@@ -1,3 +1,3 @@
 from .timeline_core import *
-from .variants import *
-from .common import *
+from .timeline_variants import *
+from .timeline_common import *

@@ -375,7 +375,7 @@ class TestAddOverride2(Scene):
         V = VGroup(A, Square())
         self.add(V)
 
-from MF_Algebra.extra.trigonometry.common import *
+from MF_Algebra.extra.trigonometry.trigonometry_common import *
 class TestAlwaysColor(Scene):
     def __init__(self, *args, **kwargs):
         # config.background_color = WHITE

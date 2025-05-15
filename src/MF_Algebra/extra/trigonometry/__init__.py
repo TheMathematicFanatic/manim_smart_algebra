@@ -1,2 +1,2 @@
 from .trigonometry_core import *
-from .common import *
+from .trigonometry_common import *
