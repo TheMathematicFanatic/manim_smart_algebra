@@ -19,6 +19,8 @@ class SmartTimeline:
             return None
     
     def set_expression(self, index: int, expression: SmartExpression):
+        if index == len(self.steps):
+            self.add_expression_to_end(expression)
         self.steps[index][0] = expression
 
     def add_expression_to_start(self, expression: SmartExpression):
@@ -63,7 +65,10 @@ class SmartTimeline:
                 self.set_expression(i+1, act.get_output_expression(exp))
         exp, act = self.steps[-1]
         if exp != None and act != None:
-            self.add_expression_to_end(act.get_output_expression(exp))
+            try:
+                self.add_expression_to_end(act.get_output_expression(exp))
+            except NotImplementedError:
+                pass
     
     def play_animation(self, scene, index, **kwargs):
         action = self.get_action(index)
@@ -133,10 +138,19 @@ class AutoTimeline(SmartTimeline):
         super().set_expression(index, expression)
         expression.set_color_by_subex(self.auto_color)
         if self.auto_fill and self.get_action(index) is None:
-            self.set_action(index, self.decide_next_action(index))
+            next_action = self.decide_next_action(index)
+            if next_action is not None:
+                self.set_action(index, next_action)
         return self
     
-    def decide_next_action(index: int) -> SmartAction:
+    def set_action(self, index: int, action: SmartAction):
+        super().set_action(index, action)
+        if self.auto_fill and self.get_expression(index+1) is None:
+            next_expression = action.get_output_expression(self.get_expression(index))
+            self.set_expression(index+1, next_expression)
+        return self
+    
+    def decide_next_action(self, index: int) -> SmartAction:
         # Implement in subclasses. Return None if finished.
         return None
     

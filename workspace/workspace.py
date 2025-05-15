@@ -17,7 +17,6 @@ class Interactive(Scene):
         d0 = div_(z, preaddress="0")
         d1 = div_(z, preaddress="1")
         self.add(A.mob)
-        self.wait()
         self.embed()
 
 
@@ -109,22 +108,24 @@ class EvaluateTest(Scene):
 class TimelineTest2(Scene):
     def construct(self):
         T = SmartTimeline()
-        A = a**2 + b**2
-        A >> T >> div_(c**2)
+        a**2 + b**2 >> T
+        T >> div_(c**2)
         T >> add_(c**2, '1')
-        T >> substitute_({a:5, b:12, c:13})
+        T >> substitute_({a:15, b:8, c:17})
         T >> ( evaluate_('00') | evaluate_('01') | evaluate_('10') | evaluate_('11') )
         T >> ( evaluate_('0') | evaluate_('1') )
         T >> evaluate_()
-        B = (1+x)/(1-x)
+        B = (1+x)/(1-x**2)
         T >> substitute_into_(B)
+        T >> evaluate_('11')
         T >> ( evaluate_('0') | evaluate_('1') )
         T >> evaluate_()
 
-        self.add(A.mob)
         T.propagate()
+        T.get_vgroup().scale(2.5)
+        self.add(T.mob)
+        T.play_all(self)
 
-        self.embed()
 
 class TimelineTest3(Scene):
     def construct(self):
@@ -152,3 +153,25 @@ class TimelineTest4(Scene):
         T.propagate()
         self.add(A.mob)
         self.embed()
+
+
+
+class FunctionSubstituteTest(Scene):
+    def construct(self):
+        F = f(x)
+        A = y & x**2-5
+        T = A >> ( substitute_into_(F, preaddress='0') | substitute_into_(F, preaddress='1') )
+        T.propagate()
+        self.add(T.mob)
+        #self.embed()
+
+
+class EvaluateTimelineTest(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        A = A.substitute({x:1, y:SmZ(2)+5})
+        E = Evaluate(A)
+        self.add(E.mob)
+        self.embed()
+
+EvaluateTimelineTest().construct()
