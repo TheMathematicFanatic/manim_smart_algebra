@@ -178,7 +178,12 @@ class EvaluateTimelineTest(Scene):
 class ShowStepsTimelineTest(Scene):
     def construct(self):
         A = x**2 - y**2
-        T = ShowStepsTimeline(auto_color={x:RED, y:BLUE, e:GREEN, 3:YELLOW, -8:PURPLE})
+        T = SmartTimeline(
+            auto_color={x:RED, y:BLUE, e:GREEN, 3:YELLOW, -8:PURPLE},
+            show_past_steps=True,
+            past_steps_direction=DOWN,
+            past_steps_buff=0
+        )
         A >> T
         T >> div_(e**x-2+2)
         T >> add_((x+y)**3)
@@ -189,6 +194,20 @@ class ShowStepsTimelineTest(Scene):
         T >> evaluate_('0100') >> evaluate_('010') >> evaluate_('01')
         T >> evaluate_('0') >> evaluate_('1')
         T >> evaluate_()
+        self.add(T.mob)
+        self.embed()
+
+
+
+class AlgebraicActionTest(Scene):
+    def construct(self):
+        A = x**2 + y**2
+        T = SmartTimeline()
+        A >> T
+        T >> AlgebraicAction(a+b, a/b)
+        T >> AlgebraicAction(a/b, b/a)
+        T >> AlgebraicAction(a/b, (b/a)**-1)
         T.propagate()
         self.add(T.mob)
         self.embed()
+

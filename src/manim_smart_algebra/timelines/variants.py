@@ -26,29 +26,7 @@ class AutoTimeline(SmartTimeline):
         return None
 
 
-from MF_Tools.dual_compatibility import UP, smooth
-class ShowStepsTimeline(SmartTimeline):
-    def __init__(self, past_steps_shift_vector=1.5*UP, past_steps_opacity=0.4, shift_run_time=0.75, shift_rate_func=smooth, **kwargs):
-        super().__init__(**kwargs)
-        self.past_steps_vgroup = VGroup()
-        self.past_steps_shift_vector = past_steps_shift_vector
-        self.past_steps_opacity = past_steps_opacity
-        self.shift_run_time = shift_run_time
-        self.shift_rate_func = shift_rate_func
-    
-    def play_animation(self, scene, index, **kwargs):
-        self.past_steps_vgroup.add(
-            self.mob.copy().set_opacity(0.25)
-        )
-        scene.add(self.past_steps_vgroup)
-        scene.play(
-            self.past_steps_vgroup.animate.shift(self.past_steps_shift_vector),
-            run_time = self.shift_run_time,
-            rate_func = self.shift_rate_func
-        )
-        super().play_animation(scene, index, **kwargs)
 
 
-        
 
 

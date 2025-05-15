@@ -1,18 +1,36 @@
 from ..expressions import *
 from ..actions import *
-from MF_Tools.dual_compatibility import TransformMatchingShapes
+from MF_Tools.dual_compatibility import TransformMatchingShapes, UP, smooth
 
 
 class SmartTimeline:
     """
     A class that represents a timeline of expressions and actions.
     """
-    def __init__(self, auto_color={}, **kwargs):
+    def __init__(
+        self,
+        auto_color = {},
+        auto_propagate = True,
+        show_past_steps = False,
+        past_steps_opacity = 0.4,
+        past_steps_direction = UP,
+        past_steps_buff = 1,
+        past_steps_shift_run_time = 1,
+        past_steps_shift_rate_func = smooth
+    ):
         self.steps = [] # Elements of this list are of the form [expression, action]
         self.current_exp_index = 0
         self.auto_color = auto_color
-        self.auto_fill = False
-    
+        self.auto_propagate = auto_propagate
+        self.show_past_steps = show_past_steps
+        if self.show_past_steps:
+            self.past_steps_vgroup = VGroup()
+            self.past_steps_opacity = past_steps_opacity
+            self.past_steps_direction = past_steps_direction
+            self.past_steps_buff = past_steps_buff
+            self.shift_run_time = past_steps_shift_run_time
+            self.shift_rate_func = past_steps_shift_rate_func
+
     def get_expression(self, index: int) -> SmartExpression:
         try:
             return self.steps[index][0]
@@ -25,14 +43,13 @@ class SmartTimeline:
         if index == len(self.steps):
             self.add_expression_to_end(expression)
         self.steps[index][0] = expression
-
+        if self.auto_propagate:
+            self.propagate(start_at=index)
 
     def add_expression_to_start(self, expression: SmartExpression):
         if len(self.steps) == 0 or self.steps[0][0] is not None:
             self.steps.insert(0, [None, None])
         self.set_expression(0, expression)
-        if self.auto_fill:
-            self.propagate()
         return self
 
     def add_expression_to_end(self, expression: SmartExpression):
@@ -48,6 +65,8 @@ class SmartTimeline:
 
     def set_action(self, index: int, action: SmartAction):
         self.steps[index][1] = action
+        if self.auto_propagate:
+            self.propagate(start_at=index)
     
     def add_action_to_start(self, action: SmartAction):
         self.set_action(0, action)
@@ -57,8 +76,6 @@ class SmartTimeline:
         if len(self.steps) == 0 or self.steps[-1][1] is not None:
             self.steps.append([None, None])
         self.set_action(-1,action)
-        if self.auto_fill:
-            self.propagate()
         return self
     
     def propagate(self, start_at=0):
@@ -78,6 +95,8 @@ class SmartTimeline:
         action = self.get_action(index)
         expA = self.get_expression(index)
         expB = self.get_expression(index+1)
+        if self.show_past_steps:
+            self.shift_past_steps(scene, expA, expB)
         if action:
             animation = action.get_animation()(expA, expB, **kwargs)
         else:
@@ -97,6 +116,20 @@ class SmartTimeline:
         self.current_exp_index = 0
         while self.current_exp_index < len(self.steps)-1:
             self.play_next(scene=scene)
+    
+    def shift_past_steps(self, scene, expA, expB):
+        mobA_radius = expA.mob.get_critical_point(self.past_steps_direction) - expA.mob.get_center()
+        mobB_radius = expB.mob.get_center() - expB.mob.get_critical_point(-self.past_steps_direction)
+        shift_distance = np.linalg.norm(mobA_radius) + np.linalg.norm(mobB_radius) + self.past_steps_buff
+        self.past_steps_vgroup.add(
+            self.mob.copy().set_opacity(0.25)
+        )
+        scene.add(self.past_steps_vgroup)
+        scene.play(
+            self.past_steps_vgroup.animate.shift(shift_distance * self.past_steps_direction),
+            run_time = self.shift_run_time,
+            rate_func = self.shift_rate_func
+        )
     
     def __rshift__(self, other):
         if isinstance(other, SmartExpression):

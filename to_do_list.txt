@@ -18,3 +18,11 @@ class FunctionSubstituteTest(Scene):
         T.propagate()
         self.add(T.mob)
         #self.embed()
+
+
+
+Something is wrong with the substitution in AlgebraicAction. I suppose it's best to sort this out after the rewrites...
+
+
+
+Provide a way to concatenate SmartTimelines, in particular which can handle them each having their own rules for next_action
