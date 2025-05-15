@@ -1,59 +1,20 @@
-~~~ Done!
-Refactor get_glyphs_indices_at_address into several methods
-- get_glyphs_at_address
-- get_left_paren_glyphs
-- get_right_paren_glyphs
-- get_op_glyphs
-- get_exp_glyphs_without_parentheses
+For all this let's just start assuming that parentheses and radicals etc are built with a standard
+number of glyphs. In deployment we can use a font or latex package which ensures this for all
+reasonable expressions.
 
-Then make get_glyphs which can accept a pseudoaddress: an address which
-may contain some special characters ( ) * _ which will trigger one or more
-of the above methods.
-
-This is sensible because it will allow these pseudoaddresses to be used in
-the addressmap of SmartActions, making it easy to tell actions what to do
-with parentheses and such, when you want.
-~~~ Done!
+- SmartExpression's substitute methods should not specially handle SmartFunctions.
+- SmartFunction really just needs a total rewrite
+- get_glyphs and get_subex should be entirely within subclasses like SmartCombiner and SmartFunction,
+  it should not be the parent class's job to have a big if tree for the child classes
 
 
 
-~~~ Done!
-Refactor SmartRational to be only a subclass of SmartDivision and not SmartNumber.
-
-This is sensible because 5/3 is no more a number than 5^3 or 5+3, and this way
-it can share all code with SmartDivision and still get its own methods like reduce.
-~~~ Done!
-
-
-
-~~~ Done!
-Refactor SmartFunction to simply have a single child which is a SmartSequence,
-the SmartCombiner with a symbol of a comma, which can have all of the arguments
-as children.
-
-This is sensible because now its parentheses are accessible as simply the parentheses of
-its child, and do not need separate code.
-~~~ Done!
-
-
-
-~~~ Done!
-Refactor SmartAction to use TransformByGlyphMap imported from MF-Tools
-instead of its own knockoff method version.
-~~~ Done!
-
-
-
-Add ParallelAction subclass of SmartAction, which merges the addressmaps of its constituents... I think?
-
-
-
-Fix the problem with indexing SmartFunctions
-Test the solution
-
-
-
-Fix/rewrite nest and denest
-
-
-Fix problem with substitute_ and preaddress
+There is a problem with substitute_into_ and preaddressing. You might want this in order to apply the same function to both sides.
+class FunctionSubstituteTest(Scene):
+    def construct(self):
+        F = f(x)
+        A = y & x**2-5
+        T = A >> ( substitute_into_(F, preaddress='0') | substitute_into_(F, preaddress='1') )
+        T.propagate()
+        self.add(T.mob)
+        #self.embed()
