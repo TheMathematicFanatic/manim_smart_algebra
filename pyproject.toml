@@ -7,6 +7,10 @@ license = "None"
 repository = "https://github.com/TheMathematicFanatic/MF_Algebra"
 readme = "README.md"
 
+packages = [
+  { include = "MF_Algebra", from = "src" }
+]
+
 [tool.poetry.dependencies]
 python = ">=3.8"
 MF_Tools = ">=1.3.3"

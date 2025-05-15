@@ -30,7 +30,7 @@ def a():
 
 @pytest.fixture
 def T(Q, a):
-    return Timeline().add_expression_to_end(Q).add_action_to_end(a)
+    return Timeline(auto_propagate=False).add_expression_to_end(Q).add_action_to_end(a)
 
 
 def test_create_with_rshift(A, B, Q, s, a):
