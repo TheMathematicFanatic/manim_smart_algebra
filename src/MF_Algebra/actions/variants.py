@@ -3,7 +3,7 @@ from MF_Tools.dual_compatibility import AnimationGroup
 from MF_Tools import TransformByGlyphMap
 
 
-class AlgebraicAction(SmartAction):
+class AlgebraicAction(Action):
     def __init__(self, template1, template2, var_kwarg_dict={}, **kwargs):
         super().__init__(**kwargs)
         self.template1 = template1
@@ -21,8 +21,8 @@ class AlgebraicAction(SmartAction):
                 template.get_subex(ad)
                 for ad in input_expression.get_all_leaf_addresses()
                 }
-            from ..expressions.variables import SmartVariable
-            variables = [var for var in template_leaves if isinstance(var, SmartVariable)]
+            from ..expressions.variables import Variable
+            variables = [var for var in template_leaves if isinstance(var, Variable)]
             return {var: template.get_addresses_of_subex(var) for var in variables}
         self.template1_address_dict = get_var_ad_dict(self.template1)
         self.template2_address_dict = get_var_ad_dict(self.template2)
@@ -38,7 +38,7 @@ class AlgebraicAction(SmartAction):
         return addressmap
 
 
-class AddressMapAction(SmartAction):
+class AddressMapAction(Action):
     def __init__(self, *address_map, extra_animations=[], **kwargs):
         super().__init__(**kwargs)
         self.address_map = address_map
@@ -60,7 +60,7 @@ class AddressMapAction(SmartAction):
         return animation
 
 
-class GlyphMapAction(SmartAction):
+class GlyphMapAction(Action):
     def __init__(self, *glyph_map, extra_animations=[], show_indices=False, **kwargs):
         super().__init__(**kwargs)
         self.glyph_map = glyph_map
@@ -84,7 +84,7 @@ class GlyphMapAction(SmartAction):
         return animation
 
 
-class AnimationAction(SmartAction):
+class AnimationAction(Action):
     def __init__(self, animation, **kwargs):
         super().__init__(**kwargs)
         self.animation = animation # callable on two mobjects

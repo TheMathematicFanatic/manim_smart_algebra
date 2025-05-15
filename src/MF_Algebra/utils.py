@@ -10,16 +10,16 @@ import numpy as np
 
 
 def Smarten(input):
-	from .expressions.expression_core import SmartExpression
-	from .actions.action_core import SmartAction
-	from .timelines.timeline_core import SmartTimeline
-	from .expressions.numbers import SmartInteger, SmartReal
-	if isinstance(input, (SmartExpression, SmartAction, SmartTimeline)):
+	from .expressions.expression_core import Expression
+	from .actions.action_core import Action
+	from .timelines.timeline_core import Timeline
+	from .expressions.numbers import Integer, Real
+	if isinstance(input, (Expression, Action, Timeline)):
 		return input
 	elif isinstance(input, int):
-		return SmartInteger(input)
+		return Integer(input)
 	elif isinstance(input, float):
-		return SmartReal(input)
+		return Real(input)
 	else:
 		raise NotImplementedError(f"Unsupported type {type(input)}")
 
@@ -55,7 +55,7 @@ def add_spaces_around_brackets(input_string): #GPT
 
 
 def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show_submobjects=True):
-	print("Debugging SmartExpression:")
+	print("Debugging Expression:")
 	print(smarttex)
 	print("Length: ", len(smarttex))
 	print("Type: ", type(smarttex))
@@ -104,10 +104,10 @@ def match_expressions(template, expression):
 		...
 		Ok I think I've done it!
 	"""
-	from .expressions.variables import SmartVariable
+	from .expressions.variables import Variable
 	# Leaf case
 	if not template.children:
-		if isinstance(template, SmartVariable):
+		if isinstance(template, Variable):
 			return {template: expression}
 		elif template.is_identical_to(expression):
 			return {}
@@ -132,20 +132,20 @@ def match_expressions(template, expression):
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random
-	from .expressions.numbers import SmartInteger
-	from .expressions.expression_core import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
-	nodes = [SmartAdd, SmartSub, SmartMul, SmartPow]
+	from .expressions.numbers import Integer
+	from .expressions.expression_core import Add, Sub, Mul, Div, Pow, Negative
+	nodes = [Add, Sub, Mul, Pow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
 		if np.random.random() < 1 / (current_depth + 1):
-			return SmartInteger(random.choice(leaves))
+			return Integer(random.choice(leaves))
 		else:
 			return random_number_expression(leaves, max_depth - 1)
 	def generate_children(current_depth, number_of_children):
 		return [generate_child(current_depth) for _ in range(number_of_children)]
-	if node == SmartAdd or node == SmartMul:
+	if node == Add or node == Mul:
 		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node))))
-	elif node == SmartNegative:
+	elif node == Negative:
 		children = generate_children(max_depth, 1)
 	else:
 		children = generate_children(max_depth, 2)
@@ -154,30 +154,30 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
 	def create_node(address):
-		from .expressions.numbers import SmartInteger, SmartReal, SmartRational
-		from .expressions.variables import SmartVariable
-		from .expressions.operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
-		from .expressions.functions import SmartFunction
-		from .expressions.sequences import SmartSequence
-		from .expressions.relations import SmartEquation, SmartLessThan, SmartLessThanOrEqualTo, SmartGreaterThan, SmartGreaterThanOrEqualTo
+		from .expressions.numbers import Integer, Real, Rational
+		from .expressions.variables import Variable
+		from .expressions.operations import Add, Sub, Mul, Div, Pow, Negative
+		from .expressions.functions import Function
+		from .expressions.sequences import Sequence
+		from .expressions.relations import Equation, LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
 		type_to_symbol_dict = {
-			SmartInteger: lambda expr: str(expr.n),
-			SmartReal: lambda expr: expr.symbol if expr.symbol else str(expr),
-			SmartRational: lambda expr: "\\div",
-			SmartVariable: lambda expr: expr.symbol,
-			SmartAdd: lambda expr: "+",
-			SmartSub: lambda expr: "-",
-			SmartMul: lambda expr: "\\times",
-			SmartDiv: lambda expr: "\\div",
-			SmartPow: lambda expr: "\\hat{}",
-			SmartNegative: lambda expr: "-",
-			SmartFunction: lambda expr: expr.symbol,
-			SmartSequence: lambda expr: ",",
-			SmartEquation: lambda expr: "=",
-			SmartLessThan: lambda expr: "<",
-			SmartLessThanOrEqualTo: lambda expr: "\\leq",
-			SmartGreaterThan: lambda expr: ">",
-			SmartGreaterThanOrEqualTo: lambda expr: "\\geq",
+			Integer: lambda expr: str(expr.n),
+			Real: lambda expr: expr.symbol if expr.symbol else str(expr),
+			Rational: lambda expr: "\\div",
+			Variable: lambda expr: expr.symbol,
+			Add: lambda expr: "+",
+			Sub: lambda expr: "-",
+			Mul: lambda expr: "\\times",
+			Div: lambda expr: "\\div",
+			Pow: lambda expr: "\\hat{}",
+			Negative: lambda expr: "-",
+			Function: lambda expr: expr.symbol,
+			Sequence: lambda expr: ",",
+			Equation: lambda expr: "=",
+			LessThan: lambda expr: "<",
+			LessThanOrEqualTo: lambda expr: "\\leq",
+			GreaterThan: lambda expr: ">",
+			GreaterThanOrEqualTo: lambda expr: "\\geq",
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)

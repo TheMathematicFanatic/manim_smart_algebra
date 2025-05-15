@@ -2,9 +2,9 @@ For all this let's just start assuming that parentheses and radicals etc are bui
 number of glyphs. In deployment we can use a font or latex package which ensures this for all
 reasonable expressions.
 
-- SmartExpression's substitute methods should not specially handle SmartFunctions.
-- SmartFunction really just needs a total rewrite
-- get_glyphs and get_subex should be entirely within subclasses like SmartCombiner and SmartFunction,
+- Expression's substitute methods should not specially handle Functions.
+- Function really just needs a total rewrite
+- get_glyphs and get_subex should be entirely within subclasses like Combiner and Function,
   it should not be the parent class's job to have a big if tree for the child classes
 
 
@@ -25,4 +25,4 @@ Something is wrong with the substitution in AlgebraicAction. I suppose it's best
 
 
 
-Provide a way to concatenate SmartTimelines, in particular which can handle them each having their own rules for next_action
+Provide a way to concatenate Timelines, in particular which can handle them each having their own rules for next_action

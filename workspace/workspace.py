@@ -30,7 +30,7 @@ class TimelineTest(Scene):
         d0 = div_(z, preaddress="0")
         d1 = div_(z, preaddress="1")
         self.add(A.mob)
-        T = SmartTimeline()
+        T = Timeline()
         T.add_expression_to_end(A)
         T.add_action_to_end(s).add_action_to_end(s0).add_action_to_end(s1).add_action_to_end(s).add_action_to_end(d).add_action_to_end(s).add_action_to_end(d0).add_action_to_end(s0)
         T.propagate()
@@ -107,7 +107,7 @@ class EvaluateTest(Scene):
 
 class TimelineTest2(Scene):
     def construct(self):
-        T = SmartTimeline()
+        T = Timeline()
         a**2 + b**2 >> T
         T >> div_(c**2)
         T >> add_(c**2, '1')
@@ -129,7 +129,7 @@ class TimelineTest2(Scene):
 
 class TimelineTest3(Scene):
     def construct(self):
-        T = SmartTimeline()
+        T = Timeline()
         A = a**2 + b**2
         T >> substitute_({a:SmZ(4)-3, b:SmZ(5)-8})
         T >> evaluate_('00') >> evaluate_('10')
@@ -193,7 +193,7 @@ class ShowStepsTimelineTest(Scene):
 class AlgebraicActionTest(Scene):
     def construct(self):
         A = x**2 + y**2
-        T = SmartTimeline()
+        T = Timeline()
         A >> T
         T >> AlgebraicAction(a+b, a/b)
         T >> AlgebraicAction(a/b, b/a)

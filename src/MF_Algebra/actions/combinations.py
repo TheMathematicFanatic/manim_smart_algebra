@@ -1,7 +1,7 @@
 from .action_core import *
 
 
-class ParallelAction(SmartAction):
+class ParallelAction(Action):
     def __init__(self, *actions, **kwargs):
         self.actions = actions
         super().__init__(**kwargs)
@@ -18,20 +18,20 @@ class ParallelAction(SmartAction):
     def __or__(self, other):
         if isinstance(other, ParallelAction):
             return ParallelAction(*self.actions, *other.actions)
-        elif isinstance(other, SmartAction):
+        elif isinstance(other, Action):
             return ParallelAction(*self.actions, other)
         else:
-            raise ValueError("Can only use | with other ParallelAction or SmartAction")
+            raise ValueError("Can only use | with other ParallelAction or Action")
     
     def __ror__(self, other):
-        if isinstance(other, SmartAction):
+        if isinstance(other, Action):
             return ParallelAction(other, *self.actions)
         else:
             return NotImplemented
 
 
 
-class SequentialAction(SmartAction):
+class SequentialAction(Action):
     def __init__(self, *actions, **kwargs):
         self.actions = list(actions)
         super().__init__(**kwargs)
@@ -51,18 +51,18 @@ class SequentialAction(SmartAction):
     def __rshift__(self, other):
         if isinstance(other, SequentialAction):
             return SequentialAction(*self.actions, *other.actions)
-        elif isinstance(other, SmartAction):
+        elif isinstance(other, Action):
             return SequentialAction(*self.actions, other)
         else:
-            return ValueError("Can only use >> with other SequentialAction or SmartAction")
+            return ValueError("Can only use >> with other SequentialAction or Action")
     
     def __rrshift__(self, other):
         if isinstance(other, SequentialAction):
             return SequentialAction(*other.actions, *self.actions)
-        elif isinstance(other, SmartAction):
+        elif isinstance(other, Action):
             return SequentialAction(other, *self.actions)
         else:
-            return ValueError("Can only use >> with other SequentialAction or SmartAction")
+            return ValueError("Can only use >> with other SequentialAction or Action")
     
     def __getitem__(self, key):
         if isinstance(key, int):

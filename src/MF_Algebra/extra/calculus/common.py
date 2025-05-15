@@ -12,9 +12,9 @@ dr = d(r)
 theta = SmVar("\\theta")
 dtheta = d(theta)
 
-# None of this works currently due to a problem in SmartFunction lol
-# a = SmartVariable('a')
-# b = SmartVariable('b')
+# None of this works currently due to a problem in Function lol
+# a = Variable('a')
+# b = Variable('b')
 # SumRule = AlgebraicAction(d(a+b), d(a) + d(b))
 # DifferenceRule = AlgebraicAction(d(a-b), d(a) - d(b))
 # ProductRule = AlgebraicAction(d(a*b), d(a)*b + a*d(b))

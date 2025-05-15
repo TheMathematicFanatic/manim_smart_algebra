@@ -12,7 +12,7 @@ algebra_config = {
 		"always_color": {}
 	}
 
-class SmartExpression:
+class Expression:
 	def __init__(self, parentheses=False, **kwargs):
 		self.parentheses = parentheses
 		if algebra_config["auto_parentheses"]:
@@ -59,7 +59,7 @@ class SmartExpression:
 		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
 
 	def get_subex(self, address_string):
-		# Returns the SmartExpression object corresponding to the subexpression at the given address.
+		# Returns the Expression object corresponding to the subexpression at the given address.
 		# Note that this is not a submobject of self! It is a different mobject probably not on screen,
 		# it was just created to help create self.
 		if address_string == "":
@@ -83,21 +83,21 @@ class SmartExpression:
 		return addresses
 
 	def get_glyphs_at_address(self, address):
-		from .operations import SmartNegative
-		from .functions import SmartFunction
+		from .operations import Negative
+		from .functions import Function
 		start = 0
 		for n,a in enumerate(address):
 			parent = self.get_subex(address[:n])
 			if parent.parentheses:
 				start += parent.paren_length()
-			if isinstance(parent, SmartCombiner):
+			if isinstance(parent, Combiner):
 				for i in range(int(a)):
 					sibling = parent.children[i]
 					start += len(sibling)
 					start += parent.symbol_glyph_length
-			elif isinstance(parent, SmartNegative):
+			elif isinstance(parent, Negative):
 				start += 1
-			elif isinstance(parent, SmartFunction):
+			elif isinstance(parent, Function):
 				start += parent.symbol_glyph_length
 			else:
 				raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
@@ -132,18 +132,18 @@ class SmartExpression:
 			return subex_glyphs[paren_length:-paren_length]
 	
 	def get_op_glyphs(self, address):
-		from .functions import SmartFunction
+		from .functions import Function
 		subex = self.get_subex(address)
-		if not isinstance(subex, (SmartCombiner, SmartFunction)) or subex.symbol_glyph_length==0:
+		if not isinstance(subex, (Combiner, Function)) or subex.symbol_glyph_length==0:
 			return []
 		subex_glyphs = self.get_glyphs_at_address(address)
 		results = []
 		turtle = subex_glyphs[0]
 		if subex.parentheses:
 			turtle += subex.paren_length()
-		if isinstance(subex, SmartFunction):
+		if isinstance(subex, Function):
 			results += list(range(turtle, turtle + subex.symbol_glyph_length))
-		elif isinstance(subex, SmartCombiner):
+		elif isinstance(subex, Combiner):
 			for child in subex.children[:-1]:
 				turtle += len(child)
 				results += list(range(turtle, turtle + subex.symbol_glyph_length))
@@ -180,70 +180,70 @@ class SmartExpression:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
 	def __neg__(self):
-		from .operations import SmartNegative
-		return SmartNegative(self)
+		from .operations import Negative
+		return Negative(self)
 
 	def __add__(self, other):
-		from .operations import SmartAdd
-		return SmartAdd(self, other)
+		from .operations import Add
+		return Add(self, other)
 
 	def __sub__(self, other):
-		from .operations import SmartSub
-		return SmartSub(self, other)
+		from .operations import Sub
+		return Sub(self, other)
 
 	def __mul__(self, other):
-		from .operations import SmartMul
-		return SmartMul(self, other)
+		from .operations import Mul
+		return Mul(self, other)
 
 	def __truediv__(self, other):
-		from .operations import SmartDiv
-		return SmartDiv(self, other)
+		from .operations import Div
+		return Div(self, other)
 
 	def __pow__(self, other):
-		from .operations import SmartPow
-		return SmartPow(self, other)
+		from .operations import Pow
+		return Pow(self, other)
 
 	def __radd__(self, other):
-		from .operations import SmartAdd
-		return SmartAdd(other, self)
+		from .operations import Add
+		return Add(other, self)
 
 	def __rsub__(self, other):
-		from .operations import SmartSub
-		return SmartSub(other, self)
+		from .operations import Sub
+		return Sub(other, self)
 
 	def __rmul__(self, other):
-		from .operations import SmartMul
-		return SmartMul(other, self)
+		from .operations import Mul
+		return Mul(other, self)
 
 	def __rtruediv__(self, other):
-		from .operations import SmartDiv
-		return SmartDiv(other, self)
+		from .operations import Div
+		return Div(other, self)
 
 	def __rpow__(self, other):
-		from .operations import SmartPow
-		return SmartPow(other, self)
+		from .operations import Pow
+		return Pow(other, self)
 
 	def __matmul__(self, expression_dict):
 		return self.substitute(expression_dict)
 
 	def __and__(self, other):
-		from .relations import SmartEquation
-		return SmartEquation(self, other)
+		from .relations import Equation
+		return Equation(self, other)
 	
 	def __rand__(self, other):
-		from .relations import SmartEquation
-		return SmartEquation(other, self)
+		from .relations import Equation
+		return Equation(other, self)
 
 	def __rshift__(self, other):
 		other = Smarten(other)
-		from ..actions.action_core import SmartAction
-		from ..timelines.timeline_core import SmartTimeline
-		if isinstance(other, SmartExpression):
-			timeline = SmartTimeline()
+		from ..actions.action_core import Action
+		from ..timelines.timeline_core import Timeline
+		if isinstance(other, Expression):
+			timeline = Timeline()
 			timeline.add_expression_to_end(self).add_expression_to_end(other)
 			return timeline
-		elif isinstance(other, SmartAction):
-			timeline = SmartTimeline()
+		elif isinstance(other, Action):
+			timeline = Timeline()
 			timeline.add_expression_to_end(self).add_action_to_end(other)
 			return timeline
 		else:
@@ -314,17 +314,17 @@ class SmartExpression:
 		return type(self)(*new_children)
 
 	def substitute_at_address(self, subex, address):
-		from .functions import SmartFunction
-		from .operations import SmartNegative
+		from .functions import Function
+		from .operations import Negative
 		subex = Smarten(subex).copy() #?
 		if len(address) == 0:
 			return subex
 		new_child = self.children[int(address[0])].substitute_at_address(subex, address[1:])
 		new_children = self.children[:int(address[0])] + [new_child] + self.children[int(address[0])+1:]
-		if isinstance(self, (SmartCombiner, SmartNegative)):
+		if isinstance(self, (Combiner, Negative)):
 			return type(self)(*new_children)
-		elif isinstance(self, SmartFunction):
-			return SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode)(*new_children)
+		elif isinstance(self, Function):
+			return Function(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode)(*new_children)
 		else:
 			raise ValueError("Something went wrong here... and this whole method needs a rewrite / rethink lol")
 
@@ -337,11 +337,11 @@ class SmartExpression:
 	def substitute(self, expression_dict):
 		result = self.copy()
 		dict_with_numbers = list(enumerate(expression_dict.items()))
-		from .variables import SmartVariable
+		from .variables import Variable
 		for i, (from_subex, to_subex) in dict_with_numbers:
-			result = result.substitute_at_addresses(SmartVariable(f"T_{i}"), result.get_addresses_of_subex(from_subex))
+			result = result.substitute_at_addresses(Variable(f"T_{i}"), result.get_addresses_of_subex(from_subex))
 		for i, (from_subex, to_subex) in dict_with_numbers:
-			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(SmartVariable(f"T_{i}")))
+			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(Variable(f"T_{i}")))
 		return result
 
 	def set_color_by_subex(self, subex_color_dict):
@@ -359,7 +359,7 @@ class SmartExpression:
 		return type(self).__name__ + "(" + str(self) + ")"
 
 
-class SmartCombiner(SmartExpression):
+class Combiner(Expression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length

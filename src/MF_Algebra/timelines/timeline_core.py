@@ -3,7 +3,7 @@ from ..actions import *
 from MF_Tools.dual_compatibility import TransformMatchingShapes, UP, smooth
 
 
-class SmartTimeline:
+class Timeline:
     """
     A class that represents a timeline of expressions and actions.
     """
@@ -31,13 +31,13 @@ class SmartTimeline:
             self.shift_run_time = past_steps_shift_run_time
             self.shift_rate_func = past_steps_shift_rate_func
 
-    def get_expression(self, index: int) -> SmartExpression:
+    def get_expression(self, index: int) -> Expression:
         try:
             return self.steps[index][0]
         except IndexError:
             return None
     
-    def set_expression(self, index: int, expression: SmartExpression):
+    def set_expression(self, index: int, expression: Expression):
         if self.auto_color:
             expression.set_color_by_subex(self.auto_color)
         if index == len(self.steps):
@@ -46,33 +46,33 @@ class SmartTimeline:
         if self.auto_propagate:
             self.propagate(start_at=index)
 
-    def add_expression_to_start(self, expression: SmartExpression):
+    def add_expression_to_start(self, expression: Expression):
         if len(self.steps) == 0 or self.steps[0][0] is not None:
             self.steps.insert(0, [None, None])
         self.set_expression(0, expression)
         return self
 
-    def add_expression_to_end(self, expression: SmartExpression):
+    def add_expression_to_end(self, expression: Expression):
         self.steps.append([None, None])
         self.set_expression(-1, expression)
         return self
     
-    def get_action(self, index: int) -> SmartAction:
+    def get_action(self, index: int) -> Action:
         try:
             return self.steps[index][1]
         except IndexError:
             return None
 
-    def set_action(self, index: int, action: SmartAction):
+    def set_action(self, index: int, action: Action):
         self.steps[index][1] = action
         if self.auto_propagate:
             self.propagate(start_at=index)
     
-    def add_action_to_start(self, action: SmartAction):
+    def add_action_to_start(self, action: Action):
         self.set_action(0, action)
         return self
     
-    def add_action_to_end(self, action: SmartAction):
+    def add_action_to_end(self, action: Action):
         if len(self.steps) == 0 or self.steps[-1][1] is not None:
             self.steps.append([None, None])
         self.set_action(-1,action)
@@ -132,29 +132,29 @@ class SmartTimeline:
         )
     
     def __rshift__(self, other):
-        if isinstance(other, SmartExpression):
+        if isinstance(other, Expression):
             self.add_expression_to_end(other)
             return self
-        elif isinstance(other, SmartAction):
+        elif isinstance(other, Action):
             self.add_action_to_end(other)
             return self
-        elif isinstance(other, SmartTimeline):
+        elif isinstance(other, Timeline):
             raise NotImplementedError("TODO")
         else:
-            raise ValueError('SmartTimeline can only be combined via >> with a SmartExpression, SmartAction, or another SmartTimeline')
+            raise ValueError('Timeline can only be combined via >> with a Expression, Action, or another Timeline')
     
     def __rrshift__(self, other):
-        if isinstance(other, SmartExpression):
+        if isinstance(other, Expression):
             return self.add_expression_to_start(other)
-        elif isinstance(other, SmartAction):
+        elif isinstance(other, Action):
             return self.add_action_to_start(other)
-        elif isinstance(other, SmartTimeline):
+        elif isinstance(other, Timeline):
             raise NotImplementedError("TODO")
         else:
-            raise ValueError('SmartTimeline can only be combined via >> with a SmartExpression, SmartAction, or another SmartTimeline')
+            raise ValueError('Timeline can only be combined via >> with a Expression, Action, or another Timeline')
         
     def __repr__(self):
-        return f"SmartTimeline({self.steps})"
+        return f"Timeline({self.steps})"
 
     def get_vgroup(self, **kwargs):
         return VGroup(*[self.steps[i][0].mob for i in range(len(self.steps))])

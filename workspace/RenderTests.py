@@ -136,7 +136,7 @@ class FindParenNumber(Scene):
 
 class MultiChildren(Scene):
     def construct(self):
-        S = SmartAdd(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
+        S = Add(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
         S = (3+e**x)/S
         self.add(S.scale(2))
         self.add(index_labels(S[0], color=RED))
@@ -148,25 +148,25 @@ class TestCombiners(Scene):
         algebra_config["division_mode"] = "inline"
         algebra_config["multiplication_mode"] = "x" # Does this work? Yes!
         self.add(VGroup(
-            SmartAdd(1,2,3,4,5),
-            SmartSub(1,2,3,4,5),
-            SmartMul(1,2,3,4,5),
-            SmartDiv(1,2,3,4,5),
-            #SmartPow(1,2,3,4,5),
-            SmartSequence(1,2,3,4,5),
-            SmartEquation(1,2,3,4,5)
+            Add(1,2,3,4,5),
+            Sub(1,2,3,4,5),
+            Mul(1,2,3,4,5),
+            Div(1,2,3,4,5),
+            #Pow(1,2,3,4,5),
+            Sequence(1,2,3,4,5),
+            Equation(1,2,3,4,5)
         ).arrange(DOWN))
         self.wait()
         self.clear()
         pieces = [1, x**2, x/y, f(x,y,theta), -12*(1-x**2)**3]
         self.add(VGroup(
-            SmartAdd(*pieces),
-            SmartSub(*pieces),
-            SmartMul(*pieces, mode="dot"),
-            SmartDiv(*pieces, mode="inline"),
-            #SmartPow(*pieces),
-            SmartSequence(*pieces),
-            SmartEquation(*pieces)
+            Add(*pieces),
+            Sub(*pieces),
+            Mul(*pieces, mode="dot"),
+            Div(*pieces, mode="inline"),
+            #Pow(*pieces),
+            Sequence(*pieces),
+            Equation(*pieces)
         ).arrange(DOWN))
         self.wait()
 

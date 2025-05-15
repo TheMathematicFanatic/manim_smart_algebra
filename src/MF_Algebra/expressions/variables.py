@@ -1,7 +1,7 @@
 from .expression_core import *
 
 
-class SmartVariable(SmartExpression):
+class Variable(Expression):
 	def __init__(self, symbol, **kwargs):
 		self.symbol = symbol
 		self.children = []

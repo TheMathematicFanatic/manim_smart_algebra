@@ -1,9 +1,9 @@
 from .expression_core import *
-from .operations import SmartDiv
+from .operations import Div
 import numpy as np
 
 
-class SmartNumber(SmartExpression):
+class Number(Expression):
 	def __init__(self, **kwargs):
 		self.children = []
 		super().__init__(**kwargs)
@@ -12,7 +12,7 @@ class SmartNumber(SmartExpression):
 		return float(self)
 
 
-class SmartInteger(SmartNumber):
+class Integer(Number):
 	def __init__(self, n, **kwargs):
 		self.n = n
 		super().__init__(**kwargs)
@@ -49,7 +49,7 @@ class SmartInteger(SmartNumber):
 		...
 
 
-class SmartReal(SmartNumber):
+class Real(Number):
 	def __init__(self, x, symbol=None, **kwargs):
 		self.x = x
 		self.symbol = symbol
@@ -75,13 +75,13 @@ class SmartReal(SmartNumber):
 		return self.x < 0
 
 
-class SmartRational(SmartDiv):
-	# Better to subclass SmartDiv than SmartNumber because 5/3 is no more a number than 5^3 or 5+3
+class Rational(Div):
+	# Better to subclass Div than Number because 5/3 is no more a number than 5^3 or 5+3
 	# Multiclassing is an option but seems to be more trouble than it's worth
 	def __init__(self, a, b, **kwargs):
-		if not isinstance(a, (SmartInteger, int)):
+		if not isinstance(a, (Integer, int)):
 			raise TypeError (f"Unsupported numerator type {type(a)}: {a}")
-		if not isinstance(b, (SmartInteger, int)):
+		if not isinstance(b, (Integer, int)):
 			raise TypeError (f"Unsupported denominator type {type(b)}: {b}")
 		super().__init__(a, b, **kwargs)
 

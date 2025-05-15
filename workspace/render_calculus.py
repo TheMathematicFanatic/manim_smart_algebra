@@ -10,7 +10,7 @@ from MF_Algebra import *
 from MF_Algebra.extra.calculus import *
 
 
-ddx = SmartFunction("\\frac{d}{dx}", 4, 'strong')
+ddx = Function("\\frac{d}{dx}", 4, 'strong')
 
 
 class SeriesValue(Scene):

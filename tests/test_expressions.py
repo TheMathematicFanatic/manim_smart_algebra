@@ -1,6 +1,6 @@
 """
-Most of the important functions are in the SmartExpression class,
-but in order to make any reasonable SmartExpressions I first have
+Most of the important functions are in the Expression class,
+but in order to make any reasonable Expressions I first have
 to make sure that the leaves and nodes work. So first I will test
 most of its subclasses, then follow that up with testing each of the
 methods in the main class.
@@ -27,26 +27,26 @@ def B(): #big parentheses at "0" with 3 glyphs each
 
 @pytest.fixture
 def S():
-    S = SmartAdd(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
+    S = Add(3, (x**2).give_parentheses(), (-2)**x, 3/(x-2))
     S = (3+e**x)/S
     return S
 
 @pytest.fixture
 def F():
-    sin = SmartFunction("\\sin", 3, rule=np.sin, parentheses_mode="weak")
-    theta = SmartVariable("\\theta")
+    sin = Function("\\sin", 3, rule=np.sin, parentheses_mode="weak")
+    theta = Variable("\\theta")
     F = f(x,y,y**2-x**2)
     F = F / sin(theta)
     return F
 
 
-def test_SmartVariable():
+def test_Variable():
     assert x == x
     assert x.is_identical_to(x)
     assert x != y
     assert str(x) == 'x'
 
-def test_SmartInteger():
+def test_Integer():
     four = SmZ(4)
     fourteen = SmZ(14)
     neg_eighteen = SmZ(-18)
@@ -56,23 +56,23 @@ def test_SmartInteger():
     assert four.n == 4
     assert not four.is_negative()
     assert neg_eighteen.is_negative()
-    assert SmartInteger.GCF(four, fourteen).n == 2
-    assert SmartInteger.GCF(6,10,15).n == 1
-    assert SmartInteger.LCM(four, fourteen).n == 28
-    assert SmartInteger.LCM(6,10,15).n == 30
+    assert Integer.GCF(four, fourteen).n == 2
+    assert Integer.GCF(6,10,15).n == 1
+    assert Integer.LCM(four, fourteen).n == 28
+    assert Integer.LCM(6,10,15).n == 30
 
-def test_SmartReal():
+def test_Real():
     assert str(pi) == "\\pi"
     assert pi.symbol == "\\pi"
     assert pi.__str__(decimal_places=5, use_decimal=True) == "3.14159\\ldots"
     assert pi.__float__() == 3.141592653589793
     assert pi.x == float(pi)
     assert not pi.is_negative()
-    gold2 = SmartReal(-0.6180339887498949)
+    gold2 = Real(-0.6180339887498949)
     assert gold2.is_negative()
     assert str(gold2) == "-0.6180\\ldots"
 
-def test_SmartNegative():
+def test_Negative():
     neg_four = -SmZ(4)
     neg_fourteen = -SmZ(14)
     neg_neg_eighteen = -SmZ(-18)
@@ -259,16 +259,16 @@ def _disable_test_nest():
     for i in range(2,9):
         Nl = Nl + i
         Nr = i + Nr
-    D = SmartAdd(*list(range(1,9)))
+    D = Add(*list(range(1,9)))
     
     assert D.copy().nest("left").is_identical_to(Nl)
     assert D.copy().nest("right").is_identical_to(Nr)
 
-    assert SmartMul(a,b,c,d).nest("left").is_identical_to(a*b*c*d)
-    assert SmartMul(a,b,c,d).nest("right").is_identical_to(a*(b*(c*d)))
+    assert Mul(a,b,c,d).nest("left").is_identical_to(a*b*c*d)
+    assert Mul(a,b,c,d).nest("right").is_identical_to(a*(b*(c*d)))
 
-    assert SmartMul(a,b,c,d).nest("left", recurse=False).is_identical_to(SmartMul(a,b,c)*d)
-    assert SmartMul(a,b,c,d).nest("right", recurse=False).is_identical_to(a*SmartMul(b,c,d))
+    assert Mul(a,b,c,d).nest("left", recurse=False).is_identical_to(Mul(a,b,c)*d)
+    assert Mul(a,b,c,d).nest("right", recurse=False).is_identical_to(a*Mul(b,c,d))
 
 
 

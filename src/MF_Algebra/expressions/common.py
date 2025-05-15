@@ -1,29 +1,29 @@
 from .expression_core import *
-from .numbers import SmartInteger, SmartReal, SmartRational
-from .variables import SmartVariable
-from .operations import SmartAdd, SmartSub, SmartMul, SmartDiv, SmartPow, SmartNegative
-from .functions import SmartFunction
-from .relations import SmartEquation, SmartLessThan, SmartLessThanOrEqualTo, SmartGreaterThan, SmartGreaterThanOrEqualTo
+from .numbers import Integer, Real, Rational
+from .variables import Variable
+from .operations import Add, Sub, Mul, Div, Pow, Negative
+from .functions import Function
+from .relations import Equation, LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
 import numpy as np
 
 
-SmE = SmartExpression
-SmZ = SmartInteger
-SmQ = SmartRational
-SmR = SmartReal
-SmAdd = SmartAdd
-SmSub = SmartSub
-SmMul = SmartMul
-SmDiv = SmartDiv
-SmPow = SmartPow
-SmNeg = SmartNegative
-SmVar = SmartVariable
-SmFunc = SmartFunction
-SmEq = SmartEquation
-SmLt = SmartLessThan
-SmLeq = SmartLessThanOrEqualTo
-SmGt = SmartGreaterThan
-SmGeq = SmartGreaterThanOrEqualTo
+SmE = Expression
+SmZ = Integer
+SmQ = Rational
+SmR = Real
+SmAdd = Add
+SmSub = Sub
+SmMul = Mul
+SmDiv = Div
+SmPow = Pow
+SmNeg = Negative
+SmVar = Variable
+SmFunc = Function
+SmEq = Equation
+SmLt = LessThan
+SmLeq = LessThanOrEqualTo
+SmGt = GreaterThan
+SmGeq = GreaterThanOrEqualTo
 
 a = SmVar("a")
 b = SmVar("b")

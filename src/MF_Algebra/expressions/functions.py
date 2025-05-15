@@ -1,13 +1,13 @@
 from .expression_core import *
-from .sequences import SmartSequence
+from .sequences import Sequence
 
 
-class SmartFunction(SmartExpression):
+class Function(Expression):
 	def __init__(self, symbol, symbol_glyph_length, rule=None, algebra_rule=None, parentheses_mode="always", **kwargs):
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
 		self.rule = rule #callable
-		self.children = [SmartSequence()] # First child is always a sequence of arguments, further children are parameters like subscripts or indices
+		self.children = [Sequence()] # First child is always a sequence of arguments, further children are parameters like subscripts or indices
 		self.algebra_rule = algebra_rule #SmE version of rule?
 		self.parentheses_mode = parentheses_mode
 		self.spacing = ""
@@ -21,8 +21,8 @@ class SmartFunction(SmartExpression):
 		assert len(self.children[0].children) == 0, f"Function {self.symbol} cannot be called because it already has children."
 		new_func = self.copy()
 		new_func.children[0].children = list(map(Smarten, inputs))
-		# have to reinitialize SmartExpression and MathTex after setting children for correct indexing and auto_paren.
-		SmartExpression.__init__(self, parentheses = self.parentheses)
+		# have to reinitialize Expression and MathTex after setting children for correct indexing and auto_paren.
+		Expression.__init__(self, parentheses = self.parentheses)
 		return new_func
 	
 	@property
@@ -42,14 +42,14 @@ class SmartFunction(SmartExpression):
 		if self.parentheses_mode == "always":
 			child.give_parentheses(True)
 		elif self.parentheses_mode in ["weak", "strong"]:
-			from ..expressions.operations import SmartOperation, SmartAdd, SmartSub
+			from ..expressions.operations import Operation, Add, Sub
 			if len(child.children) > 1:
 				child.give_parentheses(True)
-			elif isinstance(child.children[0], (SmartAdd, SmartSub)):
+			elif isinstance(child.children[0], (Add, Sub)):
 				child.give_parentheses(True)
 			else:
 				if self.parentheses_mode == "strong":
-					if isinstance(child.children[0], SmartOperation):
+					if isinstance(child.children[0], Operation):
 						child.give_parentheses(True)
 		elif self.parentheses_mode == "never":
 			child.give_parentheses(False)

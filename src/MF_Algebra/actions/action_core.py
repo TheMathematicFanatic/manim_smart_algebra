@@ -5,9 +5,9 @@ from ..utils import *
 from .animations import TransformByAddressMap
 
 
-class SmartAction:
+class Action:
 	"""
-		Transforms SmartExpressions into other SmartExpressions,
+		Transforms Expressions into other Expressions,
 		both as static objects and also with an animation.
 
 		An action is defined by two main things:
@@ -100,21 +100,21 @@ class SmartAction:
 		from .combinations import ParallelAction
 		if isinstance(other, ParallelAction):
 			return ParallelAction(self, *other.actions)
-		elif isinstance(other, SmartAction):
+		elif isinstance(other, Action):
 			return ParallelAction(self, other)
 		else:
-			raise ValueError("Can only use | with other ParallelAction or SmartAction")
+			raise ValueError("Can only use | with other ParallelAction or Action")
 	
 	def __rshift__(self, other):
 		other = Smarten(other)
-		from ..expressions.expression_core import SmartExpression
-		from ..timelines.timeline_core import SmartTimeline
-		if isinstance(other, SmartExpression):
-			timeline = SmartTimeline()
+		from ..expressions.expression_core import Expression
+		from ..timelines.timeline_core import Timeline
+		if isinstance(other, Expression):
+			timeline = Timeline()
 			timeline.add_action_to_end(self).add_expression_to_end(other)
 			return timeline
-		elif isinstance(other, SmartAction):
-			timeline = SmartTimeline()
+		elif isinstance(other, Action):
+			timeline = Timeline()
 			timeline.add_action_to_end(self).add_action_to_end(other)
 			return timeline
 		else:
