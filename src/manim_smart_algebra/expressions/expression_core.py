@@ -315,15 +315,18 @@ class SmartExpression:
 
 	def substitute_at_address(self, subex, address):
 		from .functions import SmartFunction
+		from .operations import SmartNegative
 		subex = Smarten(subex).copy() #?
 		if len(address) == 0:
 			return subex
 		new_child = self.children[int(address[0])].substitute_at_address(subex, address[1:])
 		new_children = self.children[:int(address[0])] + [new_child] + self.children[int(address[0])+1:]
-		if isinstance(self, SmartCombiner):
+		if isinstance(self, (SmartCombiner, SmartNegative)):
 			return type(self)(*new_children)
 		elif isinstance(self, SmartFunction):
-			SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode)(*new_children)
+			return SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode)(*new_children)
+		else:
+			raise ValueError("Something went wrong here... and this whole method needs a rewrite / rethink lol")
 
 	def substitute_at_addresses(self, subex, addresses):
 		result = self.copy()
