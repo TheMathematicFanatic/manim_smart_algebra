@@ -7,7 +7,7 @@ class SmartFunction(SmartExpression):
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
 		self.rule = rule #callable
-		self.children = [] # may be given one child, a sequence which could have multiple children
+		self.children = [SmartSequence()] # First child is always a sequence of arguments, further children are parameters like subscripts or indices
 		self.algebra_rule = algebra_rule #SmE version of rule?
 		self.parentheses_mode = parentheses_mode
 		self.spacing = ""
@@ -18,12 +18,16 @@ class SmartFunction(SmartExpression):
 		return self.symbol + self.spacing + (str(self.children[0]) if len(self.children) > 0 else "")
 
 	def __call__(self, *inputs, **kwargs):
-		assert len(self.children) == 0, f"Function {self.symbol} cannot be called because it already has children."
-		new_func = SmartFunction(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode, **kwargs)
-		new_func.children = [SmartSequence(*list(map(Smarten, inputs)), **kwargs)]
+		assert len(self.children[0].children) == 0, f"Function {self.symbol} cannot be called because it already has children."
+		new_func = self.copy()
+		new_func.children[0].children = list(map(Smarten, inputs))
 		# have to reinitialize SmartExpression and MathTex after setting children for correct indexing and auto_paren.
-		super(SmartFunction, new_func).__init__(**kwargs)
+		SmartExpression.__init__(self, parentheses = self.parentheses)
 		return new_func
+	
+	@property
+	def arguments(self):
+		return self.children[0].children
 	
 	def set_spacing(self, spacing):
 		self.spacing = spacing
@@ -33,6 +37,8 @@ class SmartFunction(SmartExpression):
 		if len(self.children) == 0:
 			return
 		child = self.children[0] #sequence
+		if len(child.children) == 0:
+			return
 		if self.parentheses_mode == "always":
 			child.give_parentheses(True)
 		elif self.parentheses_mode in ["weak", "strong"]:
