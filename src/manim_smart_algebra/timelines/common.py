@@ -1,4 +1,5 @@
 from .timeline_core import *
+from .variants import *
 from ..actions.common import evaluate_
 
 class Evaluate(AutoTimeline):

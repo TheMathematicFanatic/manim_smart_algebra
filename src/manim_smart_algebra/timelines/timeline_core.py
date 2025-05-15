@@ -7,9 +7,10 @@ class SmartTimeline:
     """
     A class that represents a timeline of expressions and actions.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, auto_color={}, **kwargs):
         self.steps = [] # Elements of this list are of the form [expression, action]
         self.current_exp_index = 0
+        self.auto_color = auto_color
         self.auto_fill = False
     
     def get_expression(self, index: int) -> SmartExpression:
@@ -19,9 +20,12 @@ class SmartTimeline:
             return None
     
     def set_expression(self, index: int, expression: SmartExpression):
+        if self.auto_color:
+            expression.set_color_by_subex(self.auto_color)
         if index == len(self.steps):
             self.add_expression_to_end(expression)
         self.steps[index][0] = expression
+
 
     def add_expression_to_start(self, expression: SmartExpression):
         if len(self.steps) == 0 or self.steps[0][0] is not None:
@@ -125,37 +129,6 @@ class SmartTimeline:
     @property
     def mob(self):
         return self.steps[self.current_exp_index][0].mob
-    
-
-
-class AutoTimeline(SmartTimeline):
-    def __init__(self, auto_fill=True, auto_color={}, **kwargs):
-        super().__init__(**kwargs)
-        self.auto_fill = auto_fill
-        self.auto_color = auto_color
-    
-    def set_expression(self, index: int, expression: SmartExpression):
-        super().set_expression(index, expression)
-        expression.set_color_by_subex(self.auto_color)
-        if self.auto_fill and self.get_action(index) is None:
-            next_action = self.decide_next_action(index)
-            if next_action is not None:
-                self.set_action(index, next_action)
-        return self
-    
-    def set_action(self, index: int, action: SmartAction):
-        super().set_action(index, action)
-        if self.auto_fill and self.get_expression(index+1) is None:
-            next_expression = action.get_output_expression(self.get_expression(index))
-            self.set_expression(index+1, next_expression)
-        return self
-    
-    def decide_next_action(self, index: int) -> SmartAction:
-        # Implement in subclasses. Return None if finished.
-        return None
-    
-    
-    
     
 
 

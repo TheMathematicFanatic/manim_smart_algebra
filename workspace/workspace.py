@@ -174,4 +174,21 @@ class EvaluateTimelineTest(Scene):
         self.add(E.mob)
         self.embed()
 
-EvaluateTimelineTest().construct()
+
+class ShowStepsTimelineTest(Scene):
+    def construct(self):
+        A = x**2 - y**2
+        T = ShowStepsTimeline(auto_color={x:RED, y:BLUE, e:GREEN, 3:YELLOW, -8:PURPLE})
+        A >> T
+        T >> div_(e**x-2+2)
+        T >> add_((x+y)**3)
+        T >> substitute_({x:1, y:3})
+        T >> evaluate_('10')
+        T >> evaluate_('00').both
+        T >> evaluate_('00')
+        T >> evaluate_('0100') >> evaluate_('010') >> evaluate_('01')
+        T >> evaluate_('0') >> evaluate_('1')
+        T >> evaluate_()
+        T.propagate()
+        self.add(T.mob)
+        self.embed()
