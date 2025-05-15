@@ -11,7 +11,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from manimlib import *
-from manim_smart_algebra.expressions import *
+from MF_Algebra.expressions import *
 
 @pytest.fixture
 def Q(): #simple rational exp

@@ -3,8 +3,8 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from manimlib import *
-from manim_smart_algebra.expressions import *
-from manim_smart_algebra.actions import *
+from MF_Algebra.expressions import *
+from MF_Algebra.actions import *
 
 
 @pytest.fixture

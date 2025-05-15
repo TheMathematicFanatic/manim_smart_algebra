@@ -6,8 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 
 
 from manimlib import *
-from manim_smart_algebra import *
-from manim_smart_algebra.extra.calculus import *
+from MF_Algebra import *
+from MF_Algebra.extra.calculus import *
 
 
 ddx = SmartFunction("\\frac{d}{dx}", 4, 'strong')

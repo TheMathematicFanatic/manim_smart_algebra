@@ -6,9 +6,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 
 
 from manimlib import *
-from manim_smart_algebra.expressions import *
-from manim_smart_algebra.actions import *
-from manim_smart_algebra.timelines import *
+from MF_Algebra.expressions import *
+from MF_Algebra.actions import *
+from MF_Algebra.timelines import *
 
 
 
@@ -375,7 +375,7 @@ class TestAddOverride2(Scene):
         V = VGroup(A, Square())
         self.add(V)
 
-from manim_smart_algebra.extra.trigonometry.common import *
+from MF_Algebra.extra.trigonometry.common import *
 class TestAlwaysColor(Scene):
     def __init__(self, *args, **kwargs):
         # config.background_color = WHITE
