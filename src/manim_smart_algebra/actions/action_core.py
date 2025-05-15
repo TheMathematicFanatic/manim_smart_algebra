@@ -137,7 +137,7 @@ class SmartAction:
 		actions = []
 		for i in range(number_of_sides):
 			action = self.copy()
-			action.preaddress = str(i) + action.preaddress
+			action.preaddress = action.preaddress + str(i)
 			actions.append(action)
 		return ParallelAction(*actions)
 
