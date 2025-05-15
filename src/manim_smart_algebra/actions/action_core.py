@@ -127,6 +127,21 @@ class SmartAction:
 	
 	def __repr__(self):
 		return type(self).__name__ + "(" + self.preaddress + ")"
+	
+	def copy(self):
+		return deepcopy(self)
+	
+	@property
+	def both(self, number_of_sides=2):
+		# Intended to turn an action on an expression into an action done to both sides of an equation.
+		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
+		from .combinations import ParallelAction
+		actions = []
+		for i in range(number_of_sides):
+			action = self.copy()
+			action.preaddress = str(i) + action.preaddress
+			actions.append(action)
+		return ParallelAction(*actions)
 
 
 
