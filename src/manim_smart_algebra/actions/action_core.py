@@ -94,8 +94,6 @@ class SmartAction:
 		return animation
 	
 	def __call__(self, expr1, expr2=None, **kwargs):
-		if expr2 is None:
-			expr2 = self.get_output_expression(expr1)
 		return self.get_animation(**kwargs)(expr1, expr2)
 
 	def __or__(self, other):
