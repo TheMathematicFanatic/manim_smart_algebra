@@ -168,9 +168,9 @@ class FunctionSubstituteTest(Scene):
 
 class EvaluateTimelineTest(Scene):
     def construct(self):
-        A = x**2 + y**2
-        A = A.substitute({x:1, y:SmZ(2)+5})
-        E = Evaluate(A)
+        A = (a+b)/2 + (x+y)/25
+        A = A.substitute({a:5, b:15, y:20})
+        E = Evaluate(A, show_past_steps=True)
         self.add(E.mob)
         self.embed()
 
@@ -178,24 +178,15 @@ class EvaluateTimelineTest(Scene):
 class ShowStepsTimelineTest(Scene):
     def construct(self):
         A = x**2 - y**2
-        T = SmartTimeline(
-            auto_color={x:RED, y:BLUE, e:GREEN, 3:YELLOW, -8:PURPLE},
-            show_past_steps=True,
-            past_steps_direction=DOWN,
-            past_steps_buff=0
+        T = Evaluate(
+            show_past_steps = True,
+            auto_color = {x:RED, y:BLUE, e:GREEN, 3:YELLOW, -15:PURPLE}
         )
-        A >> T
-        T >> div_(e**x-2+2)
-        T >> add_((x+y)**3)
-        T >> substitute_({x:1, y:3})
-        T >> evaluate_('10')
-        T >> evaluate_('00').both
-        T >> evaluate_('00')
-        T >> evaluate_('0100') >> evaluate_('010') >> evaluate_('01')
-        T >> evaluate_('0') >> evaluate_('1')
-        T >> evaluate_()
-        self.add(T.mob)
-        self.embed()
+        A >> T >> div_(e**x-2+2) >> add_((x+y)**3) >> substitute_({x:1}) >> substitute_({y:4})
+        self.play(Write(T.mob))
+        T.play_all(self)
+        self.play(self.camera.frame.animate.rotate(PI/3, RIGHT), run_time=3)
+        self.wait()
 
 
 
@@ -211,3 +202,16 @@ class AlgebraicActionTest(Scene):
         self.add(T.mob)
         self.embed()
 
+
+class EvaluateTimelineTest2(Scene):
+    def construct(self):
+        E = Evaluate(show_past_steps=True, auto_color={a:RED, b:GREEN, c:BLUE})
+        a**2 + b**2 >> E
+        E >> div_(c**2+3**a)
+        E >> substitute_({a:3, b:4})
+        E >> sub_(100, side='left')
+        E >> substitute_({c:3})
+
+        self.add(E.mob)
+        self.embed()
+        E.play_all(self)

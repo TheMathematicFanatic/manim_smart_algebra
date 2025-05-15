@@ -3,7 +3,7 @@ from .variants import *
 from ..actions.common import evaluate_
 
 class Evaluate(AutoTimeline):
-    def __init__(self, first_expression=None, mode="one at a time", number_mode="float",**kwargs):
+    def __init__(self, first_expression=None, mode="one at a time", number_mode="float", **kwargs):
         self.mode = mode
         self.number_mode = number_mode
         super().__init__(**kwargs)
@@ -20,8 +20,10 @@ class Evaluate(AutoTimeline):
             try:
                 twig = leaf[:-1]
                 action = evaluate_(preaddress=twig)
+                action.get_output_expression(last_exp)
                 return action
-            except Exception as exc:
-                print(exc)
-                return None
+            except ValueError:
+                # This should mean that a subexpression cannot be computed due to the presence of a variable.
+                # Perhaps we should make a custom Exception class for this so as not to accidentally catch others.
+                pass
         return None
