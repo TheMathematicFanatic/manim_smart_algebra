@@ -133,7 +133,7 @@ def match_expressions(template, expression):
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random
 	from .expressions.numbers import Integer
-	from .expressions.expression_core import Add, Sub, Mul, Div, Pow, Negative
+	from .expressions.operations import Add, Sub, Mul, Div, Pow, Negative
 	nodes = [Add, Sub, Mul, Pow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
